@@ -1,0 +1,4 @@
+profile_id,source_id,mill_type_or_stream,total_cod_mg_L,soluble_cod_mg_L,bod5_mg_L,bcod_mg_L,biodegradable_fraction,tss_mg_L,vss_mg_L,ph,temperature_C,conductivity_uS_cm,tds_mg_L,color_Pt_Co,notes
+WW-PROFILE-01,ORHON-2003,Knit Fabric Dyeing & Finishing Combined Effluent,1250.0,850.0,420.0,750.0,0.60,280.0,210.0,7.6,22.0,3200.0,2100.0,650.0,Primary baseline design profile; 60% bCOD fraction; soluble inert COD ~ 100 mg/L
+WW-PROFILE-02,ORHON-1992,Cotton Woven Finishing Effluent,980.0,680.0,340.0,610.0,0.62,310.0,240.0,8.1,20.0,4100.0,2700.0,800.0,Secondary comparison scenario for sensitivity analysis
+WW-PROFILE-03,SPONZA-2002,Azo Dye Synthetic Reactive Red Stream,600.0,550.0,220.0,380.0,0.63,120.0,90.0,7.2,25.0,2800.0,1800.0,1200.0,High-color low-solids stream profile

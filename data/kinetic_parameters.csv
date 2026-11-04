@@ -1,0 +1,7 @@
+param_id,source_id,parameter_name,symbol,reported_value,reported_unit,si_value,si_unit,evidence_type,temperature_C,pH,biomass_type,substrate_basis,source_location,quality_grade,notes
+K-001,ORHON-2003,Maximum specific growth rate,mu_max,3.2,1/day,3.2,1/day,measured,20.0,7.2,Aerobic heterotrophic activated sludge,bCOD,Table 2 p. 118,Grade A,Respirometric batch and continuous evaluation
+K-002,ORHON-2003,Half-saturation constant,Ks,65.0,mg COD/L,0.065,kg COD/m3,measured,20.0,7.2,Aerobic heterotrophic activated sludge,bCOD,Table 2 p. 118,Grade A,Readily biodegradable textile substrate affinity
+K-003,ORHON-2003,Heterotrophic biomass yield,Y,0.64,g COD/g COD,0.448,kg VSS/kg COD,calculated,20.0,7.2,Aerobic heterotrophic activated sludge,bCOD,Table 3 p. 119,Grade A,Converted to VSS using standard cell conversion 1.42 g COD/g VSS
+K-004,ORHON-1992,Endogenous decay rate,b,0.06,1/day,0.06,1/day,measured,20.0,7.0,Acclimated textile activated sludge,VSS,Section 3.2 p. 576,Grade A,Aerobic digestion decay rate
+K-005,ORHON-2003,Oxygen half-saturation constant,Ko,0.20,mg O2/L,0.0002,kg O2/m3,transferred,20.0,7.2,Aerobic heterotrophs,DO,Standard ASM1 literature benchmark,Grade B,Industry standard dissolved oxygen affinity constant
+K-006,ORHON-2003,Volumetric oxygen transfer coefficient,kLa,5.0,1/h,120.0,1/day,measured,20.0,7.2,Fine-bubble diffused aeration,DO,Table 4 p. 120,Grade A,Typical industrial aeration basin operating condition

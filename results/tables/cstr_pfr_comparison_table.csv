@@ -1,0 +1,10 @@
+Parameter,Unit,CSTR,PFR,Notes
+Influent Flow (Q),m^3/day,1000.0,1000.0,Equal volumetric flow
+Influent bCOD (S0),mg/L,750.0,750.0,Orhon et al. (2003) primary baseline
+Effluent Target (Se),mg/L,75.00014467317938,74.99378256319031,Target <= 75.0 mg/L
+bCOD Removal Efficiency,%,90.0,90.0,Equal conversion basis
+Reactor Working Volume (V),m^3,489.7,494.8,Volume ratio = 0.99
+Hydraulic Retention Time (tau),hours,11.75,11.87,tau = V / Q
+Total Operational Energy,kWh / m^3,0.445,0.447,Aeration + mixing + pumping
+Operating Electricity Cost,USD / m^3,0.0423,0.0425,Based on $0.095/kWh tariff
+Carbon Footprint (GHG),kg CO2e / m^3,0.2736,0.2749,Grid EF = 0.615 kg CO2e/kWh
