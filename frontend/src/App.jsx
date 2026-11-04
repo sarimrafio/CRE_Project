@@ -1,17 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Activity,
   Sliders,
-  Layers,
   Zap,
-  TrendingDown,
   FileSpreadsheet,
   PlayCircle,
   RotateCcw,
   Sparkles,
-  Info,
   Server,
-  Wind
+  CheckCircle2,
+  Cpu
 } from 'lucide-react';
 
 import Bioreactor3D from './components/Bioreactor3D';
@@ -22,7 +20,6 @@ import PresentationGuide from './components/PresentationGuide';
 
 import {
   DEFAULT_KINETICS,
-  DEFAULT_SUSTAINABILITY,
   sizeCSTR,
   sizePFR,
   evaluateSustainability,
@@ -48,6 +45,14 @@ export default function App() {
   const [isPresentationOpen, setIsPresentationOpen] = useState(false);
   const [showAdvancedKinetics, setShowAdvancedKinetics] = useState(false);
 
+  // Render Backend API Connection State
+  const [renderApiUrl, setRenderApiUrl] = useState(
+    import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  );
+  const [showApiConfig, setShowApiConfig] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'connected', 'local_fallback', 'checking'
+  const [remoteData, setRemoteData] = useState(null);
+
   // Active Kinetics Bundle
   const currentKinetics = useMemo(() => ({
     ...DEFAULT_KINETICS,
@@ -56,23 +61,91 @@ export default function App() {
     kLa: kLa
   }), [muMax, Ks, kLa]);
 
-  // Instant 60 FPS Mathematical Solutions
-  const cstrResult = useMemo(() => {
+  // Sync with Render FastAPI Backend (/api/simulate/compare & /api/simulate/profiles)
+  const syncWithRenderBackend = useCallback(async () => {
+    const cleanUrl = renderApiUrl.replace(/\/+$/, '');
+    try {
+      setBackendStatus('checking');
+      const compareRes = await fetch(`${cleanUrl}/api/simulate/compare`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          Q,
+          S0,
+          Se_target: targetSe,
+          theta_c: thetaC,
+          kinetics: currentKinetics
+        })
+      });
+      if (!compareRes.ok) throw new Error('Backend HTTP error');
+      const compareJson = await compareRes.json();
+      setRemoteData(compareJson);
+      setBackendStatus('connected');
+    } catch {
+      setBackendStatus('local_fallback');
+      setRemoteData(null);
+    }
+  }, [renderApiUrl, Q, S0, targetSe, thetaC, currentKinetics]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      syncWithRenderBackend();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [syncWithRenderBackend]);
+
+  // Instant 60 FPS Client-Side Solutions (paired with Render FastAPI verification)
+  const localCstr = useMemo(() => {
     return sizeCSTR(Q, S0, targetSe, thetaC, currentKinetics);
   }, [Q, S0, targetSe, thetaC, currentKinetics]);
 
-  const pfrResult = useMemo(() => {
-    const xbBaseline = cstrResult.Xb > 100 ? cstrResult.Xb : 3800.0;
+  const localPfr = useMemo(() => {
+    const xbBaseline = localCstr.Xb > 100 ? localCstr.Xb : 3800.0;
     return sizePFR(Q, S0, targetSe, xbBaseline, currentKinetics);
-  }, [Q, S0, targetSe, cstrResult.Xb, currentKinetics]);
+  }, [Q, S0, targetSe, localCstr.Xb, currentKinetics]);
+
+  const cstrResult = useMemo(() => {
+    if (backendStatus === 'connected' && remoteData?.cstr) {
+      return {
+        V: remoteData.cstr.volume_m3,
+        tau_days: remoteData.cstr.tau_days,
+        tau_hours: remoteData.cstr.tau_hours,
+        Se: remoteData.cstr.effluent_S_mg_L,
+        Xb: remoteData.cstr.biomass_Xb_mg_L,
+        DO: remoteData.cstr.effluent_DO_mg_L
+      };
+    }
+    return localCstr;
+  }, [backendStatus, remoteData, localCstr]);
+
+  const pfrResult = useMemo(() => {
+    if (backendStatus === 'connected' && remoteData?.pfr) {
+      return {
+        V: remoteData.pfr.volume_m3,
+        tau_days: remoteData.pfr.tau_days,
+        tau_hours: remoteData.pfr.tau_hours,
+        Se: remoteData.pfr.effluent_S_mg_L,
+        Xb: remoteData.pfr.biomass_Xb_mg_L,
+        DO: remoteData.pfr.effluent_DO_mg_L,
+        profiles: localPfr.profiles
+      };
+    }
+    return localPfr;
+  }, [backendStatus, remoteData, localPfr]);
 
   const sustCSTR = useMemo(() => {
+    if (backendStatus === 'connected' && remoteData?.cstr?.sustainability) {
+      return remoteData.cstr.sustainability;
+    }
     return evaluateSustainability(Q, cstrResult.V, S0, cstrResult.Se, cstrResult.Xb, thetaC, currentKinetics);
-  }, [Q, cstrResult, S0, thetaC, currentKinetics]);
+  }, [backendStatus, remoteData, Q, cstrResult, S0, thetaC, currentKinetics]);
 
   const sustPFR = useMemo(() => {
+    if (backendStatus === 'connected' && remoteData?.pfr?.sustainability) {
+      return remoteData.pfr.sustainability;
+    }
     return evaluateSustainability(Q, pfrResult.V, S0, pfrResult.Se, pfrResult.Xb, thetaC, currentKinetics);
-  }, [Q, pfrResult, S0, thetaC, currentKinetics]);
+  }, [backendStatus, remoteData, Q, pfrResult, S0, thetaC, currentKinetics]);
 
   const levenspiel = useMemo(() => {
     return generateLevenspielData(S0, targetSe, cstrResult.Xb, currentKinetics);
@@ -142,12 +215,35 @@ export default function App() {
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Comparative CSTR & PFR Design for Industrial Textile Wastewater Treatment
+              Comparative CSTR & PFR Design • Vercel Frontend + Render FastAPI Backend
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Render Backend Connection Badge */}
+          <button
+            onClick={() => setShowApiConfig(!showApiConfig)}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${
+              backendStatus === 'connected'
+                ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300'
+                : 'bg-slate-800/90 border-slate-700 text-cyan-300'
+            }`}
+            title="Configure Render FastAPI Backend URL"
+          >
+            {backendStatus === 'connected' ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Render API Connected (SciPy Radau)</span>
+              </>
+            ) : (
+              <>
+                <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                <span>60 FPS Hybrid Solver (Render API Standby)</span>
+              </>
+            )}
+          </button>
+
           {/* Presentation Mode Button */}
           <button
             onClick={() => setIsPresentationOpen(true)}
@@ -167,6 +263,34 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {/* Collapsible Render Backend API Configuration Bar */}
+      {showApiConfig && (
+        <div className="bg-slate-900/95 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-slate-300">
+            <Server className="w-4 h-4 text-cyan-400" />
+            <span className="font-semibold">Render FastAPI Endpoint:</span>
+            <input
+              type="text"
+              value={renderApiUrl}
+              onChange={(e) => setRenderApiUrl(e.target.value)}
+              placeholder="https://textile-bioreactor-digital-twin-api.onrender.com"
+              className="w-80 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-xs"
+            />
+            <button
+              onClick={syncWithRenderBackend}
+              className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition"
+            >
+              Test & Sync
+            </button>
+          </div>
+          <div className="text-slate-400">
+            {backendStatus === 'connected'
+              ? 'Live SciPy Radau ODE responses active from Render FastAPI backend.'
+              : 'Using built-in 60 FPS RK4 client solver with automatic failover.'}
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           SCENARIO PRESETS BAR
