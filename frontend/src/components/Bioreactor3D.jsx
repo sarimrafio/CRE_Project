@@ -1040,15 +1040,27 @@ export default function Bioreactor3D({
     if (id === 'influent') {
       return {
         title: 'INFLUENT FEED HEADER',
-        line1: `Q₀ = ${Q} m³/d | S₀ = ${S0} mg/L`,
+        line1: (
+          <>
+            Q<sub>0</sub> = {Q} m<sup>3</sup>/d | S<sub>0</sub> = {S0} mg/L
+          </>
+        ),
         line2: `T = ${temperature}°C | Azo Dye Effluent`,
         color: 'border-purple-500/60 bg-purple-950/85 text-purple-200'
       };
     }
     if (id === 'cstr_core') {
       return {
-        title: `CSTR MIXED VESSEL (${cstrResult?.V?.toFixed(0)} m³)`,
-        line1: `S_e = ${cstrResult?.Se?.toFixed(1)} mg/L | DO = ${cstrResult?.DO?.toFixed(2)} mg/L`,
+        title: (
+          <>
+            CSTR MIXED VESSEL ({cstrResult?.V?.toFixed(0)} m<sup>3</sup>)
+          </>
+        ),
+        line1: (
+          <>
+            S<sub>e</sub> = {cstrResult?.Se?.toFixed(1)} mg/L | DO = {cstrResult?.DO?.toFixed(2)} mg/L
+          </>
+        ),
         line2: `D = ${cstrResult?.geometry?.diameter?.toFixed(1)}m × H = ${cstrResult?.geometry?.height?.toFixed(1)}m`,
         color: 'border-blue-500/60 bg-blue-950/85 text-blue-200'
       };
@@ -1056,16 +1068,34 @@ export default function Bioreactor3D({
     if (id === 'cstr_clarifier') {
       return {
         title: 'CLARIFIER & RAS RECYCLE',
-        line1: `Q_R = ${cstrResult?.recycle?.Q_R?.toFixed(0)} m³/d | X_R = ${cstrResult?.recycle?.X_R?.toFixed(0)} mg/L`,
-        line2: `WAS Q_w = ${cstrResult?.recycle?.Q_w?.toFixed(1)} m³/d | SVI = ${cstrResult?.recycle?.svi} mL/g`,
+        line1: (
+          <>
+            Q<sub>R</sub> = {cstrResult?.recycle?.Q_R?.toFixed(0)} m<sup>3</sup>/d | X<sub>R</sub> = {cstrResult?.recycle?.X_R?.toFixed(0)} mg/L
+          </>
+        ),
+        line2: (
+          <>
+            WAS Q<sub>w</sub> = {cstrResult?.recycle?.Q_w?.toFixed(1)} m<sup>3</sup>/d | SVI = {cstrResult?.recycle?.svi} mL/g
+          </>
+        ),
         color: 'border-amber-500/60 bg-amber-950/85 text-amber-200'
       };
     }
     if (id === 'blower') {
       return {
         title: 'ROOT AIR BLOWER STATION',
-        line1: blowerTrip ? '⚠️ BLOWER TRIPPED (O₂ OFF)' : `k_La = ${pfrResult?.profiles?.kLa_profile?.[0]?.toFixed(0) || 120} d⁻¹ (${aerationMode.toUpperCase()})`,
-        line2: `DO_sat(${temperature}°C) = ${(14.62 - 0.3898 * temperature + 0.006969 * temperature * temperature).toFixed(2)} mg/L`,
+        line1: blowerTrip ? (
+          <>⚠️ BLOWER TRIPPED (O<sub>2</sub> OFF)</>
+        ) : (
+          <>
+            k<sub>L</sub>a = {pfrResult?.profiles?.kLa_profile?.[0]?.toFixed(0) || 120} d<sup>−1</sup> ({aerationMode.toUpperCase()})
+          </>
+        ),
+        line2: (
+          <>
+            DO<sub>sat</sub>({temperature}°C) = {(14.62 - 0.3898 * temperature + 0.006969 * temperature * temperature).toFixed(2)} mg/L
+          </>
+        ),
         color: blowerTrip ? 'border-red-500 bg-red-950/90 text-red-200 animate-pulse' : 'border-cyan-500/60 bg-cyan-950/85 text-cyan-200'
       };
     }
@@ -1081,8 +1111,16 @@ export default function Bioreactor3D({
     }
     if (id === 'pfr_exit') {
       return {
-        title: `PFR 4-PASS SERPENTINE (${pfrResult?.V?.toFixed(0)} m³)`,
-        line1: `Exit S_e = ${pfrResult?.Se?.toFixed(1)} mg/L | L = ${pfrResult?.geometry?.totalChannelLength?.toFixed(0)}m`,
+        title: (
+          <>
+            PFR 4-PASS SERPENTINE ({pfrResult?.V?.toFixed(0)} m<sup>3</sup>)
+          </>
+        ),
+        line1: (
+          <>
+            Exit S<sub>e</sub> = {pfrResult?.Se?.toFixed(1)} mg/L | L = {pfrResult?.geometry?.totalChannelLength?.toFixed(0)}m
+          </>
+        ),
         line2: `SVI = ${pfrResult?.svi} mL/g | HRT = ${pfrResult?.tau_hours?.toFixed(1)} h`,
         color: 'border-emerald-500/60 bg-emerald-950/85 text-emerald-200'
       };
@@ -1108,8 +1146,8 @@ export default function Bioreactor3D({
           {[
             { id: 'visual', label: '1. True Dye & Sludge' },
             { id: 'substrate', label: '2. Substrate S(x,y,z)' },
-            { id: 'do', label: '3. Dissolved O₂ (DO Sag)' },
-            { id: 'rate', label: '4. Reaction Rate -r_S' }
+            { id: 'do', label: <>3. Dissolved O<sub>2</sub> (DO Sag)</> },
+            { id: 'rate', label: <>4. Reaction Rate −r<sub>S</sub></> }
           ].map((m) => (
             <button
               key={m.id}
@@ -1171,18 +1209,30 @@ export default function Bioreactor3D({
         {/* Critical Biomass Washout or Blower Trip Emergency Banner (#10, #11) */}
         {(cstrResult?.isWashout || blowerTrip) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-xl bg-red-600/95 border border-red-300 text-white text-xs font-extrabold tracking-wide shadow-2xl animate-bounce z-30">
-            {cstrResult?.isWashout
-              ? `🚨 CRITICAL BIOMASS WASHOUT: θ_c (${cstrResult?.theta_c_min?.toFixed(2)}d min) EXCEEDED — MICROBES FLUSHED OUT!`
-              : '🚨 EMERGENCY POWER OUTAGE: ROOT BLOWERS TRIPPED (k_La → 0) — ANOXIC HYPOXIA IN PROGRESS!'}
+            {cstrResult?.isWashout ? (
+              <>
+                🚨 CRITICAL BIOMASS WASHOUT: θ<sub>c</sub> ({cstrResult?.theta_c_min?.toFixed(2)}d min) EXCEEDED — MICROBES FLUSHED OUT!
+              </>
+            ) : (
+              <>
+                🚨 EMERGENCY POWER OUTAGE: ROOT BLOWERS TRIPPED (k<sub>L</sub>a → 0) — ANOXIC HYPOXIA IN PROGRESS!
+              </>
+            )}
           </div>
         )}
 
         {/* Active Pulse Tracer / Shock Wave Status Toast */}
         {(tracerState.active || shockState.active) && (
           <div className="absolute top-12 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-xl bg-slate-950/90 border border-cyan-400 text-cyan-200 text-xs font-bold shadow-xl z-20">
-            {tracerState.active
-              ? `🧪 RTD Pulse Tracer Active (θ = ${(tracerState.elapsed / 2.2).toFixed(2)}): CSTR Exponential Decay E(θ)=e⁻ᶿ vs PFR Axial Plug`
-              : `💥 Toxic Azo Dye Dump (2200 mg/L): CSTR Dilutes Shock Across ${cstrResult?.V?.toFixed(0)} m³ vs PFR Plug Breakthrough`}
+            {tracerState.active ? (
+              <>
+                🧪 RTD Pulse Tracer Active (θ = {(tracerState.elapsed / 2.2).toFixed(2)}): CSTR Exponential Decay E(θ) = e<sup>−θ</sup> vs. PFR Axial Plug
+              </>
+            ) : (
+              <>
+                💥 Toxic Azo Dye Dump (2200 mg/L): CSTR Dilutes Shock Across {cstrResult?.V?.toFixed(0)} m<sup>3</sup> vs. PFR Plug Breakthrough
+              </>
+            )}
           </div>
         )}
 
@@ -1215,7 +1265,11 @@ export default function Bioreactor3D({
               {heatmapMode === 'visual' && 'True Process Color (Dye → Clarified)'}
               {heatmapMode === 'substrate' && `Substrate S(x,y,z) [0 – ${S0} mg/L]`}
               {heatmapMode === 'do' && 'Dissolved Oxygen DO [0.0 – 5.0 mg/L]'}
-              {heatmapMode === 'rate' && 'Monod Rate -r_S [mg/(L·d)]'}
+              {heatmapMode === 'rate' && (
+                <>
+                  Monod Rate −r<sub>S</sub> [mg/(L·d)]
+                </>
+              )}
             </span>
           </div>
           <div
@@ -1368,7 +1422,9 @@ export default function Bioreactor3D({
               </div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-              <div className="text-slate-500">Rate -r_S(z)</div>
+              <div className="text-slate-500">
+                Rate −r<sub>S</sub>(z)
+              </div>
               <div className="font-mono font-bold text-amber-300">{sondeReading.rate} mg/L·d</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
@@ -1376,11 +1432,15 @@ export default function Bioreactor3D({
               <div className="font-mono font-bold text-rose-300">{sondeReading.OUR} mg/L·d</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-              <div className="text-slate-500">S/(Ks+S)</div>
+              <div className="text-slate-500">
+                S / (K<sub>S</sub> + S)
+              </div>
               <div className="font-mono font-bold text-emerald-300">{sondeReading.monodSat}%</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-              <div className="text-slate-500">DO/(Ko+DO)</div>
+              <div className="text-slate-500">
+                DO / (K<sub>O</sub> + DO)
+              </div>
               <div className="font-mono font-bold text-sky-300">{sondeReading.doLim}%</div>
             </div>
           </div>
@@ -1396,15 +1456,15 @@ export default function Bioreactor3D({
             <div className="p-2 rounded-lg bg-blue-950/30 border border-blue-800/40">
               <div className="text-blue-400 font-sans font-bold">CSTR Cylindrical Basin</div>
               <div>Dim: Ø{cstrResult?.geometry?.diameter?.toFixed(1)}m × {cstrResult?.geometry?.height?.toFixed(1)}m</div>
-              <div>Concrete: {cstrResult?.geometry?.concreteM3?.toFixed(0)} m³</div>
-              <div>Footprint: {cstrResult?.geometry?.footprintM2?.toFixed(0)} m²</div>
+              <div>Concrete: {cstrResult?.geometry?.concreteM3?.toFixed(0)} m<sup>3</sup></div>
+              <div>Footprint: {cstrResult?.geometry?.footprintM2?.toFixed(0)} m<sup>2</sup></div>
               <div className="text-emerald-300 font-bold">CAPEX: ${(cstrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
             </div>
             <div className="p-2 rounded-lg bg-emerald-950/30 border border-emerald-800/40">
               <div className="text-emerald-400 font-sans font-bold">PFR 4-Pass Baffled</div>
               <div>Dim: {pfrResult?.geometry?.totalChannelLength?.toFixed(0)}m × 2.2m × 3.5m</div>
-              <div>Concrete: {pfrResult?.geometry?.concreteM3?.toFixed(0)} m³</div>
-              <div>Footprint: {pfrResult?.geometry?.footprintM2?.toFixed(0)} m²</div>
+              <div>Concrete: {pfrResult?.geometry?.concreteM3?.toFixed(0)} m<sup>3</sup></div>
+              <div>Footprint: {pfrResult?.geometry?.footprintM2?.toFixed(0)} m<sup>2</sup></div>
               <div className="text-amber-300 font-bold">CAPEX: ${(pfrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
             </div>
           </div>

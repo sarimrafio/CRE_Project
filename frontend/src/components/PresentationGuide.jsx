@@ -5,11 +5,15 @@ const SLIDES = [
     step: 1,
     title: "1. Problem Formulation & Textile Effluent Chemistry",
     tagline: "Industrial Wastewater Context & Course Mandate",
-    description: "Bangladesh is the world's 2nd largest textile apparel exporter. Textile wet processing discharges effluent loaded with refractory azo dyes and high biochemical oxygen demand (750 mg bCOD/L). The course requires applying Fogler's chemical reaction engineering principles to compare CSTR and PFR designs with dual Monod and oxygen mass transfer.",
+    description: (
+      <>
+        Bangladesh is the world&apos;s 2<sup>nd</sup> largest textile apparel exporter. Textile wet processing discharges effluent loaded with refractory azo dyes and high biochemical oxygen demand (750 mg bCOD/L). The course requires applying Fogler&apos;s chemical reaction engineering principles to compare CSTR and PFR designs with dual Monod and oxygen mass transfer.
+      </>
+    ),
     keyPoints: [
-      "Target: 90% bCOD removal (from 750 mg/L down to ≤ 75 mg/L).",
-      "Wastewater Flow Rate: 1,000 m³/day (typical medium-scale dyeing unit).",
-      "Biological sludge age (SRT θ_c): 10 days."
+      <>Target: 90% bCOD removal (from <i>S</i><sub>0</sub> = 750 mg/L down to <i>S</i><sub>e</sub> ≤ 75 mg/L).</>,
+      <>Wastewater Flow Rate (<i>Q</i><sub>0</sub>): 1,000 m<sup>3</sup>/day (typical medium-scale dyeing unit).</>,
+      <>Biological sludge age (SRT <i>θ</i><sub>c</sub>): 10 days.</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: '3d' }
   },
@@ -17,11 +21,23 @@ const SLIDES = [
     step: 2,
     title: "2. Dual-Limitation Monod Biological Kinetics",
     tagline: "Biomass Growth & Oxygen Coupling",
-    description: "Unlike simple single-reactant kinetics, aerobic biodegradation is limited simultaneously by carbon substrate and dissolved oxygen: -r_S = (μ_max / Y) * [S / (K_S + S)] * [DO / (K_O + DO)] * X_b. Calibrated kinetic values: μ_max = 3.2 1/d, K_S = 65 mg/L, K_O = 0.20 mg/L, Y = 0.45 g/g, b = 0.06 1/d, k_La = 120 1/d.",
+    description: (
+      <>
+        Unlike simple single-reactant kinetics, aerobic biodegradation is limited simultaneously by carbon substrate and dissolved oxygen:{' '}
+        <span className="font-mono text-cyan-300 font-semibold">
+          −r<sub>S</sub> = (μ<sub>max</sub> / Y) · [S / (K<sub>S</sub> + S)] · [DO / (K<sub>O</sub> + DO)] · X<sub>b</sub>
+        </span>
+        . Calibrated kinetic values:{' '}
+        <span className="font-mono text-slate-200">
+          μ<sub>max</sub> = 3.2 d<sup>−1</sup>, K<sub>S</sub> = 65 mg/L, K<sub>O</sub> = 0.20 mg/L, Y = 0.45 g/g, b = 0.06 d<sup>−1</sup>, k<sub>L</sub>a = 120 d<sup>−1</sup>
+        </span>
+        .
+      </>
+    ),
     keyPoints: [
-      "Zero-order regime occurs when S >> K_S (rate independent of S).",
-      "First-order regime emerges only when S << K_S (near effluent exit).",
-      "Aeration mass transfer k_La * (DO_sat - DO) must exceed microbial oxygen uptake rate (OUR)."
+      <>Zero-order regime occurs when <i>S</i> &gt;&gt; <i>K</i><sub>S</sub> (reaction rate is independent of <i>S</i>).</>,
+      <>First-order regime emerges only when <i>S</i> &lt;&lt; <i>K</i><sub>S</sub> (near the reactor effluent exit).</>,
+      <>Aeration mass transfer <i>k</i><sub>L</sub><i>a</i> · (<i>DO</i><sub>sat</sub> − <i>DO</i>) must exceed the microbial oxygen uptake rate (OUR).</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: 'levenspiel' }
   },
@@ -29,11 +45,15 @@ const SLIDES = [
     step: 3,
     title: "3. Levenspiel Sizing Equivalence (The Core CRE Phenomenon)",
     tagline: "Collapse of the Classic PFR Volume Advantage",
-    description: "In textbook chemical reaction engineering with 1st-order kinetics, a PFR requires 3.91× less volume than a CSTR at 90% conversion. However, our digital twin reveals that for textile wastewater, the CSTR requires 489.7 m³ and the PFR requires 494.8 m³ — a volume ratio of 0.99× (parity)!",
+    description: (
+      <>
+        In textbook chemical reaction engineering with 1<sup>st</sup>-order kinetics, a PFR requires 3.91× less volume than a CSTR at 90% conversion. However, our digital twin reveals that for concentrated textile wastewater, the CSTR requires 489.7 m<sup>3</sup> and the PFR requires 494.8 m<sup>3</sup> — a volume ratio (<i>V</i><sub>CSTR</sub> / <i>V</i><sub>PFR</sub>) of 0.99× (near parity)!
+      </>
+    ),
     keyPoints: [
-      "Influent substrate (750 mg/L) is 11.5× higher than K_S (65 mg/L).",
-      "The rate remains pegged at maximum (-r_S,max) across ~85% of reactor volume.",
-      "The Levenspiel curve 1/(-r_S) is flat; the CSTR operating rectangle equals the PFR integral area under the curve."
+      <>Influent substrate (<i>S</i><sub>0</sub> = 750 mg/L) is 11.5× higher than the half-velocity constant <i>K</i><sub>S</sub> (65 mg/L).</>,
+      <>The consumption rate remains pegged near its asymptotic maximum (−<i>r</i><sub>S,max</sub>) across ~85% of the reactor volume.</>,
+      <>The Levenspiel curve 1/(−<i>r</i><sub>S</sub>) is flat; the CSTR operating rectangle equals the PFR integral area under the curve.</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: 'levenspiel' }
   },
@@ -41,10 +61,14 @@ const SLIDES = [
     step: 4,
     title: "4. Spatial Hydrodynamics & Inlet DO Sag in PFR",
     tagline: "Severe localized hypoxia risk in tubular designs",
-    description: "Integrating the 1D spatial PFR differential equations reveals that at the entrance (z/L = 0.02 - 0.15), rapid microbial substrate consumption causes an acute Dissolved Oxygen Sag, dropping DO to < 0.6 mg/L despite vigorous uniform aeration. This localized hypoxia can inhibit metabolic activity and foster filamentous bulking.",
+    description: (
+      <>
+        Integrating the 1D spatial PFR differential equations reveals that at the entrance (<i>z/L</i> = 0.02 – 0.15), rapid microbial substrate consumption causes an acute Dissolved Oxygen Sag, dropping <i>DO</i> to &lt; 0.6 mg/L despite vigorous uniform aeration. This localized hypoxia can inhibit metabolic activity and foster filamentous sludge bulking.
+      </>
+    ),
     keyPoints: [
-      "CSTR completely avoids DO sag through instantaneous spatial backmixing (uniform DO = 2.15 mg/L).",
-      "PFR would require expensive tapered aeration manifolds with 3× higher blower capacity at the front end."
+      <>CSTR completely avoids the inlet DO sag through instantaneous spatial backmixing (uniform <i>DO</i> = 2.15 mg/L).</>,
+      <>PFR requires a tapered aeration manifold with front-loaded diffuser density (<i>k</i><sub>L</sub><i>a</i>(<i>z</i>)) at the inlet zone.</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: 'profiles' }
   },
@@ -52,10 +76,14 @@ const SLIDES = [
     step: 5,
     title: "5. Hydraulic Shock Load Buffering & Transient Startup",
     tagline: "Industrial operational resilience against dye spikes",
-    description: "Industrial textile mills operate in batch dye cycles, frequently releasing toxic shock loads (e.g., S_0 spiking from 750 to 1,500 mg/L). In a PFR, this toxic plug travels unattenuated as a shock wave, causing immediate toxic biomass inhibition. In a CSTR, the entire tank volume (490 m³) acts as a giant damping buffer, instantaneously diluting the shock by ~12-fold.",
+    description: (
+      <>
+        Industrial textile mills operate in batch dye cycles, frequently releasing toxic shock loads (e.g., <i>S</i><sub>0</sub> spiking from 750 to 1,500–2,200 mg/L). In a PFR, this concentrated plug travels unattenuated as a shock wave, causing acute Haldane substrate inhibition. In a CSTR, the entire mixed liquid volume (490 m<sup>3</sup>) acts as a damping buffer, instantaneously diluting the shock.
+      </>
+    ),
     keyPoints: [
-      "Dynamic CSTR startup reaches 95% steady-state performance within 12 days.",
-      "Biomass steadily multiplies from 200 mg/L seed to 3,877 mg/L with zero operational collapse."
+      <>Dynamic CSTR startup reaches 95% steady-state performance within 12 days.</>,
+      <>Active biomass (<i>X</i><sub>b</sub>) multiplies steadily from 200 mg/L seed to 3,877 mg VSS/L without washout.</>
     ],
     preset: { Q: 1000, S0: 1500, Se: 150, theta_c: 10, tab: 'transient' }
   },
@@ -63,11 +91,15 @@ const SLIDES = [
     step: 6,
     title: "6. Sustainability, Energy & Carbon Footprint",
     tagline: "Techno-Economic Life Cycle Assessment (LCA)",
-    description: "Using Bangladesh industrial tariffs ($0.095/kWh) and national grid carbon intensity (0.615 kg CO2e/kWh), our sustainability evaluation proves that CSTR and PFR operational metrics are nearly identical: Specific energy is 0.445 vs 0.447 kWh/m³; Operating cost is $0.0423 vs $0.0425 per m³; Operational GHG emissions are 0.274 kg CO2e/m³.",
+    description: (
+      <>
+        Using Bangladesh industrial tariffs ($0.095/kWh) and national grid carbon intensity (0.615 kg CO<sub>2</sub>e/kWh), our sustainability evaluation proves that CSTR and PFR operational metrics are nearly identical: Specific energy is 0.445 vs. 0.447 kWh/m<sup>3</sup>; Operating cost is $0.0423 vs. $0.0425 per m<sup>3</sup>; Operational GHG emissions are 0.274 kg CO<sub>2</sub>e/m<sup>3</sup>.
+      </>
+    ),
     keyPoints: [
-      "Aeration blowers account for ~76% of total plant energy consumption.",
-      "Mechanical mixing consumes 14%, and pumping consumes 10%.",
-      "Total daily operational expenditure is only ~$42.30/day for 1,000,000 L of purified wastewater."
+      <>Aeration blowers account for ~76% of total plant energy consumption (SAE = 1.8 kg O<sub>2</sub>/kWh).</>,
+      <>Mechanical mixing consumes 14% (10 W/m<sup>3</sup>), and recycle pumping consumes 10%.</>,
+      <>Total daily operational expenditure is ~$42.30/day for 1,000 m<sup>3</sup>/day of treated textile effluent.</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: 'sustainability' }
   },
@@ -75,11 +107,15 @@ const SLIDES = [
     step: 7,
     title: "7. Definitive Engineering Recommendation",
     tagline: "Why CSTR with Cell Recycle is the Superior Industrial Choice",
-    description: "Based on first-principles reactor sizing, hydrodynamics, and operational resilience: The CSTR provides identical volume (489.7 m³ vs 494.8 m³), identical energy consumption (0.445 kWh/m³), vastly superior upstream toxic shock dilution, uniform dissolved oxygen distribution without sag zones, and lower construction complexity. Therefore, CSTR with clarifier cell recycle is the unequivocally superior engineering choice for industrial textile wastewater treatment.",
+    description: (
+      <>
+        Based on first-principles reactor sizing, hydrodynamics, and operational resilience: The CSTR provides identical volume (489.7 m<sup>3</sup> vs. 494.8 m<sup>3</sup>), identical energy consumption (0.445 kWh/m<sup>3</sup>), vastly superior upstream toxic shock dilution, uniform dissolved oxygen distribution without sag zones, and lower civil concrete cost. Therefore, CSTR with clarifier cell recycle (RAS) is the superior engineering choice for industrial textile wastewater treatment.
+      </>
+    ),
     keyPoints: [
-      "Recommendation: Single-stage or 2-stage CSTR with fine-bubble diffused aeration.",
-      "Meets all Department of Environment (DoE) standards with minimal risk of filamentous bulking.",
-      "Project deliverable ready for academic examination and industrial design deployment."
+      <>Recommendation: Single-stage or 2-stage CSTR cascade with fine-bubble EPDM diffused aeration.</>,
+      <>Meets Bangladesh DoE ECR Schedule-10 standards (<i>S</i><sub>e</sub> ≤ 75 mg/L) with minimal filamentous bulking risk.</>,
+      <>Full-stack Digital Twin ready for academic defense and industrial process design.</>
     ],
     preset: { Q: 1000, S0: 750, Se: 75, theta_c: 10, tab: '3d' }
   }
@@ -115,7 +151,6 @@ export default function PresentationGuide({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
       <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Modal Top Bar */}
         <div className="p-5 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="px-2.5 py-1 rounded-md bg-blue-500/20 border border-blue-400/40 text-blue-300 font-bold text-xs uppercase tracking-wider">
@@ -133,7 +168,6 @@ export default function PresentationGuide({
           </button>
         </div>
 
-        {/* Modal Content */}
         <div className="p-6 overflow-y-auto space-y-4">
           <div>
             <h2 className="text-xl font-bold text-white leading-tight">
@@ -163,13 +197,12 @@ export default function PresentationGuide({
           </div>
         </div>
 
-        {/* Modal Footer Controls */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
           <button
             onClick={() => onApplyPreset(slide.preset)}
             className="px-4 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-semibold transition flex items-center gap-2"
           >
-            <span>⚡ Apply This Slide's Scenario to Twin</span>
+            <span>⚡ Apply This Slide&apos;s Scenario to Twin</span>
           </button>
 
           <div className="flex items-center gap-2">

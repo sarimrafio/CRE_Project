@@ -150,7 +150,9 @@ export default function AxialProfilesPlot({
           <span className="font-mono font-bold text-cyan-200">{DO[activeIdx].toFixed(2)} mg/L</span>
         </div>
         <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 flex flex-col">
-          <span className="text-emerald-400">Biomass X_b(z):</span>
+          <span className="text-emerald-400">
+            Biomass X<sub>b</sub>(z):
+          </span>
           <span className="font-mono font-bold text-emerald-200">{Xb[activeIdx].toFixed(0)} mg VSS/L</span>
         </div>
       </div>

@@ -153,7 +153,9 @@ export default function CREExperimentsPanel({
           </svg>
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] pt-1 border-t border-slate-800">
-            <span className="text-blue-400 font-semibold">● Ideal CSTR: E(θ) = e⁻ᶿ</span>
+            <span className="text-blue-400 font-semibold">
+              ● Ideal CSTR: E(θ) = e<sup>−θ</sup>
+            </span>
             <span className="text-amber-400 font-semibold">● {nTanks}-Tanks-in-Series</span>
             <span className="text-emerald-400 font-semibold">● PFR Dispersion (Pe={peclet})</span>
           </div>
@@ -238,7 +240,9 @@ export default function CREExperimentsPanel({
                 <tr className="border-b border-slate-800 text-slate-400">
                   <th className="py-1.5 px-2">Stage #</th>
                   <th className="py-1.5 px-2">Stage Volume</th>
-                  <th className="py-1.5 px-2">Exit Substrate S_n</th>
+                  <th className="py-1.5 px-2">
+                    Exit Substrate S<sub>n</sub>
+                  </th>
                   <th className="py-1.5 px-2">Cumulative Removal</th>
                 </tr>
               </thead>
@@ -246,7 +250,7 @@ export default function CREExperimentsPanel({
                 {rtdData.stageProfile.map((st) => (
                   <tr key={st.stage}>
                     <td className="py-1.5 px-2 text-amber-300 font-bold">Tank {st.stage}</td>
-                    <td className="py-1.5 px-2">{((cstrResult?.V || 490) / nTanks).toFixed(1)} m³</td>
+                    <td className="py-1.5 px-2">{((cstrResult?.V || 490) / nTanks).toFixed(1)} m<sup>3</sup></td>
                     <td className="py-1.5 px-2 text-purple-300">{st.S_out} mg/L</td>
                     <td className="py-1.5 px-2 text-emerald-300">{st.conversion}%</td>
                   </tr>

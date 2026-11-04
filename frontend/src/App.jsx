@@ -316,7 +316,7 @@ export default function App() {
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 25, aerationMode: 'uniform', tab: '3d' })}
           className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium shrink-0 transition"
         >
-          1. Course Baseline (S₀=750, 90% Removal)
+          1. Course Baseline (S<sub>0</sub>=750, 90% Removal)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 25, aerationMode: 'tapered', tab: '3d' })}
@@ -328,13 +328,13 @@ export default function App() {
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 0.35, T: 25, tab: '3d' })}
           className="px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/60 border border-rose-600/40 text-rose-200 font-medium shrink-0 transition"
         >
-          3. Critical Biomass Washout (θ_c = 0.35d)
+          3. Critical Biomass Washout (θ<sub>c</sub> = 0.35d)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 180, Se: 20, theta_c: 10, T: 25, tab: 'levenspiel' })}
           className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium shrink-0 transition"
         >
-          4. Dilute Municipal Blend (1st-Order Shift)
+          4. Dilute Municipal Blend (1<sup>st</sup>-Order Shift)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 36, tab: '3d' })}
@@ -357,7 +357,7 @@ export default function App() {
         <div className="p-3 rounded-2xl bg-slate-900/80 border border-blue-500/30">
           <div className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">CSTR Volume & Basin</div>
           <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {cstrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m³</span>
+            {cstrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m<sup>3</sup></span>
           </div>
           <div className="text-[11px] text-slate-400">
             Ø{cstrResult.geometry.diameter.toFixed(1)}m × {cstrResult.geometry.height.toFixed(1)}m ({cstrResult.tau_hours.toFixed(1)}h)
@@ -367,7 +367,7 @@ export default function App() {
         <div className="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/30">
           <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">PFR Volume & Basin</div>
           <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {pfrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m³</span>
+            {pfrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m<sup>3</sup></span>
           </div>
           <div className="text-[11px] text-slate-400">
             L={pfrResult.geometry.totalChannelLength.toFixed(0)}m 4-Pass ({pfrResult.tau_hours.toFixed(1)}h)
@@ -380,7 +380,7 @@ export default function App() {
             {volumeRatio.toFixed(2)}×
           </div>
           <div className="text-[11px] text-slate-400">
-            V_cstr / V_pfr (Monod Zero-Order)
+            V<sub>CSTR</sub> / V<sub>PFR</sub> (Monod Zero-Order)
           </div>
         </div>
 
@@ -397,10 +397,10 @@ export default function App() {
         <div className="p-3 rounded-2xl bg-slate-900/80 border border-cyan-500/30">
           <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Specific Energy & Cost</div>
           <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {sustCSTR.energy_kwh_per_m3.toFixed(3)} <span className="text-xs font-normal text-slate-400">kWh/m³</span>
+            {sustCSTR.energy_kwh_per_m3.toFixed(3)} <span className="text-xs font-normal text-slate-400">kWh/m<sup>3</sup></span>
           </div>
           <div className="text-[11px] text-slate-400">
-            OPEX: ${sustCSTR.cost_usd_per_m3.toFixed(4)}/m³
+            OPEX: ${sustCSTR.cost_usd_per_m3.toFixed(4)}/m<sup>3</sup>
           </div>
         </div>
 
@@ -410,7 +410,7 @@ export default function App() {
             {cstrResult.Se <= 75.5 && !cstrResult.isWashout ? '🟢 COMPLIANT' : '🔴 VIOLATION'}
           </div>
           <div className="text-[11px] text-slate-400">
-            Exit S_e = {cstrResult.Se.toFixed(1)} mg/L ({removalPct.toFixed(1)}%)
+            Exit S<sub>e</sub> = {cstrResult.Se.toFixed(1)} mg/L ({removalPct.toFixed(1)}%)
           </div>
         </div>
       </section>
@@ -450,8 +450,10 @@ export default function App() {
           {/* Slider 1: Flow Rate Q */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">Flow Rate (Q₀):</span>
-              <span className="font-mono font-bold text-cyan-300">{Q} m³/d</span>
+              <span className="text-slate-300">
+                Flow Rate (Q<sub>0</sub>):
+              </span>
+              <span className="font-mono font-bold text-cyan-300">{Q} m<sup>3</sup>/d</span>
             </div>
             <input type="range" min="200" max="4000" step="50" value={Q} onChange={(e) => setQ(Number(e.target.value))} className="w-full accent-cyan-400 cursor-pointer" />
           </div>
@@ -459,7 +461,9 @@ export default function App() {
           {/* Slider 2: Influent bCOD S0 */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">Influent bCOD (S₀):</span>
+              <span className="text-slate-300">
+                Influent bCOD (S<sub>0</sub>):
+              </span>
               <span className="font-mono font-bold text-purple-300">{S0} mg/L</span>
             </div>
             <input type="range" min="150" max="2000" step="25" value={S0} onChange={(e) => setS0(Number(e.target.value))} className="w-full accent-purple-400 cursor-pointer" />
@@ -468,7 +472,9 @@ export default function App() {
           {/* Slider 3: Target Effluent Se */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">Target Effluent (S_e):</span>
+              <span className="text-slate-300">
+                Target Effluent (S<sub>e</sub>):
+              </span>
               <span className="font-mono font-bold text-emerald-300">{targetSe} mg/L</span>
             </div>
             <input type="range" min="20" max="200" step="5" value={targetSe} onChange={(e) => setTargetSe(Number(e.target.value))} className="w-full accent-emerald-400 cursor-pointer" />
@@ -477,14 +483,18 @@ export default function App() {
           {/* Slider 4: Sludge Retention Time theta_c (down to 0.3d for Washout!) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">Sludge Age (θ_c):</span>
+              <span className="text-slate-300">
+                Sludge Age (θ<sub>c</sub>):
+              </span>
               <span className={`font-mono font-bold ${cstrResult.isWashout ? 'text-red-400 animate-pulse' : 'text-amber-300'}`}>
                 {thetaC} d {cstrResult.isWashout ? '(WASHOUT!)' : ''}
               </span>
             </div>
             <input type="range" min="0.3" max="25" step="0.1" value={thetaC} onChange={(e) => setThetaC(Number(e.target.value))} className="w-full accent-amber-400 cursor-pointer" />
             <div className="flex justify-between text-[10px] text-slate-500">
-              <span>θ_c,min = {cstrResult.theta_c_min.toFixed(2)}d</span>
+              <span>
+                θ<sub>c,min</sub> = {cstrResult.theta_c_min.toFixed(2)}d
+              </span>
               <span>25d (Extended)</span>
             </div>
           </div>
@@ -492,8 +502,12 @@ export default function App() {
           {/* Slider 5: Mass Transfer kLa */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">Blower Aeration (k_La):</span>
-              <span className="font-mono font-bold text-blue-300">{kLa} d⁻¹</span>
+              <span className="text-slate-300">
+                Blower Aeration (k<sub>L</sub>a):
+              </span>
+              <span className="font-mono font-bold text-blue-300">
+                {kLa} d<sup>−1</sup>
+              </span>
             </div>
             <input type="range" min="40" max="240" step="10" value={kLa} onChange={(e) => setKLa(Number(e.target.value))} className="w-full accent-blue-400 cursor-pointer" />
           </div>
@@ -506,13 +520,15 @@ export default function App() {
                 Temperature (T):
               </span>
               <span className="font-mono font-bold text-orange-300">
-                {temperature}°C (DO_sat={currentKinetics.DO_sat.toFixed(1)})
+                {temperature}°C (DO<sub>sat</sub>={currentKinetics.DO_sat.toFixed(1)})
               </span>
             </div>
             <input type="range" min="15" max="38" step="1" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="w-full accent-orange-400 cursor-pointer" />
             <div className="flex justify-between text-[10px] text-slate-500">
               <span>15°C (Winter)</span>
-              <span>μ_max(T)={currentKinetics.mu_max.toFixed(2)} d⁻¹</span>
+              <span>
+                μ<sub>max</sub>(T)={currentKinetics.mu_max.toFixed(2)} d<sup>−1</sup>
+              </span>
               <span>38°C</span>
             </div>
           </div>
@@ -522,7 +538,7 @@ export default function App() {
             <div className="flex justify-between text-xs">
               <span className="text-slate-300">RAS Recycle Ratio (R):</span>
               <span className="font-mono font-bold text-amber-300">
-                {(recycleRatio * 100).toFixed(0)}% ({(Q * recycleRatio).toFixed(0)} m³/d)
+                {(recycleRatio * 100).toFixed(0)}% ({(Q * recycleRatio).toFixed(0)} m<sup>3</sup>/d)
               </span>
             </div>
             <input type="range" min="0.2" max="1.5" step="0.05" value={recycleRatio} onChange={(e) => setRecycleRatio(Number(e.target.value))} className="w-full accent-amber-500 cursor-pointer" />
@@ -542,14 +558,20 @@ export default function App() {
               <div className="mt-2.5 space-y-2.5 p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs">
                 <div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Base μ_max(20°C):</span>
-                    <span className="font-mono text-slate-200">{muMax} 1/d</span>
+                    <span>
+                      Base μ<sub>max</sub>(20°C):
+                    </span>
+                    <span className="font-mono text-slate-200">
+                      {muMax} d<sup>−1</sup>
+                    </span>
                   </div>
                   <input type="range" min="1.2" max="5.5" step="0.1" value={muMax} onChange={(e) => setMuMax(Number(e.target.value))} className="w-full accent-cyan-400 mt-1" />
                 </div>
                 <div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Half-Velocity K_S:</span>
+                    <span>
+                      Half-Velocity K<sub>S</sub>:
+                    </span>
                     <span className="font-mono text-slate-200">{Ks} mg/L</span>
                   </div>
                   <input type="range" min="20" max="200" step="5" value={Ks} onChange={(e) => setKs(Number(e.target.value))} className="w-full accent-purple-400 mt-1" />
@@ -702,7 +724,7 @@ export default function App() {
                   Techno-Economic, Civil Engineering & Life Cycle Assessment (LCA)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Comparison based on Bangladesh industrial tariff ($0.095/kWh), national grid emissions (0.615 kg CO₂e/kWh), and reinforced concrete basin sizing
+                  Comparison based on Bangladesh industrial tariff ($0.095/kWh), national grid emissions (0.615 kg CO<sub>2</sub>e/kWh), and reinforced concrete basin sizing
                 </p>
               </div>
 
@@ -719,14 +741,14 @@ export default function App() {
                   <tbody className="divide-y divide-slate-800/60 font-mono">
                     <tr>
                       <td className="py-2.5 px-3 text-slate-300 font-sans">Active Reactor Volume (V)</td>
-                      <td className="py-2.5 px-3 text-white font-bold">{cstrResult.V.toFixed(1)} m³</td>
-                      <td className="py-2.5 px-3 text-white font-bold">{pfrResult.V.toFixed(1)} m³</td>
+                      <td className="py-2.5 px-3 text-white font-bold">{cstrResult.V.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-white font-bold">{pfrResult.V.toFixed(1)} m<sup>3</sup></td>
                       <td className="py-2.5 px-3 text-slate-400">Ratio: {volumeRatio.toFixed(2)}×</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 px-3 text-slate-300 font-sans">Reinforced Concrete Volume</td>
-                      <td className="py-2.5 px-3">{cstrResult.geometry.concreteM3.toFixed(1)} m³</td>
-                      <td className="py-2.5 px-3">{pfrResult.geometry.concreteM3.toFixed(1)} m³</td>
+                      <td className="py-2.5 px-3">{cstrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3">{pfrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
                       <td className="py-2.5 px-3 text-emerald-400 font-sans">CSTR saves baffle concrete</td>
                     </tr>
                     <tr>
@@ -745,25 +767,25 @@ export default function App() {
                       <td className="py-2.5 px-3 text-slate-300 font-sans">Daily Aeration Energy</td>
                       <td className="py-2.5 px-3">{sustCSTR.aeration_kwh_day.toFixed(1)} kWh/d</td>
                       <td className="py-2.5 px-3">{sustPFR.aeration_kwh_day.toFixed(1)} kWh/d</td>
-                      <td className="py-2.5 px-3 text-slate-400">SAE = 1.8 kg O₂/kWh</td>
+                      <td className="py-2.5 px-3 text-slate-400">SAE = 1.8 kg O<sub>2</sub>/kWh</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Total Specific Energy</td>
-                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustCSTR.energy_kwh_per_m3.toFixed(4)} kWh/m³</td>
-                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustPFR.energy_kwh_per_m3.toFixed(4)} kWh/m³</td>
+                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustCSTR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustPFR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
                       <td className="py-2.5 px-3 text-emerald-400 font-semibold">Parity (1.00×)</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Operating Cost (OPEX)</td>
-                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustCSTR.cost_usd_per_m3.toFixed(4)} /m³</td>
-                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustPFR.cost_usd_per_m3.toFixed(4)} /m³</td>
+                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustCSTR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustPFR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
                       <td className="py-2.5 px-3 text-slate-400">${(sustCSTR.cost_usd_per_m3 * Q).toFixed(2)}/day</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Operational Carbon Footprint</td>
-                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustCSTR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO₂e/m³</td>
-                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustPFR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO₂e/m³</td>
-                      <td className="py-2.5 px-3 text-slate-400">{(sustCSTR.ghg_kg_co2e_per_m3 * Q).toFixed(1)} kg CO₂e/d</td>
+                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustCSTR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustPFR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-slate-400">{(sustCSTR.ghg_kg_co2e_per_m3 * Q).toFixed(1)} kg CO<sub>2</sub>e/d</td>
                     </tr>
                   </tbody>
                 </table>

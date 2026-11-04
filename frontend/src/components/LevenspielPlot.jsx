@@ -14,37 +14,31 @@ export default function LevenspielPlot({
     return <div className="p-8 text-center text-slate-400">Loading Levenspiel data...</div>;
   }
 
-  // Plot Dimensions
   const svgWidth = 650;
   const svgHeight = 360;
   const margin = { top: 30, right: 40, bottom: 50, left: 70 };
   const plotWidth = svgWidth - margin.left - margin.right;
   const plotHeight = svgHeight - margin.top - margin.bottom;
 
-  // Max bounds
   const maxX = 1.0;
   const maxInvRate = Math.max(...curveData.map(d => d.invRate), cstrInvRate) * 1.25;
 
   const scaleX = (x) => margin.left + (x / maxX) * plotWidth;
   const scaleY = (y) => margin.top + plotHeight - (y / maxInvRate) * plotHeight;
 
-  // Filter curve points up to target conversion for PFR area
   const pfrPoints = curveData.filter(d => d.conversion <= targetConversion);
   const pfrPathD = pfrPoints.reduce((acc, p, idx) => {
     const cmd = idx === 0 ? 'M' : 'L';
     return `${acc} ${cmd} ${scaleX(p.conversion)} ${scaleY(p.invRate)}`;
   }, '');
 
-  // Complete PFR Polygon
   const pfrAreaD = `${pfrPathD} L ${scaleX(targetConversion)} ${scaleY(0)} L ${scaleX(0)} ${scaleY(0)} Z`;
 
-  // Entire Curve Line
   const fullCurveD = curveData.reduce((acc, p, idx) => {
     const cmd = idx === 0 ? 'M' : 'L';
     return `${acc} ${cmd} ${scaleX(p.conversion)} ${scaleY(p.invRate)}`;
   }, '');
 
-  // CSTR Rectangle Coordinates
   const cstrRectX = scaleX(0);
   const cstrRectY = scaleY(cstrInvRate);
   const cstrRectW = scaleX(targetConversion) - scaleX(0);
@@ -59,17 +53,28 @@ export default function LevenspielPlot({
             Levenspiel Reactor Sizing Analysis
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Fogler CRE Method: Reciprocal Substrate Consumption Rate <span className="font-mono text-cyan-300">1 / (-r_S)</span> vs Conversion <span className="font-mono text-cyan-300">X_S</span>
+            Fogler CRE Method: Reciprocal Substrate Consumption Rate{' '}
+            <span className="font-mono text-cyan-300">
+              1 / (−r<sub>S</sub>)
+            </span>{' '}
+            vs. Conversion{' '}
+            <span className="font-mono text-cyan-300">
+              X<sub>S</sub>
+            </span>
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded bg-blue-500/30 border border-blue-400" />
-            <span className="text-blue-300">CSTR Area (Rectangle): {cstrVolume.toFixed(1)} m³</span>
+            <span className="text-blue-300">
+              CSTR Area (Rectangle): {cstrVolume.toFixed(1)} m<sup>3</sup>
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded bg-emerald-500/30 border border-emerald-400" />
-            <span className="text-emerald-300">PFR Area (Integral): {pfrVolume.toFixed(1)} m³</span>
+            <span className="text-emerald-300">
+              PFR Area (Integral): {pfrVolume.toFixed(1)} m<sup>3</sup>
+            </span>
           </div>
         </div>
       </div>
@@ -88,7 +93,6 @@ export default function LevenspielPlot({
           }}
           onMouseLeave={() => setHoverX(null)}
         >
-          {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1.0].map((tick) => (
             <g key={tick}>
               <line
@@ -111,7 +115,6 @@ export default function LevenspielPlot({
             </g>
           ))}
 
-          {/* CSTR Operating Rectangle (Blue Hatch) */}
           <rect
             x={cstrRectX}
             y={cstrRectY}
@@ -124,7 +127,6 @@ export default function LevenspielPlot({
             strokeDasharray="4 2"
           />
 
-          {/* PFR Integral Area (Emerald Shading) */}
           <path
             d={pfrAreaD}
             fill="#10b981"
@@ -133,7 +135,6 @@ export default function LevenspielPlot({
             strokeWidth="2"
           />
 
-          {/* 1/(-rS) Curve */}
           <path
             d={fullCurveD}
             fill="none"
@@ -141,7 +142,6 @@ export default function LevenspielPlot({
             strokeWidth="2.5"
           />
 
-          {/* Target Conversion Vertical Line */}
           <line
             x1={scaleX(targetConversion)}
             y1={margin.top}
@@ -159,14 +159,13 @@ export default function LevenspielPlot({
             fontWeight="bold"
             textAnchor="middle"
           >
-            Target Exit X = {(targetConversion * 100).toFixed(1)}%
+            Target Exit X<tspan dy="2" fontSize="8">S</tspan><tspan dy="-2"> = {(targetConversion * 100).toFixed(1)}%</tspan>
           </text>
 
-          {/* Zero-Order Plateau Callout Annotation */}
           <rect
             x={scaleX(0.12)}
             y={scaleY(cstrInvRate * 0.9)}
-            width="220"
+            width="230"
             height="44"
             rx="6"
             fill="#0f172a"
@@ -179,7 +178,7 @@ export default function LevenspielPlot({
             fontSize="10"
             fontWeight="bold"
           >
-            ZERO-ORDER SATURATION PLATEAU (S &gt;&gt; Ks)
+            ZERO-ORDER SATURATION PLATEAU (S &gt;&gt; K<tspan dy="2" fontSize="7.5">S</tspan><tspan dy="-2">)</tspan>
           </text>
           <text
             x={scaleX(0.13) + 5}
@@ -190,7 +189,6 @@ export default function LevenspielPlot({
             Rate is constant → CSTR area ≈ PFR area
           </text>
 
-          {/* Axes */}
           <line
             x1={margin.left}
             y1={margin.top + plotHeight}
@@ -208,7 +206,6 @@ export default function LevenspielPlot({
             strokeWidth="2"
           />
 
-          {/* Axis Labels */}
           <text
             x={margin.left + plotWidth / 2}
             y={margin.top + plotHeight + 42}
@@ -217,7 +214,7 @@ export default function LevenspielPlot({
             fontWeight="bold"
             textAnchor="middle"
           >
-            Substrate Conversion X_S = (S_0 - S) / S_0
+            Substrate Conversion X<tspan dy="3" fontSize="9">S</tspan><tspan dy="-3"> = (S</tspan><tspan dy="3" fontSize="9">0</tspan><tspan dy="-3"> − S) / S</tspan><tspan dy="3" fontSize="9">0</tspan>
           </text>
 
           <text
@@ -229,18 +226,27 @@ export default function LevenspielPlot({
             fontWeight="bold"
             textAnchor="middle"
           >
-            Reciprocal Rate 1 / (-r_S) [day · L / mg]
+            Reciprocal Rate 1 / (−r<tspan dy="3" fontSize="9">S</tspan><tspan dy="-3">) [day · L / mg]</tspan>
           </text>
         </svg>
       </div>
 
-      {/* Explanatory Scientific Banner */}
       <div className="mt-4 p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 leading-relaxed flex items-start gap-3">
         <div className="p-1.5 rounded-lg bg-cyan-950 border border-cyan-800/60 text-cyan-400 font-bold shrink-0">
           CRE Insight
         </div>
         <div>
-          In classic chemical engineering with 1st-order reactions, PFR requires <span className="text-amber-300 font-semibold">3.91× less volume</span> than CSTR at 90% conversion. However, for industrial textile effluent (<span className="text-cyan-300 font-mono font-semibold">S_0 = 750 mg/L &gt;&gt; K_S = 65 mg/L</span>), the Monod reaction operates at its asymptotic maximum rate <span className="font-mono text-cyan-300">(-r_S ≈ -r_S,max)</span> across 85% of the conversion range. Therefore, the Levenspiel curve remains flat, collapsing the volume ratio to <span className="text-emerald-400 font-bold font-mono">{volumeRatio.toFixed(2)}×</span> (near parity)!
+          In classic chemical engineering with 1<sup>st</sup>-order reactions, PFR requires{' '}
+          <span className="text-amber-300 font-semibold">3.91× less volume</span> than CSTR at 90% conversion. However, for industrial textile effluent (
+          <span className="text-cyan-300 font-mono font-semibold">
+            S<sub>0</sub> = 750 mg/L &gt;&gt; K<sub>S</sub> = 65 mg/L
+          </span>
+          ), the Monod reaction operates near its asymptotic maximum rate{' '}
+          <span className="font-mono text-cyan-300">
+            (−r<sub>S</sub> ≈ −r<sub>S,max</sub>)
+          </span>{' '}
+          across 85% of the conversion range. Therefore, the Levenspiel curve remains flat, collapsing the volume ratio to{' '}
+          <span className="text-emerald-400 font-bold font-mono">{volumeRatio.toFixed(2)}×</span> (near parity)!
         </div>
       </div>
     </div>

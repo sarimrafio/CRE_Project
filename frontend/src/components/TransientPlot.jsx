@@ -9,7 +9,7 @@ export default function TransientPlot({
     return <div className="p-8 text-center text-slate-400">Loading Transient Startup Simulation...</div>;
   }
 
-  const { time, S, Xb, DO } = transientData;
+  const { time, S, Xb } = transientData;
   const n = time.length;
 
   const svgWidth = 650;
@@ -42,7 +42,7 @@ export default function TransientPlot({
             Dynamic CSTR Startup Trajectories (Inoculation to Steady State)
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Operational timeline: 0 to 25 Days (Initial seed biomass = 200 mg VSS/L)
+            Operational timeline: 0 to 25 Days (Initial seed biomass <i>X</i><sub>b,0</sub> = 200 mg VSS/L)
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold">
@@ -52,7 +52,9 @@ export default function TransientPlot({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-emerald-400" />
-            <span className="text-emerald-300">Biomass X_b (Right Axis)</span>
+            <span className="text-emerald-300">
+              Biomass X<sub>b</sub> (Right Axis)
+            </span>
           </div>
         </div>
       </div>
@@ -71,7 +73,6 @@ export default function TransientPlot({
           }}
           onMouseLeave={() => setHoverDay(null)}
         >
-          {/* Grid lines */}
           {[0, 5, 10, 15, 20, 25].map((tick) => (
             <g key={tick}>
               <line
@@ -94,7 +95,6 @@ export default function TransientPlot({
             </g>
           ))}
 
-          {/* Substrate S Line */}
           <path
             d={pathS}
             fill="none"
@@ -102,7 +102,6 @@ export default function TransientPlot({
             strokeWidth="3"
           />
 
-          {/* Biomass Xb Line */}
           <path
             d={pathXb}
             fill="none"
@@ -110,7 +109,6 @@ export default function TransientPlot({
             strokeWidth="3"
           />
 
-          {/* Hover Marker */}
           {activeIdx !== null && (
             <g>
               <line
@@ -137,7 +135,6 @@ export default function TransientPlot({
             </g>
           )}
 
-          {/* Left Axis (Substrate) */}
           <line
             x1={margin.left}
             y1={margin.top}
@@ -158,7 +155,6 @@ export default function TransientPlot({
             Substrate bCOD S [mg/L]
           </text>
 
-          {/* Right Axis (Biomass) */}
           <line
             x1={margin.left + plotWidth}
             y1={margin.top}
@@ -176,23 +172,24 @@ export default function TransientPlot({
             fontWeight="bold"
             textAnchor="middle"
           >
-            Biomass X_b [mg VSS/L]
+            Biomass X<tspan dy="3" fontSize="9">b</tspan><tspan dy="-3"> [mg VSS/L]</tspan>
           </text>
         </svg>
       </div>
 
-      {/* Readout stats */}
       <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
         <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col">
           <span className="text-slate-500">Timeline:</span>
           <span className="font-mono font-bold text-slate-200">Day {time[activeIdx].toFixed(1)}</span>
         </div>
         <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-800/40 flex flex-col">
-          <span className="text-purple-400">Substrate Concentration:</span>
+          <span className="text-purple-400">Substrate S(t):</span>
           <span className="font-mono font-bold text-purple-200">{S[activeIdx].toFixed(1)} mg bCOD/L</span>
         </div>
         <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 flex flex-col">
-          <span className="text-emerald-400">Biomass Inventory:</span>
+          <span className="text-emerald-400">
+            Biomass Inventory X<sub>b</sub>(t):
+          </span>
           <span className="font-mono font-bold text-emerald-200">{Xb[activeIdx].toFixed(0)} mg VSS/L</span>
         </div>
       </div>
