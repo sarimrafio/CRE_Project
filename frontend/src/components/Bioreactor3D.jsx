@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { computeBioFlocMicroProfile } from '../kineticsEngine';
 
 /**
@@ -14,6 +15,55 @@ import { computeBioFlocMicroProfile } from '../kineticsEngine';
  *  - Draggable 3D Multiparameter Sonde Probe (z/L in [0, 1]) + Microscope Bio-Floc Reaction-Diffusion PiP
  *  - Cross-Sectional X-Ray Cutaway Mode, Human Engineer Scale Figure (1.75m), 5 Cinematic Camera Presets
  */
+// ---------------------------------------------------------------------------
+// PBR TEXTURE PROTOCOL: Procedural brushed Stainless Steel 316L maps
+// (roughness 0.22 base -> 0.35 in friction zones, tangent-space micro-brushed
+// normal map with horizontal circumferential grain). Raise to 4096 for 4K.
+// ---------------------------------------------------------------------------
+const STEEL_TEX_SIZE = 2048;
+function makeBrushedSteelMaps(renderer) {
+  const size = STEEL_TEX_SIZE;
+  const rough = new Uint8ClampedArray(size * size * 4);
+  const normal = new Uint8ClampedArray(size * size * 4);
+  // Per-row grain heights (grain lines run along U = circumference)
+  const h = new Float32Array(size + 2);
+  let acc = 0;
+  for (let y = 0; y < size + 2; y++) {
+    acc = acc * 0.55 + (Math.random() - 0.5);
+    h[y] = acc;
+  }
+  for (let y = 0; y < size; y++) {
+    const dh = (h[(y + 2) % (size + 2)] - h[y]) * 0.9;
+    // friction zone band: roughness drifts 0.22 -> 0.35 across v
+    const band = 0.22 + 0.13 * (0.5 + 0.5 * Math.sin((y / size) * Math.PI * 6)) * (0.6 + 0.4 * Math.random());
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      const micro = (Math.random() - 0.5) * 0.05;
+      const r = Math.min(1, Math.max(0, band + micro + (Math.random() < 0.0015 ? 0.1 : 0)));
+      rough[i] = rough[i + 1] = rough[i + 2] = 255 * r;
+      rough[i + 3] = 255;
+      const nx = (Math.random() - 0.5) * 0.04;
+      const ny = dh * 0.35 + (Math.random() - 0.5) * 0.04;
+      const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+      normal[i] = (nx * 0.5 + 0.5) * 255;
+      normal[i + 1] = (ny * 0.5 + 0.5) * 255;
+      normal[i + 2] = (nz * 0.5 + 0.5) * 255;
+      normal[i + 3] = 255;
+    }
+  }
+  const mk = (data) => {
+    const t = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.generateMipmaps = true;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.magFilter = THREE.LinearFilter;
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    t.needsUpdate = true;
+    return t;
+  };
+  return { roughnessMap: mk(rough), normalMap: mk(normal) };
+}
+
 export default function Bioreactor3D({
   Q = 1000,
   S0 = 750,
@@ -39,6 +89,7 @@ export default function Bioreactor3D({
   const [isPlaying, setIsPlaying] = useState(true);
   const [cutawayMode, setCutawayMode] = useState(true); // Feature #20: Cross-sectional X-ray cutaway
   const [heatmapMode, setHeatmapMode] = useState('visual'); // Feature #13: 'visual' | 'substrate' | 'do' | 'rate'
+  const [showPackedMedia, setShowPackedMedia] = useState(false);
   const [showScadaPins, setShowScadaPins] = useState(true); // Feature #18: 3D SCADA pins
   const [showFlocMicroscope, setShowFlocMicroscope] = useState(true); // Feature #23: Bio-floc PiP
 
@@ -68,6 +119,7 @@ export default function Bioreactor3D({
   const cstrBlanketRef = useRef(null);
   const pfrBlanketRef = useRef(null);
   const pfrZonesRef = useRef([]);
+  const pfrMediaRef = useRef(null);
   const probeMarkerRef = useRef(null);
   const complianceBeaconRef = useRef(null);
   const bubblesRef = useRef([]);
@@ -286,17 +338,36 @@ export default function Bioreactor3D({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
     mount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
+    // Laboratory / cleanroom image-based lighting (procedural HDR environment)
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const labEnv = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = labEnv;
+    scene.environmentIntensity = 0.9;
+
     // 4. MULTI-POINT INDUSTRIAL LIGHTING
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.75);
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.25);
     scene.add(ambientLight);
 
     const sunLight = new THREE.DirectionalLight(0xffffff, 1.35);
     sunLight.position.set(18, 32, 24);
     sunLight.castShadow = true;
+    // High-resolution contact shadows grounding the frames
+    sunLight.shadow.mapSize.set(4096, 4096);
+    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.normalBias = 0.02;
+    Object.assign(sunLight.shadow.camera, { left: -26, right: 26, top: 20, bottom: -20, near: 1, far: 90 });
+    sunLight.shadow.camera.updateProjectionMatrix();
     scene.add(sunLight);
+
+    // Soft cool-toned fill to lift shadow regions inside the glass cylinders
+    const coolFill = new THREE.DirectionalLight(0xbfdbfe, 0.55);
+    coolFill.position.set(-14, 10, 20);
+    scene.add(coolFill);
 
     const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.7);
     rimLight.position.set(-20, 12, -18);
@@ -324,8 +395,24 @@ export default function Bioreactor3D({
     scene.add(gridHelper);
 
     // Shared Engineering Materials
-    const steelMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.25 });
-    const darkSteelMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.75, roughness: 0.35 });
+    const steelMaps = makeBrushedSteelMaps(renderer);
+    // Industrial Stainless Steel 316L: #A5A9B0, metalness 1.0, brushed roughness/normal maps
+    const steelMat = new THREE.MeshStandardMaterial({
+      color: 0xa5a9b0,
+      metalness: 1.0,
+      roughness: 1.0,
+      roughnessMap: steelMaps.roughnessMap,
+      normalMap: steelMaps.normalMap,
+      normalScale: new THREE.Vector2(0.8, 0.8)
+    });
+    const darkSteelMat = new THREE.MeshStandardMaterial({
+      color: 0x6b7078,
+      metalness: 1.0,
+      roughness: 1.0,
+      roughnessMap: steelMaps.roughnessMap,
+      normalMap: steelMaps.normalMap,
+      normalScale: new THREE.Vector2(0.8, 0.8)
+    });
     const concreteMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.7, metalness: 0.1 });
     const motorMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 });
     const airPipeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.85 });
@@ -358,11 +445,14 @@ export default function Bioreactor3D({
     // CSTR Outer Wall (Supports Cutaway X-Ray Mode via thetaLength)
     const wallGeo = new THREE.CylinderGeometry(3.3, 3.3, 6.6, 40, 1, true, Math.PI * 0.22, Math.PI * 1.56);
     const wallMat = new THREE.MeshPhysicalMaterial({
-      color: 0x93c5fd,
-      transparent: true,
-      opacity: 0.32,
-      roughness: 0.15,
-      metalness: 0.1,
+      color: 0xffffff,
+      roughness: 0.06,
+      metalness: 0.0,
+      transmission: 0.94,
+      ior: 1.474,
+      thickness: 0.12,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.02,
       side: THREE.DoubleSide
     });
     const cstrWall = new THREE.Mesh(wallGeo, wallMat);
@@ -501,7 +591,7 @@ export default function Bioreactor3D({
 
     const clarCyl = new THREE.Mesh(
       new THREE.CylinderGeometry(1.65, 1.65, 1.5, 28),
-      new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.30 })
+      new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.06, metalness: 0, transmission: 0.94, ior: 1.474, thickness: 0.1, clearcoat: 1, clearcoatRoughness: 0.02 })
     );
     cstrClarifier.add(clarCyl);
 
@@ -553,6 +643,10 @@ export default function Bioreactor3D({
     pfrGroup.add(pfrBasin);
     pfrBasinRef.current = pfrBasin;
 
+    const acrylicMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff, roughness: 0.06, metalness: 0, transmission: 0.92,
+      ior: 1.474, thickness: 0.12, clearcoat: 1, clearcoatRoughness: 0.02
+    });
     const passLen = 7.6;
     const passWidth = 1.35;
     const passHeight = 2.6;
@@ -565,7 +659,7 @@ export default function Bioreactor3D({
       const zWall = (wallIdx - 2) * 1.55;
       const baffleWall = new THREE.Mesh(
         new THREE.BoxGeometry(passLen + 0.4, passHeight + 0.3, 0.12),
-        concreteMat
+        acrylicMat
       );
       baffleWall.position.set(0, -0.95, zWall);
       pfrBasin.add(baffleWall);
@@ -596,6 +690,36 @@ export default function Bioreactor3D({
       }
     }
     pfrZonesRef.current = pfrZones;
+
+    // Packed-bed ceramic/silica media (instanced, translucent SSS-style), togglable
+    {
+      const mediaMat = new THREE.MeshPhysicalMaterial({
+        color: 0xe0e6ed, roughness: 0.45, metalness: 0,
+        transmission: 0.5, thickness: 0.05, ior: 1.45,
+        attenuationColor: new THREE.Color(0xe0e6ed), attenuationDistance: 0.05
+      });
+      const rad = 0.12, step = 0.25;
+      const nx = Math.floor((passLen - 0.3) / step), ny = Math.floor((passHeight - 0.2) / step), nz = Math.floor((passWidth - 0.2) / step);
+      const total = nx * ny * nz * 4;
+      const media = new THREE.InstancedMesh(new THREE.SphereGeometry(rad, 14, 10), mediaMat, total);
+      const dummy = new THREE.Object3D();
+      let k = 0;
+      for (let pass = 0; pass < 4; pass++) {
+        const zc = (pass - 1.5) * 1.55;
+        for (let ix = 0; ix < nx; ix++) for (let iy = 0; iy < ny; iy++) for (let iz = 0; iz < nz; iz++) {
+          dummy.position.set(
+            -passLen / 2 + 0.15 + ix * step + (Math.random() - 0.5) * 0.03,
+            -2.2 + 0.1 + iy * step + (Math.random() - 0.5) * 0.03,
+            zc - (nz - 1) * step / 2 + iz * step + (Math.random() - 0.5) * 0.03
+          );
+          dummy.updateMatrix();
+          media.setMatrixAt(k++, dummy.matrix);
+        }
+      }
+      media.visible = false;
+      pfrBasin.add(media);
+      pfrMediaRef.current = media;
+    }
 
     // PFR Aeration Bubbles & Biomass Flocs
     const pfrBubbles = [];
@@ -827,6 +951,14 @@ export default function Bioreactor3D({
     // F. 60 FPS MULTI-PHYSICS & SCADA PROJECTION LOOP
     // =========================================================================
     const clock = new THREE.Clock();
+    // Contact shadows: opaque structural parts cast & receive
+    scene.traverse((o) => {
+      if (o.isMesh && o.material && !o.material.transparent && !o.material.transmission) {
+        o.castShadow = true;
+        o.receiveShadow = true;
+      }
+    });
+
     let frameCounter = 0;
 
     const animate = () => {
@@ -1088,11 +1220,16 @@ export default function Bioreactor3D({
       window.removeEventListener('mouseup', onMouseUp);
       mount.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', handleResize);
+      pmrem.dispose();
       if (rendererRef.current?.domElement) {
         rendererRef.current.domElement.remove();
       }
     };
   }, [scadaAnchors]);
+
+  useEffect(() => {
+    if (pfrMediaRef.current) pfrMediaRef.current.visible = showPackedMedia;
+  }, [showPackedMedia]);
 
   // Cutaway Wall Geometry Update (Feature #20)
   useEffect(() => {
@@ -1475,6 +1612,14 @@ export default function Bioreactor3D({
             }`}
           >
             {cutawayMode ? '✂️ X-Ray Cutaway ON' : '✂️ Cutaway OFF'}
+          </button>
+          <button
+            onClick={() => setShowPackedMedia(!showPackedMedia)}
+            className={`px-2.5 py-1 rounded-md font-semibold transition ${
+              showPackedMedia ? 'bg-slate-200 text-slate-900' : 'bg-slate-800 text-slate-300'
+            }`}
+          >
+            ⚪ PFR Ceramic Media
           </button>
           <button
             onClick={() => setShowScadaPins(!showScadaPins)}
