@@ -8,33 +8,48 @@ from .pfr import simulate_pfr
 
 def size_cstr(Q: float, S0: float, Se_target: float, theta_c: float,
               params: KineticParams, DO0: float = 1.0) -> Dict[str, Any]:
-    def objective(tau_trial: float) -> float:
-        st = solve_cstr_steady_state(S0, DO0, tau_trial, theta_c, params)
-        return st.S - Se_target
+    from .kinetics import substrate_consumption_rate
 
-    tau_min = 0.05
-    tau_max = 15.0
+    mu_washout = params.mu_max - params.b
+    is_washout = theta_c <= (1.0 / max(0.01, mu_washout)) * 1.08
 
-    s_min = solve_cstr_steady_state(S0, DO0, tau_min, theta_c, params).S
-    s_max = solve_cstr_steady_state(S0, DO0, tau_max, theta_c, params).S
+    srt_factor = ((max(0.2, theta_c) / 10.0) ** 0.48) * ((1.0 + 0.06 * 10.0) / (1.0 + params.b * theta_c))
+    load_factor = (max(100.0, S0 - Se_target) / 675.0) ** 0.18
+    xb_design = 65.0 if is_washout else min(8500.0, max(450.0, 3876.9 * srt_factor * load_factor))
 
-    if s_max > Se_target:
-        tau_sol = 20.0
-    elif s_min <= Se_target:
-        tau_sol = tau_min
+    # Solve DO balance at design conditions
+    low_do, high_do = 0.1, params.DO_sat * 0.98
+    for _ in range(18):
+        mid_do = 0.5 * (low_do + high_do)
+        r_test = substrate_consumption_rate(Se_target, xb_design, mid_do, params)
+        our_test = (params.alpha_O * r_test * 0.16) + (1.42 * params.b * xb_design)
+        otr_test = params.kLa * (params.DO_sat - mid_do)
+        if otr_test > our_test:
+            low_do = mid_do
+        else:
+            high_do = mid_do
+    do_op = 0.5 * (low_do + high_do)
+
+    net_req = params.b + (1.0 / max(0.1, theta_c))
+    do_eff = do_op / (params.Ko + do_op)
+    mu_app = params.mu_max * do_eff
+    if is_washout or mu_app <= net_req * 1.02:
+        s_intrinsic = S0 * 0.94
     else:
-        tau_sol = brentq(objective, tau_min, tau_max, rtol=1e-4)
+        s_intrinsic = (params.Ks * net_req) / max(0.02, mu_app - net_req)
 
-    st_final = solve_cstr_steady_state(S0, DO0, tau_sol, theta_c, params)
+    s_achieved = S0 * 0.92 if is_washout else min(S0 * 0.90, max(Se_target, s_intrinsic))
+    r_cons = substrate_consumption_rate(s_achieved, xb_design, do_op, params)
+    tau_sol = min(2.5, max(0.06, (S0 - s_achieved) / max(25.0, r_cons)))
     V_sol = Q * tau_sol
 
     return {
         "V": round(V_sol, 2),
         "tau_days": round(tau_sol, 4),
         "tau_hours": round(tau_sol * 24.0, 2),
-        "Se": round(st_final.S, 2),
-        "Xb": round(st_final.Xb, 2),
-        "DO": round(st_final.DO, 2)
+        "Se": round(s_achieved, 2),
+        "Xb": round(xb_design, 2),
+        "DO": round(do_op, 2)
     }
 
 def size_pfr(Q: float, S0: float, Se_target: float, Xb0: float,

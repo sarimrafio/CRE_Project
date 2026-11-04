@@ -77,44 +77,80 @@ export function calculateCriticalSRT(S0, DO = 2.0, k = DEFAULT_KINETICS) {
 
 /**
  * Size CSTR with Clarifier Recycle Loop (Features #1, #6, #11, #15)
+ * Dynamically couples Q, S0, Se_target, theta_c, kLa, T, recycleRatio (R), mu_max, and Ks.
  */
 export function sizeCSTR(Q, S0, Se_target, theta_c, k = DEFAULT_KINETICS, recycleRatio = 0.60, blowerTrip = false) {
-  const effectiveK = blowerTrip ? { ...k, kLa: k.kLa * 0.08 } : k;
-  const doOperating = blowerTrip ? 0.18 : Math.min(effectiveK.DO_sat * 0.85, Math.max(0.4, (effectiveK.kLa / 120.0) * 2.15));
-  const theta_c_min = calculateCriticalSRT(S0, doOperating, effectiveK);
-  const isWashout = theta_c <= theta_c_min * 1.15;
+  const effectiveK = blowerTrip ? { ...k, kLa: k.kLa * 0.06 } : k;
 
-  const netReq = effectiveK.b + (1.0 / theta_c);
+  // 1. Critical washout SRT at saturated DO
+  const theta_c_min = calculateCriticalSRT(S0, effectiveK.DO_sat * 0.75, effectiveK);
+  const isWashout = theta_c <= theta_c_min * 1.08;
+
+  // 2. Active Biomass Xb [mg VSS/L] governed by SRT (theta_c), RAS recycle thickening (R), and organic load
+  const srtFactor = Math.pow(Math.max(0.2, theta_c) / 10.0, 0.48) * ((1.0 + 0.06 * 10.0) / (1.0 + effectiveK.b * theta_c));
+  const rasFactor = Math.pow(Math.max(0.15, recycleRatio) / 0.60, 0.28);
+  const loadFactor = Math.pow(Math.max(100, S0 - Se_target) / 675.0, 0.18);
+  const Xb = isWashout
+    ? 65.0
+    : Math.min(8500.0, Math.max(450.0, 3876.9 * srtFactor * rasFactor * loadFactor));
+
+  // 3. Coupled Dissolved Oxygen (DO) equilibrium: kLa * (DO_sat - DO) = OUR(Se_target, Xb, DO)
+  let doOperating = 2.0;
+  if (blowerTrip) {
+    doOperating = 0.14;
+  } else {
+    let lowDO = 0.08;
+    let highDO = effectiveK.DO_sat * 0.98;
+    for (let iter = 0; iter < 18; iter++) {
+      const midDO = 0.5 * (lowDO + highDO);
+      // Estimate volumetric oxygen transfer vs uptake at nominal HRT (~0.49 d)
+      const rTest = substrateConsumptionRate(Se_target, Xb, midDO, effectiveK);
+      const ourTest = (effectiveK.alpha_O * rTest * 0.16) + (1.42 * effectiveK.b * Xb);
+      const otrTest = effectiveK.kLa * (effectiveK.DO_sat - midDO);
+      if (otrTest > ourTest) {
+        lowDO = midDO;
+      } else {
+        highDO = midDO;
+      }
+    }
+    doOperating = 0.5 * (lowDO + highDO);
+  }
+
+  // 4. Achieved Effluent Substrate Se (accounts for washout, DO limitation, and SRT pinning)
+  const netReq = effectiveK.b + (1.0 / Math.max(0.1, theta_c));
   const doEff = doOperating / (effectiveK.Ko + doOperating);
   const muApparent = effectiveK.mu_max * doEff;
 
-  let S_achieved;
-  if (isWashout || muApparent <= netReq) {
-    S_achieved = S0 * 0.92;
+  let S_intrinsic;
+  if (isWashout || muApparent <= netReq * 1.02) {
+    S_intrinsic = S0 * 0.94;
   } else {
-    S_achieved = Math.max(4.0, (effectiveK.Ks * netReq) / Math.max(0.02, muApparent - netReq));
+    S_intrinsic = (effectiveK.Ks * netReq) / Math.max(0.02, muApparent - netReq);
   }
 
-  // Design biomass at target
-  const rCons = substrateConsumptionRate(Se_target, 3876.9, doOperating, effectiveK);
-  const tau_days = Math.max(0.08, (S0 - Se_target) / Math.max(15.0, rCons));
-  const V_cstr = Q * tau_days;
+  // Operating effluent S is the max of target Se and the kinetic/washout floor
+  const S_achieved = isWashout
+    ? S0 * 0.92
+    : blowerTrip
+    ? Math.min(S0 * 0.85, Math.max(Se_target * 2.8, S_intrinsic))
+    : Math.min(S0 * 0.90, Math.max(Se_target, S_intrinsic));
 
-  const Xb = isWashout
-    ? 85.0
-    : (theta_c / tau_days) * ((effectiveK.Y * (S0 - Math.min(S0 * 0.8, Se_target))) / (1.0 + effectiveK.b * theta_c));
+  // 5. Substrate Consumption Rate & Required Reactor Volume V_cstr
+  const rCons = substrateConsumptionRate(S_achieved, Xb, doOperating, effectiveK);
+  const tau_days = Math.min(2.5, Math.max(0.06, (S0 - S_achieved) / Math.max(25.0, rCons)));
+  const V_cstr = Q * tau_days;
 
   const rConsActual = substrateConsumptionRate(S_achieved, Xb, doOperating, effectiveK);
   const ourActual = oxygenUptakeRate(S_achieved, Xb, doOperating, effectiveK);
 
-  // Clarifier & RAS/WAS Recycle Mass Balance (Features #1, #6)
-  const X_R = Math.min(12000, Xb * ((1 + recycleRatio) / recycleRatio) * 0.92);
+  // 6. Clarifier & RAS/WAS Recycle Mass Balance (Features #1, #6)
+  const X_R = Math.min(14000, Xb * ((1 + recycleRatio) / Math.max(0.15, recycleRatio)) * 0.92);
   const Q_R = Q * recycleRatio;
-  const Q_w = Math.max(1.0, (V_cstr * Xb) / (theta_c * Math.max(1000, X_R)));
-  const svi = doOperating < 0.8 ? 210 : 105; // mL/g
-  const blanketPct = Math.min(85, Math.max(15, (svi / 110) * (Xb / 3800) * 28));
+  const Q_w = Math.max(1.0, (V_cstr * Xb) / (Math.max(0.3, theta_c) * Math.max(1000, X_R)));
+  const svi = doOperating < 0.8 ? 215 : Math.round(95 + (Xb / 3800) * 15); // mL/g
+  const blanketPct = Math.min(92, Math.max(12, (svi / 110) * (Xb / 3800) * (0.60 / Math.max(0.2, recycleRatio)) * 28));
 
-  // Physical Vessel Geometry (H = D cylindrical basin) (Feature #15, #25)
+  // 7. Physical Vessel Geometry (H = D cylindrical basin) (Feature #15, #25)
   const diameter = Math.pow((4 * V_cstr) / Math.PI, 1 / 3);
   const height = diameter;
   const wallThickness = 0.35; // m reinforced concrete
@@ -122,7 +158,7 @@ export function sizeCSTR(Q, S0, Se_target, theta_c, k = DEFAULT_KINETICS, recycl
   const footprintM2 = Math.PI * Math.pow(diameter / 2 + 1.2, 2);
   const capexUSD = concreteM3 * 420 + 28000; // Concrete + mechanical agitator + blowers
 
-  // Surface Foam Index (Feature #16)
+  // 8. Surface Foam Index (Feature #16)
   const foamThicknessPct = Math.min(100, Math.max(5, ((S0 / 750) * (effectiveK.kLa / 120) * 35)));
 
   return {
@@ -130,7 +166,7 @@ export function sizeCSTR(Q, S0, Se_target, theta_c, k = DEFAULT_KINETICS, recycl
     tau_days,
     tau_hours: tau_days * 24.0,
     Se: Math.min(S0, S_achieved),
-    Xb: Math.max(80, Xb),
+    Xb: Math.max(65, Xb),
     DO: doOperating,
     r_S: rConsActual,
     OUR: ourActual,

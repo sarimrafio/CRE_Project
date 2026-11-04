@@ -17,6 +17,10 @@ import { computeBioFlocMicroProfile } from '../kineticsEngine';
 export default function Bioreactor3D({
   Q = 1000,
   S0 = 750,
+  targetSe = 75,
+  thetaC = 10.0,
+  kLa = 120.0,
+  recycleRatio = 0.60,
   cstrResult,
   pfrResult,
   removalPct = 90.0,
@@ -52,6 +56,8 @@ export default function Bioreactor3D({
   const animFrameIdRef = useRef(null);
 
   // Dynamic Scene Object Refs for Real-Time Reactivity
+  const cstrVesselRef = useRef(null);
+  const pfrBasinRef = useRef(null);
   const impellerRef = useRef(null);
   const blowerFanRef = useRef(null);
   const cstrRakeRef = useRef(null);
@@ -69,6 +75,7 @@ export default function Bioreactor3D({
   const pfrBubblesRef = useRef([]);
   const pfrFlocsRef = useRef([]);
   const pipeParticlesRef = useRef([]);
+  const steamParticlesRef = useRef([]);
 
   // Refs to hold latest state inside requestAnimationFrame loop
   const stateRef = useRef({
@@ -80,7 +87,13 @@ export default function Bioreactor3D({
     probeZ,
     cstrResult,
     pfrResult,
+    Q,
     S0,
+    targetSe,
+    thetaC,
+    kLa,
+    recycleRatio,
+    temperature,
     tracerState,
     shockState
   });
@@ -95,7 +108,13 @@ export default function Bioreactor3D({
       probeZ,
       cstrResult,
       pfrResult,
+      Q,
       S0,
+      targetSe,
+      thetaC,
+      kLa,
+      recycleRatio,
+      temperature,
       tracerState,
       shockState
     };
@@ -108,7 +127,13 @@ export default function Bioreactor3D({
     probeZ,
     cstrResult,
     pfrResult,
+    Q,
     S0,
+    targetSe,
+    thetaC,
+    kLa,
+    recycleRatio,
+    temperature,
     tracerState,
     shockState
   ]);
@@ -131,7 +156,16 @@ export default function Bioreactor3D({
   ], []);
 
   // Color Mapping Helper for 4-Mode Heatmap (Feature #13)
-  function evaluateFieldColor(mode, S_val, DO_val, rate_val, S_max = 750, tracerIntensity = 0, shockIntensity = 0) {
+  function evaluateFieldColor(
+    mode,
+    S_val,
+    DO_val,
+    rate_val,
+    S_max = 750,
+    tracerIntensity = 0,
+    shockIntensity = 0,
+    Xb_val = 3877
+  ) {
     // Pulse tracer overrides with neon cyan glow
     if (tracerIntensity > 0.05) {
       const base = new THREE.Color(0x0284c7);
@@ -147,7 +181,7 @@ export default function Bioreactor3D({
 
     if (mode === 'substrate') {
       // S Heatmap: Blue (low S <= 75) -> Cyan -> Yellow -> Red (high S >= 750)
-      const norm = Math.min(1, Math.max(0, S_val / Math.max(200, S_max)));
+      const norm = Math.min(1, Math.max(0, S_val / Math.max(150, S_max)));
       const c = new THREE.Color();
       c.setHSL((1.0 - norm) * 0.62, 0.9, 0.48);
       return c;
@@ -166,11 +200,24 @@ export default function Bioreactor3D({
       c.setHSL(0.75 - norm * 0.62, 0.95, 0.30 + norm * 0.28);
       return c;
     }
-    // Default 'visual': True Industrial Appearance (Violet-Purple Azo Dye -> Clarified Amber-Teal)
-    const dyeFrac = Math.min(1, Math.max(0, (S_val - 40) / Math.max(150, S_max - 40)));
-    const cleanColor = new THREE.Color(0x0d9488); // Clarified teal-amber
-    const dyeColor = new THREE.Color(0x6b21a8);   // Deep reactive azo violet
-    return cleanColor.lerp(dyeColor, dyeFrac);
+    // Default 'visual': True Industrial Appearance combining Unreacted Azo Dye (S), Biomass MLSS (Xb), and Oxygenation (DO)
+    const dyeFrac = Math.min(1, Math.max(0, (S_val - 20) / 280));
+    const sludgeFrac = Math.min(1, Math.max(0, (Xb_val - 600) / 5800));
+    const doClarity = Math.min(1, Math.max(0, DO_val / 3.8));
+
+    const cleanTeal = new THREE.Color(0x0d9488);
+    const oxygenatedCyan = new THREE.Color(0x06b6d4);
+    const anoxicMurk = new THREE.Color(0x31102f);
+    const sludgeAmber = new THREE.Color(0xb45309);
+    const dyeViolet = new THREE.Color(0x7e22ce);
+
+    // Base water clarity shifts between anoxic dark murk and oxygenated cyan-teal
+    const baseLiquid = anoxicMurk.clone().lerp(cleanTeal, doClarity).lerp(oxygenatedCyan, doClarity * 0.35);
+    // Blend in activated sludge MLSS golden-brown turbidity
+    baseLiquid.lerp(sludgeAmber, sludgeFrac * 0.42);
+    // Blend in unreacted purple-violet reactive azo dye
+    baseLiquid.lerp(dyeViolet, dyeFrac * 0.85);
+    return baseLiquid;
   }
 
   // Camera Position Updater
@@ -294,6 +341,11 @@ export default function Bioreactor3D({
     cstrGroup.position.set(-7.5, 0, 0);
     scene.add(cstrGroup);
 
+    // Dynamic Vessel Sub-Group (Scales in 3D when required CSTR volume V changes!)
+    const cstrVessel = new THREE.Group();
+    cstrGroup.add(cstrVessel);
+    cstrVesselRef.current = cstrVessel;
+
     // CSTR Support Pedestal Legs
     for (let i = 0; i < 4; i++) {
       const angle = (i * Math.PI) / 2 + Math.PI / 4;
@@ -314,7 +366,7 @@ export default function Bioreactor3D({
       side: THREE.DoubleSide
     });
     const cstrWall = new THREE.Mesh(wallGeo, wallMat);
-    cstrGroup.add(cstrWall);
+    cstrVessel.add(cstrWall);
     cstrWallRef.current = cstrWall;
 
     // Top & Bottom Structural Steel Flanges
@@ -322,11 +374,11 @@ export default function Bioreactor3D({
     const topFlange = new THREE.Mesh(flangeGeo, steelMat);
     topFlange.rotation.x = Math.PI / 2;
     topFlange.position.y = 3.3;
-    cstrGroup.add(topFlange);
+    cstrVessel.add(topFlange);
 
     const botFlange = topFlange.clone();
     botFlange.position.y = -3.3;
-    cstrGroup.add(botFlange);
+    cstrVessel.add(botFlange);
 
     // 4 Internal Anti-Swirl Wall Baffles (Feature #4)
     const baffleGeo = new THREE.BoxGeometry(0.35, 6.2, 0.08);
@@ -335,7 +387,7 @@ export default function Bioreactor3D({
       const baffle = new THREE.Mesh(baffleGeo, darkSteelMat);
       baffle.rotation.y = -bAngle;
       baffle.position.set(Math.cos(bAngle) * 3.08, 0, Math.sin(bAngle) * 3.08);
-      cstrGroup.add(baffle);
+      cstrVessel.add(baffle);
     }
 
     // CSTR Liquid Body
@@ -349,7 +401,7 @@ export default function Bioreactor3D({
     });
     const cstrLiquid = new THREE.Mesh(liquidGeo, liquidMat);
     cstrLiquid.position.y = -0.35;
-    cstrGroup.add(cstrLiquid);
+    cstrVessel.add(cstrLiquid);
     cstrLiquidRef.current = cstrLiquid;
 
     // Surface Surfactant Foam Layer (Feature #16)
@@ -362,18 +414,18 @@ export default function Bioreactor3D({
     });
     const cstrFoam = new THREE.Mesh(foamGeo, foamMat);
     cstrFoam.position.y = 2.62;
-    cstrGroup.add(cstrFoam);
+    cstrVessel.add(cstrFoam);
     cstrFoamRef.current = cstrFoam;
 
     // Top Bridge Truss & Electric Gearbox Motor (Feature #4)
     const bridgeGeo = new THREE.BoxGeometry(7.0, 0.22, 0.65);
     const bridge = new THREE.Mesh(bridgeGeo, steelMat);
     bridge.position.y = 3.5;
-    cstrGroup.add(bridge);
+    cstrVessel.add(bridge);
 
     const motorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 1.2, 20), motorMat);
     motorBody.position.y = 4.2;
-    cstrGroup.add(motorBody);
+    cstrVessel.add(motorBody);
 
     // Dual-Stage Rushton Turbine Impeller Assembly (Feature #4)
     const impellerGroup = new THREE.Group();
@@ -396,14 +448,14 @@ export default function Bioreactor3D({
         impellerGroup.add(blade);
       }
     });
-    cstrGroup.add(impellerGroup);
+    cstrVessel.add(impellerGroup);
     impellerRef.current = impellerGroup;
 
     // Bottom Fine-Bubble EPDM Membrane Diffuser Grid (Feature #3)
     const diffuserRing = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.08, 12, 32), airPipeMat);
     diffuserRing.rotation.x = Math.PI / 2;
     diffuserRing.position.y = -3.05;
-    cstrGroup.add(diffuserRing);
+    cstrVessel.add(diffuserRing);
 
     const podGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.08, 16);
     const podMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
@@ -411,7 +463,7 @@ export default function Bioreactor3D({
       const ang = (p * Math.PI) / 6;
       const pod = new THREE.Mesh(podGeo, podMat);
       pod.position.set(Math.cos(ang) * 1.9, -3.0, Math.sin(ang) * 1.9);
-      cstrGroup.add(pod);
+      cstrVessel.add(pod);
     }
 
     // CSTR Oxygen Micro-Bubbles (White/Cyan rising) & Biomass Flocs (Amber swirling) (Feature #14)
@@ -423,7 +475,7 @@ export default function Bioreactor3D({
       const r = 0.4 + Math.random() * 2.5;
       const theta = Math.random() * Math.PI * 2;
       bMesh.position.set(r * Math.cos(theta), -3.0 + Math.random() * 5.4, r * Math.sin(theta));
-      cstrGroup.add(bMesh);
+      cstrVessel.add(bMesh);
       cstrBubbles.push({ mesh: bMesh, speedY: 0.045 + Math.random() * 0.04, angle: theta, radius: r });
     }
     bubblesRef.current = cstrBubbles;
@@ -437,7 +489,7 @@ export default function Bioreactor3D({
       const theta = Math.random() * Math.PI * 2;
       const y = -2.8 + Math.random() * 5.0;
       fMesh.position.set(r * Math.cos(theta), y, r * Math.sin(theta));
-      cstrGroup.add(fMesh);
+      cstrVessel.add(fMesh);
       cstrFlocs.push({ mesh: fMesh, r, theta, y, speedTheta: 0.025 + Math.random() * 0.02 });
     }
     flocsRef.current = cstrFlocs;
@@ -496,6 +548,11 @@ export default function Bioreactor3D({
     pfrGroup.position.set(7.2, 0, 0);
     scene.add(pfrGroup);
 
+    // Dynamic PFR Basin Sub-Group (Scales in 3D when PFR volume V & channel length L change!)
+    const pfrBasin = new THREE.Group();
+    pfrGroup.add(pfrBasin);
+    pfrBasinRef.current = pfrBasin;
+
     const passLen = 7.6;
     const passWidth = 1.35;
     const passHeight = 2.6;
@@ -511,7 +568,7 @@ export default function Bioreactor3D({
         concreteMat
       );
       baffleWall.position.set(0, -0.95, zWall);
-      pfrGroup.add(baffleWall);
+      pfrBasin.add(baffleWall);
     }
 
     // 16 Axial Fluid Zones along the Serpentine Path (z/L in [0, 1])
@@ -534,7 +591,7 @@ export default function Bioreactor3D({
         });
         const zoneMesh = new THREE.Mesh(zoneGeo, zoneMat);
         zoneMesh.position.set(xOffset, -1.0, zCenter);
-        pfrGroup.add(zoneMesh);
+        pfrBasin.add(zoneMesh);
         pfrZones.push({ mesh: zoneMesh, fracZ, pass, xOffset, zCenter });
       }
     }
@@ -549,7 +606,7 @@ export default function Bioreactor3D({
       const xRel = (Math.random() - 0.5) * (passLen - 0.4);
       const fracZ = (pass + (pass % 2 === 0 ? (xRel + passLen / 2) / passLen : (passLen / 2 - xRel) / passLen)) / 4.0;
       bMesh.position.set(xRel, -2.2 + Math.random() * 2.3, zCenter + (Math.random() - 0.5) * 0.9);
-      pfrGroup.add(bMesh);
+      pfrBasin.add(bMesh);
       pfrBubbles.push({
         mesh: bMesh,
         pass,
@@ -568,7 +625,7 @@ export default function Bioreactor3D({
       const pass = Math.floor(Math.random() * 4);
       const zCenter = (pass - 1.5) * 1.55;
       fMesh.position.set((Math.random() - 0.5) * (passLen - 0.4), -2.1 + Math.random() * 2.1, zCenter + (Math.random() - 0.5) * 0.8);
-      pfrGroup.add(fMesh);
+      pfrBasin.add(fMesh);
       pfrFlocs.push({
         mesh: fMesh,
         speedX: pass % 2 === 0 ? 0.032 : -0.032,
@@ -593,7 +650,7 @@ export default function Bioreactor3D({
     );
     probeBeacon.position.y = 3.1;
     probeGroup.add(probeBeacon);
-    pfrGroup.add(probeGroup);
+    pfrBasin.add(probeGroup);
     probeMarkerRef.current = probeGroup;
 
     // PFR Secondary Clarifier & DoE Discharge Gate (Features #1, #6, #24)
@@ -778,7 +835,25 @@ export default function Bioreactor3D({
       const elapsed = clock.getElapsedTime();
       const st = stateRef.current;
 
-      // 1. Update CSTR Liquid Color & Cutaway Wall
+      // 1. Dynamically Scale 3D CSTR & PFR Vessel Geometries with Calculated Reactor Volume V!
+      if (cstrVesselRef.current && st.cstrResult?.V) {
+        const volRatioCstr = Math.max(0.18, Math.min(4.2, st.cstrResult.V / 490.0));
+        const rScale = Math.max(0.62, Math.min(1.48, Math.pow(volRatioCstr, 0.34)));
+        const hScale = Math.max(0.65, Math.min(1.42, Math.pow(volRatioCstr, 0.30)));
+        cstrVesselRef.current.scale.lerp(new THREE.Vector3(rScale, hScale, rScale), 0.12);
+        // Keep tank bottom sitting cleanly on support legs
+        cstrVesselRef.current.position.y = (hScale - 1.0) * 3.1;
+      }
+
+      if (pfrBasinRef.current && st.pfrResult?.V) {
+        const volRatioPfr = Math.max(0.18, Math.min(4.2, st.pfrResult.V / 495.0));
+        const lenScale = Math.max(0.60, Math.min(1.48, Math.pow(volRatioPfr, 0.38)));
+        const depthScale = Math.max(0.68, Math.min(1.38, Math.pow(volRatioPfr, 0.26)));
+        pfrBasinRef.current.scale.lerp(new THREE.Vector3(lenScale, depthScale, 1.0), 0.12);
+        pfrBasinRef.current.position.y = (depthScale - 1.0) * 1.8;
+      }
+
+      // 2. Update CSTR Liquid Color & Cutaway Wall (Coupled to Se, DO, r_S, S0, and Xb)
       if (cstrLiquidRef.current && st.cstrResult) {
         const tracerCstr = st.tracerState.active ? Math.exp(-st.tracerState.elapsed * 0.8) : 0;
         const shockCstr = st.shockState.active ? Math.exp(-Math.pow((st.shockState.elapsed - 1.5) / 1.8, 2)) * 0.65 : 0;
@@ -791,12 +866,13 @@ export default function Bioreactor3D({
             st.cstrResult.r_S,
             st.S0,
             tracerCstr,
-            shockCstr
+            shockCstr,
+            st.cstrResult.Xb
           )
         );
       }
 
-      // 2. Update 16 PFR Axial Spatial Zones with True Profile Colors
+      // 3. Update 16 PFR Axial Spatial Zones with True Profile Colors
       if (pfrZonesRef.current.length > 0 && st.pfrResult?.profiles) {
         const prof = st.pfrResult.profiles;
         const nProf = prof.S.length;
@@ -806,6 +882,7 @@ export default function Bioreactor3D({
           const localS = prof.S[pIdx];
           const localDO = prof.DO[pIdx];
           const localRate = prof.reaction_rate[pIdx];
+          const localXb = prof.Xb ? prof.Xb[pIdx] : 3877;
 
           // Plug-flow pulse tracer wave traveling along z/L
           const tracerFront = (st.tracerState.elapsed % 4.5) / 3.6;
@@ -827,13 +904,14 @@ export default function Bioreactor3D({
               localRate,
               st.S0,
               tracerPfr,
-              shockPfr
+              shockPfr,
+              localXb
             )
           );
         });
       }
 
-      // 3. Position 3D Multiparameter Sonde Probe along Serpentine PFR (Feature #19)
+      // 4. Position 3D Multiparameter Sonde Probe along Serpentine PFR (Feature #19)
       if (probeMarkerRef.current) {
         const zFrac = Math.min(1, Math.max(0, st.probeZ));
         const passFloat = zFrac * 4.0;
@@ -845,36 +923,59 @@ export default function Bioreactor3D({
         probeMarkerRef.current.position.set(xPos, -0.8, zCenter);
       }
 
-      // 4. Update Clarifier Sludge Blankets & Surface Foam & Compliance Beacon
+      // 5. Update Clarifier Sludge Blankets (CSTR & PFR), Surface Foam & Compliance Beacon
       if (cstrBlanketRef.current && st.cstrResult?.recycle) {
-        const scaleH = Math.max(0.3, st.cstrResult.recycle.blanketPct / 35);
+        const scaleH = Math.max(0.25, Math.min(2.2, st.cstrResult.recycle.blanketPct / 30));
         cstrBlanketRef.current.scale.y = scaleH;
       }
+      if (pfrBlanketRef.current && st.pfrResult) {
+        const pfrBlanketScale = Math.max(0.25, Math.min(2.3, ((st.pfrResult.svi || 110) / 110) * (0.60 / Math.max(0.2, st.recycleRatio || 0.6)) * 0.95));
+        pfrBlanketRef.current.scale.y = pfrBlanketScale;
+      }
       if (cstrFoamRef.current && st.cstrResult?.geometry) {
-        cstrFoamRef.current.scale.y = Math.max(0.2, st.cstrResult.geometry.foamThicknessPct / 35);
+        const foamScale = Math.max(0.15, Math.min(3.2, (st.cstrResult.geometry.foamThicknessPct / 30) * ((st.kLa || 120) / 120)));
+        cstrFoamRef.current.scale.y = foamScale;
+        cstrFoamRef.current.material.opacity = Math.min(0.88, 0.30 + (st.S0 / 2000) * 0.45);
       }
       if (complianceBeaconRef.current && st.cstrResult) {
-        const isCompliant = st.cstrResult.Se <= 75.5 && !st.blowerTrip && !st.cstrResult.isWashout;
+        const isCompliant = st.cstrResult.Se <= (st.targetSe + 0.8) && !st.blowerTrip && !st.cstrResult.isWashout;
         complianceBeaconRef.current.material.color.setHex(isCompliant ? 0x10b981 : 0xef4444);
       }
 
-      // 5. Mechanical Rotation & Multi-Phase Particle Kinematics
+      // 6. Dynamic Mechanical Rotation & Multi-Phase Particle Kinematics (Driven by Q, kLa, thetaC, R, T, S0!)
       if (st.isPlaying) {
-        if (impellerRef.current) {
-          impellerRef.current.rotation.y += delta * 5.2;
-        }
-        if (blowerFanRef.current && !st.blowerTrip) {
-          blowerFanRef.current.rotation.z += delta * 12.0;
-        }
-        if (cstrRakeRef.current) cstrRakeRef.current.rotation.y += delta * 0.45;
-        if (pfrRakeRef.current) pfrRakeRef.current.rotation.y += delta * 0.45;
+        const flowFactor = Math.max(0.25, Math.min(3.5, (st.Q || 1000) / 1000.0));
+        const klaFactor = Math.max(0.25, Math.min(2.5, (st.kLa || 120) / 120.0));
+        const rasFactor = Math.max(0.3, Math.min(2.6, (st.recycleRatio || 0.6) / 0.60));
+        const tempFactor = Math.max(0.7, Math.min(1.6, Math.pow(1.05, (st.temperature || 25) - 20)));
+        const xbVal = st.cstrResult?.Xb || 3877;
+        const flocCountFrac = st.cstrResult?.isWashout
+          ? 0.08
+          : Math.max(0.18, Math.min(1.0, xbVal / 5200.0));
+        const flocSizeScale = Math.max(0.55, Math.min(1.75, Math.pow((st.thetaC || 10) / 10.0, 0.32)));
+        const bubbleCountFrac = st.blowerTrip ? 0 : Math.max(0.20, Math.min(1.0, (st.kLa || 120) / 200.0));
+        const bubbleSizeScale = Math.max(0.65, Math.min(1.55, 0.75 + 0.35 * klaFactor));
 
-        // CSTR Bubbles (Pause if Blower Trip is active!)
-        bubblesRef.current.forEach((b) => {
-          b.mesh.visible = !st.blowerTrip;
-          if (!st.blowerTrip) {
-            b.mesh.position.y += b.speedY;
-            b.angle += 0.02;
+        // Impeller spins faster with higher hydraulic flow Q and aeration agitation
+        if (impellerRef.current) {
+          impellerRef.current.rotation.y += delta * (2.8 + 2.6 * flowFactor + 1.4 * klaFactor);
+        }
+        // Root Blower Fan RPM scales directly with kLa!
+        if (blowerFanRef.current && !st.blowerTrip) {
+          blowerFanRef.current.rotation.z += delta * 12.0 * klaFactor;
+        }
+        // Clarifier Scraper Rake RPM scales with RAS recycle ratio R!
+        if (cstrRakeRef.current) cstrRakeRef.current.rotation.y += delta * 0.45 * rasFactor;
+        if (pfrRakeRef.current) pfrRakeRef.current.rotation.y += delta * 0.45 * rasFactor;
+
+        // CSTR Bubbles: Count, Size & Rising Velocity scale with kLa & Temperature!
+        bubblesRef.current.forEach((b, idx) => {
+          const isActiveBubble = !st.blowerTrip && (idx / bubblesRef.current.length) <= bubbleCountFrac;
+          b.mesh.visible = isActiveBubble;
+          if (isActiveBubble) {
+            b.mesh.scale.setScalar(bubbleSizeScale);
+            b.mesh.position.y += b.speedY * klaFactor * tempFactor;
+            b.angle += 0.015 * (flowFactor + klaFactor * 0.5);
             b.mesh.position.x = b.radius * Math.cos(b.angle);
             b.mesh.position.z = b.radius * Math.sin(b.angle);
             if (b.mesh.position.y > 2.4) {
@@ -883,52 +984,62 @@ export default function Bioreactor3D({
           }
         });
 
-        // CSTR Biomass Flocs (Toroidal Vortex Swirl)
-        const washoutScale = st.cstrResult?.isWashout ? 0.15 : 1.0;
+        // CSTR Biomass Flocs: Count, Size & Toroidal Swirl scale with theta_c (Xb), Q, and T!
         flocsRef.current.forEach((f, idx) => {
-          f.mesh.visible = (idx / flocsRef.current.length) <= washoutScale;
-          f.theta += f.speedTheta;
+          f.mesh.visible = (idx / flocsRef.current.length) <= flocCountFrac;
+          f.mesh.scale.setScalar(flocSizeScale);
+          f.theta += f.speedTheta * (0.55 + 0.65 * flowFactor) * tempFactor;
           f.mesh.position.x = f.r * Math.cos(f.theta);
           f.mesh.position.z = f.r * Math.sin(f.theta);
-          f.mesh.position.y = -0.4 + Math.sin(elapsed * 2.2 + idx) * 2.1;
+          f.mesh.position.y = -0.4 + Math.sin(elapsed * (1.5 + flowFactor) + idx) * 2.1;
         });
 
-        // PFR Bubbles (Tapered vs Uniform density!)
-        pfrBubblesRef.current.forEach((b) => {
+        // PFR Bubbles: Density, Size & Rising Speed scale with kLa + Tapered/Uniform Mode!
+        pfrBubblesRef.current.forEach((b, idx) => {
           if (st.blowerTrip) {
             b.mesh.visible = false;
             return;
           }
-          // In tapered mode, front half has 100% bubble visibility, tail has sparser bubbles
-          b.mesh.visible = st.aerationMode === 'tapered' ? (b.fracZ < 0.55 || Math.random() > 0.25) : true;
-          const speedBoost = st.aerationMode === 'tapered' && b.fracZ < 0.35 ? 1.45 : 1.0;
-          b.mesh.position.y += b.speedY * speedBoost;
-          b.mesh.position.x += b.speedX;
+          const baseVisible = (idx / pfrBubblesRef.current.length) <= bubbleCountFrac;
+          b.mesh.visible = st.aerationMode === 'tapered'
+            ? baseVisible && (b.fracZ < 0.55 || idx % 3 === 0)
+            : baseVisible;
+          b.mesh.scale.setScalar(bubbleSizeScale);
+          const speedBoost = st.aerationMode === 'tapered' && b.fracZ < 0.35 ? 1.55 : 1.0;
+          b.mesh.position.y += b.speedY * klaFactor * speedBoost;
+          b.mesh.position.x += b.speedX * flowFactor;
           if (b.mesh.position.y > 0.2 || b.mesh.position.x < b.minX || b.mesh.position.x > b.maxX) {
             b.mesh.position.y = -2.2;
             b.mesh.position.x = b.speedX > 0 ? b.minX : b.maxX;
           }
         });
 
-        // PFR Biomass Flocs
-        pfrFlocsRef.current.forEach((f) => {
-          f.mesh.position.x += f.speedX;
+        // PFR Biomass Flocs: Advection velocity scales with Flow Rate Q; Count & Size scale with theta_c!
+        pfrFlocsRef.current.forEach((f, idx) => {
+          f.mesh.visible = (idx / pfrFlocsRef.current.length) <= flocCountFrac;
+          f.mesh.scale.setScalar(flocSizeScale);
+          f.mesh.position.x += f.speedX * flowFactor;
           if (f.mesh.position.x < f.minX || f.mesh.position.x > f.maxX) {
             f.mesh.position.x = f.speedX > 0 ? f.minX : f.maxX;
           }
         });
 
-        // Animated Pipeline Streamline Chevrons/Packets (Feature #2)
+        // Animated Pipeline Streamline Packets: Speed & Size scale with Q (Influent), R (RAS), and kLa (Air)!
         pipeParticlesRef.current.forEach((pp) => {
-          pp.progress = (pp.progress + delta * 0.42) % 1.0;
-          const p = pp.progress;
           if (pp.type === 'influent') {
+            pp.progress = (pp.progress + delta * 0.38 * flowFactor) % 1.0;
+            const sScale = Math.max(0.75, Math.min(1.65, 0.7 + (st.S0 || 750) / 1200));
+            pp.mesh.scale.setScalar(sScale);
+            const p = pp.progress;
             if (pp.branch === 'cstr') {
               pp.mesh.position.set(-13.5 + p * 5.2, 3.2, 0);
             } else {
               pp.mesh.position.set(-13.5 + p * 17.0, 3.2 - p * 3.0, -2.3);
             }
           } else if (pp.type === 'ras') {
+            pp.progress = (pp.progress + delta * 0.36 * rasFactor * Math.sqrt(flowFactor)) % 1.0;
+            pp.mesh.scale.setScalar(Math.max(0.65, Math.min(1.65, 0.6 + (st.recycleRatio || 0.6) * 0.75)));
+            const p = pp.progress;
             if (pp.branch === 'cstr') {
               pp.mesh.position.set(-7.5 - p * 3.2, -4.4 + p * 6.5, 4.2 - p * 4.2);
             } else {
@@ -936,6 +1047,9 @@ export default function Bioreactor3D({
             }
           } else if (pp.type === 'air') {
             pp.mesh.visible = !st.blowerTrip;
+            pp.progress = (pp.progress + delta * 0.45 * klaFactor) % 1.0;
+            pp.mesh.scale.setScalar(bubbleSizeScale);
+            const p = pp.progress;
             if (pp.branch === 'cstr') {
               pp.mesh.position.set(-p * 7.5, -4.2 + p * 1.1, 4.6 - p * 4.6);
             } else {

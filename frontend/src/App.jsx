@@ -110,43 +110,15 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [syncWithRenderBackend]);
 
-  // 60 FPS Multi-Physics Solvers
-  const localCstr = useMemo(() => {
+  // 60 FPS Multi-Physics Solvers (Fully coupled across all 9 process & kinetic sliders)
+  const cstrResult = useMemo(() => {
     return sizeCSTR(Q, S0, targetSe, thetaC, currentKinetics, recycleRatio, blowerTrip);
   }, [Q, S0, targetSe, thetaC, currentKinetics, recycleRatio, blowerTrip]);
 
-  const localPfr = useMemo(() => {
-    const xbBaseline = localCstr.Xb > 150 ? localCstr.Xb : 3800.0;
-    return sizePFR(Q, S0, targetSe, xbBaseline, currentKinetics, aerationMode, blowerTrip);
-  }, [Q, S0, targetSe, localCstr.Xb, currentKinetics, aerationMode, blowerTrip]);
-
-  const cstrResult = useMemo(() => {
-    if (backendStatus === 'connected' && remoteData?.cstr && !blowerTrip && !localCstr.isWashout) {
-      return {
-        ...localCstr,
-        V: remoteData.cstr.volume_m3,
-        tau_days: remoteData.cstr.tau_days,
-        tau_hours: remoteData.cstr.tau_hours,
-        Se: remoteData.cstr.effluent_S_mg_L,
-        Xb: remoteData.cstr.biomass_Xb_mg_L
-      };
-    }
-    return localCstr;
-  }, [backendStatus, remoteData, localCstr, blowerTrip]);
-
   const pfrResult = useMemo(() => {
-    if (backendStatus === 'connected' && remoteData?.pfr && !blowerTrip && aerationMode === 'uniform') {
-      return {
-        ...localPfr,
-        V: remoteData.pfr.volume_m3,
-        tau_days: remoteData.pfr.tau_days,
-        tau_hours: remoteData.pfr.tau_hours,
-        Se: remoteData.pfr.effluent_S_mg_L,
-        Xb: remoteData.pfr.biomass_Xb_mg_L
-      };
-    }
-    return localPfr;
-  }, [backendStatus, remoteData, localPfr, blowerTrip, aerationMode]);
+    const xbBaseline = cstrResult.Xb > 150 ? cstrResult.Xb : 3800.0;
+    return sizePFR(Q, S0, targetSe, xbBaseline, currentKinetics, aerationMode, blowerTrip);
+  }, [Q, S0, targetSe, cstrResult.Xb, currentKinetics, aerationMode, blowerTrip]);
 
   const sustCSTR = useMemo(() => {
     return evaluateSustainability(Q, cstrResult.V, S0, cstrResult.Se, cstrResult.Xb, thetaC, currentKinetics);
@@ -694,6 +666,10 @@ export default function App() {
             <Bioreactor3D
               Q={Q}
               S0={S0}
+              targetSe={targetSe}
+              thetaC={thetaC}
+              kLa={kLa}
+              recycleRatio={recycleRatio}
               cstrResult={cstrResult}
               pfrResult={pfrResult}
               removalPct={removalPct}
