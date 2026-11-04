@@ -58,7 +58,7 @@ export default function App() {
 
   // Render Backend API Connection State
   const [renderApiUrl, setRenderApiUrl] = useState(
-    import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    import.meta.env.VITE_API_URL || 'https://textile-bioreactor-digital-twin-api.onrender.com'
   );
   const [showApiConfig, setShowApiConfig] = useState(false);
   const [backendStatus, setBackendStatus] = useState('checking');
@@ -126,8 +126,7 @@ export default function App() {
         tau_days: remoteData.cstr.tau_days,
         tau_hours: remoteData.cstr.tau_hours,
         Se: remoteData.cstr.effluent_S_mg_L,
-        Xb: remoteData.cstr.biomass_Xb_mg_L,
-        DO: remoteData.cstr.effluent_DO_mg_L
+        Xb: remoteData.cstr.biomass_Xb_mg_L
       };
     }
     return localCstr;
@@ -141,8 +140,7 @@ export default function App() {
         tau_days: remoteData.pfr.tau_days,
         tau_hours: remoteData.pfr.tau_hours,
         Se: remoteData.pfr.effluent_S_mg_L,
-        Xb: remoteData.pfr.biomass_Xb_mg_L,
-        DO: remoteData.pfr.effluent_DO_mg_L
+        Xb: remoteData.pfr.biomass_Xb_mg_L
       };
     }
     return localPfr;
