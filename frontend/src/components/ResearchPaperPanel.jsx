@@ -175,6 +175,56 @@ ${currentHtml}
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadWordDoc = () => {
+    const currentHtml =
+      isEditUnlocked && editorMode === 'visual' && editableRef.current
+        ? editableRef.current.innerHTML
+        : paperHtml;
+
+    const wordDoc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Comparative CSTR and PFR Design for Biological Wastewater Treatment</title>
+<!--[if gte mso 9]>
+<xml>
+  <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page { size: 8.5in 11in; margin: 1in; }
+  body { font-family: Cambria, Georgia, 'Times New Roman', serif; font-size: 11pt; line-height: 1.6; color: #111827; background: #ffffff; }
+  h1, h2, h3 { font-family: Cambria, 'Segoe UI', Arial, sans-serif; color: #0f172a; }
+  h1 { font-size: 17pt; border-bottom: 2px solid #0f172a; padding-bottom: 8pt; text-align: center; }
+  h2 { font-size: 13.5pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4pt; margin-top: 18pt; }
+  h3 { font-size: 11.5pt; color: #1e3a8a; margin-top: 12pt; }
+  table { border-collapse: collapse; width: 100%; margin: 12pt 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #94a3b8; padding: 6pt 8pt; text-align: left; }
+  th { background-color: #e2e8f0; font-weight: bold; }
+  img { max-width: 6.0in; height: auto; display: block; margin: 10pt auto; }
+  .math-block { margin: 8pt 0; padding: 8pt 12pt; background-color: #f8fafc; border-left: 3pt solid #0284c7; font-family: Cambria, Consolas, serif; font-size: 10.5pt; font-weight: bold; color: #0369a1; }
+  .math-inline { font-family: Cambria, Consolas, serif; color: #0369a1; font-weight: bold; }
+</style>
+</head>
+<body>
+${currentHtml}
+</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'CRE_Project24_Research_Paper_Editable.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const scrollToHeading = (matchText) => {
     const container = editableRef.current;
     if (!container) return;
@@ -270,6 +320,23 @@ ${currentHtml}
               </button>
             </>
           )}
+
+          <a
+            href="/CRE_Project24_Research_Paper.docx"
+            download="CRE_Project24_Research_Paper.docx"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition"
+          >
+            <Download className="w-3.5 h-3.5 text-white" />
+            <span>Download Word (.docx)</span>
+          </a>
+
+          <button
+            onClick={handleDownloadWordDoc}
+            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-blue-500/40 text-blue-200 font-semibold flex items-center gap-1.5 transition"
+          >
+            <Download className="w-3.5 h-3.5 text-blue-400" />
+            <span>Export Edited (.doc)</span>
+          </button>
 
           <button
             onClick={handleDownloadHTML}
