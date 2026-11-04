@@ -16,6 +16,58 @@ import { computeBioFlocMicroProfile } from '../kineticsEngine';
  *  - Draggable 3D Multiparameter Sonde Probe (z/L in [0, 1]) + Microscope Bio-Floc Reaction-Diffusion PiP
  *  - Cross-Sectional X-Ray Cutaway Mode, Human Engineer Scale Figure (1.75m), 5 Cinematic Camera Presets
  */
+
+function makeSignboardTexture(title, subtitle, tag, isOutput = false) {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 384;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // Background
+  ctx.fillStyle = '#0a0f1d';
+  ctx.fillRect(0, 0, 1024, 384);
+
+  // Outer border & safety accents
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = isOutput ? '#10b981' : '#a855f7';
+  ctx.strokeRect(10, 10, 1004, 364);
+
+  // Top header bar
+  ctx.fillStyle = isOutput ? '#065f46' : '#581c87';
+  ctx.fillRect(20, 20, 984, 70);
+
+  ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(tag, 42, 55);
+
+  ctx.font = 'bold 44px "Segoe UI", Arial, sans-serif';
+  ctx.fillStyle = isOutput ? '#34d399' : '#e9d5ff';
+  ctx.fillText(title, 42, 145);
+
+  ctx.font = '28px "Segoe UI", Arial, sans-serif';
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillText(subtitle, 42, 215);
+
+  // Arrow / Flow indicator strip
+  ctx.fillStyle = isOutput ? '#10b981' : '#c084fc';
+  ctx.fillRect(42, 265, 940, 6);
+
+  ctx.font = 'bold 30px monospace';
+  ctx.fillStyle = isOutput ? '#a7f3d0' : '#f5d0fe';
+  const flowText = isOutput
+    ? 'FLOW DIRECTION ➔ RIVER / PUBLIC DISCHARGE (Se ≤ 75 mg/L)'
+    : 'FLOW DIRECTION ➔ EQUALIZATION & TREATMENT TRAIN';
+  ctx.fillText(flowText, 42, 320);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  return tex;
+}
+
 export default function Bioreactor3D({
   Q = 1000,
   S0 = 750,
@@ -378,6 +430,22 @@ export default function Bioreactor3D({
       title: 'Overhead Industrial Pipe Bridge Rack',
       role: 'Heavy steel truss routing air, raw dye influent, steam, and treated utility lines',
       category: 'aux'
+    },
+    {
+      id: 'raw_intake',
+      pos: new THREE.Vector3(-25.5, -0.6, -4.5),
+      tag: 'INF-001',
+      title: 'Textile Dyehouse Raw Influent Intake',
+      role: 'Raw textile dye wastewater (Q₀ = 1000 m³/d, bCOD = 750 mg/L) pumped from dyehouse & washing lines into EQ Basin TK-001',
+      category: 'aux'
+    },
+    {
+      id: 'final_outfall',
+      pos: new THREE.Vector3(26.5, -1.2, 1.5),
+      tag: 'OUTFALL-001',
+      title: 'Final Treated Effluent Discharge Outfall',
+      role: 'Post-tertiary polished effluent cascade discharging to receiving river, meeting Bangladesh DoE Schedule-10 standards (Sₑ ≤ 75 mg/L)',
+      category: 'aux'
     }
   ], []);
 
@@ -488,6 +556,21 @@ export default function Bioreactor3D({
     } else if (presetName === 'blueprint') {
       cameraTargetRef.current.set(0, 0, 0);
       cameraAngleRef.current = { theta: 0.01, phi: 1.48, radius: 30 };
+    } else if (presetName === 'intake') {
+      cameraTargetRef.current.set(-22.5, -1.0, -4.5);
+      cameraAngleRef.current = { theta: 0.62, phi: 0.32, radius: 16 };
+    } else if (presetName === 'screen') {
+      cameraTargetRef.current.set(-15.5, -2.5, -4.5);
+      cameraAngleRef.current = { theta: 0.48, phi: 0.28, radius: 12 };
+    } else if (presetName === 'bioreactors') {
+      cameraTargetRef.current.set(0, -0.5, 0);
+      cameraAngleRef.current = { theta: 0.22, phi: 0.35, radius: 22 };
+    } else if (presetName === 'filters') {
+      cameraTargetRef.current.set(18.0, -1.5, 1.5);
+      cameraAngleRef.current = { theta: -0.32, phi: 0.28, radius: 13 };
+    } else if (presetName === 'outfall') {
+      cameraTargetRef.current.set(24.5, -2.2, 1.5);
+      cameraAngleRef.current = { theta: -0.62, phi: 0.30, radius: 16 };
     }
     updateCameraPosition();
   };
@@ -986,51 +1069,247 @@ export default function Bioreactor3D({
     blowerStation.add(fanGroup);
     blowerFanRef.current = fanGroup;
 
-    // Animated Pipeline Flow Particle System (Feature #2)
-    // 1. Raw Influent Header (Purple particles flowing into CSTR and PFR)
-    // 2. RAS Return Sludge Loop (Amber biomass particles returning from clarifiers)
-    // 3. Compressed Air Header (Cyan air packets from Root Blower to both tanks)
+    // =========================================================================
+    // C. CENTRAL ROOT BLOWER STATION & ANIMATED TRANSPARENT PIPING NETWORK
+    // =========================================================================
+    // All fluid flow is 100% mathematically constrained inside transparent glass/acrylic tubes
+    const glassPipeRawMat = new THREE.MeshPhysicalMaterial({
+      color: 0xf5eeff,
+      transparent: true,
+      opacity: 0.38,
+      roughness: 0.05,
+      transmission: 0.90,
+      ior: 1.49,
+      thickness: 0.20,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const glassPipeCleanMat = new THREE.MeshPhysicalMaterial({
+      color: 0xecfeff,
+      transparent: true,
+      opacity: 0.34,
+      roughness: 0.04,
+      transmission: 0.94,
+      ior: 1.49,
+      thickness: 0.20,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const glassPipeSludgeMat = new THREE.MeshPhysicalMaterial({
+      color: 0xfef3c7,
+      transparent: true,
+      opacity: 0.42,
+      roughness: 0.05,
+      transmission: 0.86,
+      ior: 1.49,
+      thickness: 0.20,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const glassPipeAirMat = new THREE.MeshPhysicalMaterial({
+      color: 0xe0f2fe,
+      transparent: true,
+      opacity: 0.30,
+      roughness: 0.03,
+      transmission: 0.96,
+      ior: 1.47,
+      thickness: 0.15,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+
+    const pipeGroup = new THREE.Group();
+    scene.add(pipeGroup);
+
+    const pipeFlangeMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.25 });
+    const addTransparentPipe = (curve, radius, mat, sampleT = [0.03, 0.5, 0.97]) => {
+      const tubeGeo = new THREE.TubeGeometry(curve, 64, radius, 14, false);
+      const tube = new THREE.Mesh(tubeGeo, mat);
+      pipeGroup.add(tube);
+
+      const flangeGeo = new THREE.TorusGeometry(radius * 1.25, radius * 0.22, 8, 20);
+      sampleT.forEach((t) => {
+        const pt = curve.getPointAt(t);
+        const tangent = curve.getTangentAt(t);
+        const flange = new THREE.Mesh(flangeGeo, pipeFlangeMat);
+        flange.position.copy(pt);
+        flange.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent);
+        pipeGroup.add(flange);
+      });
+      return tube;
+    };
+
+    // 16 Complete Continuous Process Piping Curves (Connecting origin to destination)
+    const pipeCurves = {
+      rawIntake: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-25.5, -1.8, -4.5),
+        new THREE.Vector3(-22.0, -0.2, -4.5),
+        new THREE.Vector3(-19.0, 0.5, -4.5)
+      ]),
+      eqToScreen: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-17.2, -2.8, -4.5),
+        new THREE.Vector3(-16.3, -2.8, -4.5),
+        new THREE.Vector3(-15.5, -3.2, -4.5)
+      ]),
+      screenToRack: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-14.8, -3.2, -4.5),
+        new THREE.Vector3(-14.4, 0.5, -4.5),
+        new THREE.Vector3(-14.2, 4.8, -4.5),
+        new THREE.Vector3(-14.0, 5.2, -4.5)
+      ]),
+      rackToCstr: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-14.0, 5.2, -4.5),
+        new THREE.Vector3(-7.5, 5.2, -4.5),
+        new THREE.Vector3(-7.5, 4.2, -2.2),
+        new THREE.Vector3(-7.5, 3.4, 0.0)
+      ]),
+      rackToPfr: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-7.5, 5.2, -4.5),
+        new THREE.Vector3(3.4, 5.2, -4.5),
+        new THREE.Vector3(3.4, 3.2, -3.2),
+        new THREE.Vector3(3.4, 0.6, -2.3)
+      ]),
+      cstrOverflow: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-7.5, 2.0, 3.1),
+        new THREE.Vector3(-7.5, 0.5, 3.6),
+        new THREE.Vector3(-7.5, -0.8, 4.0),
+        new THREE.Vector3(-7.5, -1.8, 4.2)
+      ]),
+      pfrExit: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(11.0, -0.8, 2.3),
+        new THREE.Vector3(10.6, -1.2, 3.2),
+        new THREE.Vector3(9.8, -1.5, 3.9),
+        new THREE.Vector3(9.4, -1.8, 4.3)
+      ]),
+      cstrRas: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-7.5, -4.6, 4.2),
+        new THREE.Vector3(-9.2, -4.8, 3.5),
+        new THREE.Vector3(-10.8, -3.2, 1.8),
+        new THREE.Vector3(-10.8, 0.8, 0.0),
+        new THREE.Vector3(-8.8, 2.6, 0.0)
+      ]),
+      pfrRas: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(9.4, -4.6, 4.3),
+        new THREE.Vector3(8.0, -4.8, 3.2),
+        new THREE.Vector3(5.6, -4.4, 0.5),
+        new THREE.Vector3(3.4, -2.5, -2.3),
+        new THREE.Vector3(3.4, 0.2, -2.3)
+      ]),
+      wasSludge: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-4.0, -4.8, 3.5),
+        new THREE.Vector3(-1.0, -4.8, 0.0),
+        new THREE.Vector3(-1.0, -4.6, -5.0),
+        new THREE.Vector3(-1.0, -2.2, -8.5)
+      ]),
+      cstrEffluent: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-7.5, -2.4, 5.2),
+        new THREE.Vector3(-7.5, -3.6, 4.2),
+        new THREE.Vector3(0.0, -3.6, 4.2),
+        new THREE.Vector3(14.0, -3.6, 4.2)
+      ]),
+      pfrEffluent: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(9.4, -2.4, 4.3),
+        new THREE.Vector3(12.6, -2.4, 4.3),
+        new THREE.Vector3(14.0, -3.6, 4.2)
+      ]),
+      toTertiary: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(14.0, -3.6, 4.2),
+        new THREE.Vector3(16.5, -3.0, 3.0),
+        new THREE.Vector3(17.2, -1.0, 1.5),
+        new THREE.Vector3(18.0, 0.5, 1.5)
+      ]),
+      toOutfall: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(19.2, -2.0, 1.5),
+        new THREE.Vector3(21.5, -3.0, 1.5),
+        new THREE.Vector3(24.0, -3.6, 1.5),
+        new THREE.Vector3(26.5, -4.0, 1.5)
+      ]),
+      airCstr: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, -3.8, 4.6),
+        new THREE.Vector3(-3.5, -4.2, 3.2),
+        new THREE.Vector3(-7.5, -4.2, 1.5),
+        new THREE.Vector3(-7.5, -3.1, 0.0)
+      ]),
+      airPfr: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, -3.8, 4.6),
+        new THREE.Vector3(3.5, -4.2, 3.2),
+        new THREE.Vector3(7.2, -4.2, 1.5),
+        new THREE.Vector3(7.2, -3.1, -1.0)
+      ])
+    };
+
+    // Instantiate physical transparent tubes
+    addTransparentPipe(pipeCurves.rawIntake, 0.18, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.eqToScreen, 0.16, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.screenToRack, 0.18, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.rackToCstr, 0.16, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.rackToPfr, 0.16, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.cstrOverflow, 0.16, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.pfrExit, 0.16, glassPipeRawMat);
+    addTransparentPipe(pipeCurves.cstrRas, 0.14, glassPipeSludgeMat);
+    addTransparentPipe(pipeCurves.pfrRas, 0.14, glassPipeSludgeMat);
+    addTransparentPipe(pipeCurves.wasSludge, 0.13, glassPipeSludgeMat);
+    addTransparentPipe(pipeCurves.cstrEffluent, 0.15, glassPipeCleanMat);
+    addTransparentPipe(pipeCurves.pfrEffluent, 0.15, glassPipeCleanMat);
+    addTransparentPipe(pipeCurves.toTertiary, 0.16, glassPipeCleanMat);
+    addTransparentPipe(pipeCurves.toOutfall, 0.18, glassPipeCleanMat);
+    addTransparentPipe(pipeCurves.airCstr, 0.12, glassPipeAirMat);
+    addTransparentPipe(pipeCurves.airPfr, 0.12, glassPipeAirMat);
+
+    // Populate Animated Fluid Flow Particles (Strictly locked inside the 3D curves)
     const pipeParticles = [];
-    const pSphereGeo = new THREE.SphereGeometry(0.11, 10, 10);
+    const pGeo = new THREE.SphereGeometry(0.10, 10, 10);
 
-    // Influent feed line particles
-    const infMat = new THREE.MeshBasicMaterial({ color: 0xc084fc });
-    for (let i = 0; i < 24; i++) {
-      const m = new THREE.Mesh(pSphereGeo, infMat);
-      scene.add(m);
-      pipeParticles.push({
-        mesh: m,
-        type: 'influent',
-        progress: i / 24,
-        branch: i % 2 === 0 ? 'cstr' : 'pfr'
-      });
-    }
+    const spawnStream = (curve, count, mat, type, speedFactor = 1.0) => {
+      for (let i = 0; i < count; i++) {
+        const m = new THREE.Mesh(pGeo, mat);
+        scene.add(m);
+        pipeParticles.push({
+          mesh: m,
+          curve: curve,
+          progress: i / count,
+          speedFactor: speedFactor,
+          type: type
+        });
+      }
+    };
 
-    // RAS recycle loop particles
-    const rasMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-    for (let i = 0; i < 20; i++) {
-      const m = new THREE.Mesh(pSphereGeo, rasMat);
-      scene.add(m);
-      pipeParticles.push({
-        mesh: m,
-        type: 'ras',
-        progress: i / 20,
-        branch: i % 2 === 0 ? 'cstr' : 'pfr'
-      });
-    }
+    const matRawDye = new THREE.MeshBasicMaterial({ color: 0x9333ea });
+    const matScreened = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+    const matFeed = new THREE.MeshBasicMaterial({ color: 0xc084fc });
+    const matMixed = new THREE.MeshBasicMaterial({ color: 0x0d9488 });
+    const matRas = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+    const matWas = new THREE.MeshBasicMaterial({ color: 0x78350f });
+    const matEffluent = new THREE.MeshBasicMaterial({ color: 0x14b8a6 });
+    const matPolished = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+    const matOutfall = new THREE.MeshBasicMaterial({ color: 0x34d399 });
+    const matAir = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
-    // Air manifold particles
-    const airMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-    for (let i = 0; i < 24; i++) {
-      const m = new THREE.Mesh(pSphereGeo, airMat);
-      scene.add(m);
-      pipeParticles.push({
-        mesh: m,
-        type: 'air',
-        progress: i / 24,
-        branch: i % 2 === 0 ? 'cstr' : 'pfr'
-      });
-    }
+    spawnStream(pipeCurves.rawIntake, 8, matRawDye, 'influent', 0.9);
+    spawnStream(pipeCurves.eqToScreen, 6, matScreened, 'influent', 1.0);
+    spawnStream(pipeCurves.screenToRack, 8, matScreened, 'influent', 1.0);
+    spawnStream(pipeCurves.rackToCstr, 10, matFeed, 'influent', 1.1);
+    spawnStream(pipeCurves.rackToPfr, 12, matFeed, 'influent', 1.1);
+    spawnStream(pipeCurves.cstrOverflow, 8, matMixed, 'mixed_liquor', 0.95);
+    spawnStream(pipeCurves.pfrExit, 8, matMixed, 'mixed_liquor', 0.95);
+    spawnStream(pipeCurves.cstrRas, 10, matRas, 'ras', 0.9);
+    spawnStream(pipeCurves.pfrRas, 10, matRas, 'ras', 0.9);
+    spawnStream(pipeCurves.wasSludge, 8, matWas, 'was', 0.8);
+    spawnStream(pipeCurves.cstrEffluent, 8, matEffluent, 'effluent', 1.0);
+    spawnStream(pipeCurves.pfrEffluent, 8, matEffluent, 'effluent', 1.0);
+    spawnStream(pipeCurves.toTertiary, 8, matPolished, 'effluent', 1.0);
+    spawnStream(pipeCurves.toOutfall, 12, matOutfall, 'effluent', 1.2);
+    spawnStream(pipeCurves.airCstr, 10, matAir, 'air', 1.3);
+    spawnStream(pipeCurves.airPfr, 10, matAir, 'air', 1.3);
+
     pipeParticlesRef.current = pipeParticles;
 
     // =========================================================================
@@ -1150,17 +1429,6 @@ export default function Bioreactor3D({
     steamLineOverhead.rotation.z = Math.PI / 2;
     steamLineOverhead.position.set(0, 5.35, 0.8);
     pipeRackGroup.add(steamLineOverhead);
-
-    // Downward dropper pipes to CSTR and PFR from the overhead rack
-    const cstrDropper = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 4.2, 12), airPipeMat);
-    cstrDropper.position.set(-7.5, 3.2, -2.4);
-    cstrDropper.rotation.x = Math.PI / 6;
-    industrialPlant.add(cstrDropper);
-
-    const pfrDropper = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 4.2, 12), airPipeMat);
-    pfrDropper.position.set(7.2, 3.2, -2.4);
-    pfrDropper.rotation.x = Math.PI / 6;
-    industrialPlant.add(pfrDropper);
 
     // 3. UPSTREAM EQUALIZATION & NEUTRALIZATION TANK (EQ BASIN: x = -19.0, z = -4.5)
     const eqGroup = new THREE.Group();
@@ -1463,6 +1731,166 @@ export default function Bioreactor3D({
     });
 
     // =========================================================================
+    // 10. RAW TEXTILE INFLUENT INTAKE FLUME & 3D SIGNBOARD (x = -25.5, z = -4.5)
+    // =========================================================================
+    const intakeGroup = new THREE.Group();
+    intakeGroup.position.set(-25.5, -4.0, -4.5);
+    industrialPlant.add(intakeGroup);
+
+    // Concrete Inflow Flume Basin
+    const intakeBasin = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.2, 3.0), concreteMat);
+    intakeGroup.add(intakeBasin);
+
+    // Deep Dark Reactive Dye Wastewater
+    const rawWater = new THREE.Mesh(
+      new THREE.BoxGeometry(4.1, 2.0, 2.6),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x4a044e,
+        roughness: 0.15,
+        transmission: 0.35,
+        transparent: true,
+        opacity: 0.92
+      })
+    );
+    rawWater.position.y = 0.5;
+    intakeGroup.add(rawWater);
+
+    // Intake Trash Rack / Grate (Vertical Stainless Steel Bars)
+    for (let b = -1.2; b <= 1.2; b += 0.3) {
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8), darkSteelMat);
+      bar.position.set(b, 0.6, 0);
+      intakeGroup.add(bar);
+    }
+
+    // Upstream Inflow Culvert Pipe (Connecting to Offsite Mill)
+    const inCulvert = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 3.0, 24), concreteMat);
+    inCulvert.rotation.z = Math.PI / 2;
+    inCulvert.position.set(-2.8, 0.2, 0);
+    intakeGroup.add(inCulvert);
+
+    // Overhead Structural Steel Gantry & Signboard Mount
+    [-1.8, 1.8].forEach((gx) => {
+      const gCol = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.4, 0.2), darkSteelMat);
+      gCol.position.set(gx, 2.0, 1.3);
+      intakeGroup.add(gCol);
+    });
+    const gBeam = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.2, 0.25), darkSteelMat);
+    gBeam.position.set(0, 4.1, 1.3);
+    intakeGroup.add(gBeam);
+
+    // High-Visibility 3D Illuminated Signboard: INLET
+    const inSignTex = makeSignboardTexture(
+      'TEXTILE DYEHOUSE RAW INFLUENT',
+      'Origin: Wet Processing Dye Mill ➔ EQ Basin TK-001 | S₀ = 750 mg/L bCOD',
+      '⬅ RAW INFLUENT FEED INTAKE (Q₀ = 1000 m³/d)',
+      false
+    );
+    const inSignMat = new THREE.MeshStandardMaterial({
+      map: inSignTex,
+      roughness: 0.3,
+      metalness: 0.1,
+      emissive: 0x581c87,
+      emissiveIntensity: 0.35
+    });
+    const inSignBoard = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.6, 0.08), inSignMat);
+    inSignBoard.position.set(0, 3.2, 1.3);
+    intakeGroup.add(inSignBoard);
+
+    // Pulsing Purple Warning Intake Beacon
+    const inBeacon = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
+    inBeacon.position.set(0, 4.35, 1.3);
+    intakeGroup.add(inBeacon);
+    const inLight = new THREE.PointLight(0xa855f7, 1.5, 8);
+    inLight.position.set(0, 4.35, 1.3);
+    intakeGroup.add(inLight);
+
+    // =========================================================================
+    // 11. FINAL TREATED EFFLUENT OUTFALL CANAL & CASCADE (x = 26.5, z = 1.5)
+    // =========================================================================
+    const outfallGroup = new THREE.Group();
+    outfallGroup.position.set(26.5, -4.2, 1.5);
+    industrialPlant.add(outfallGroup);
+
+    // Concrete Discharge Canal
+    const outfallBasin = new THREE.Mesh(new THREE.BoxGeometry(6.5, 3.2, 3.4), concreteMat);
+    outfallGroup.add(outfallBasin);
+
+    // Stepped Aeration Cascade (3 Descending Steps)
+    const stepGeos = [
+      { x: -1.6, y: 0.2, w: 1.8, h: 1.2 },
+      { x: 0.0, y: -0.3, w: 1.6, h: 1.0 },
+      { x: 1.6, y: -0.8, w: 1.8, h: 0.8 }
+    ];
+    stepGeos.forEach((sg) => {
+      const stepMesh = new THREE.Mesh(new THREE.BoxGeometry(sg.w, sg.h, 2.8), concreteMat);
+      stepMesh.position.set(sg.x, sg.y, 0);
+      outfallGroup.add(stepMesh);
+
+      // Sparkling Treated Water on Each Step
+      const waterSheet = new THREE.Mesh(
+        new THREE.BoxGeometry(sg.w - 0.04, 0.15, 2.7),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x10b981,
+          roughness: 0.04,
+          transmission: 0.94,
+          ior: 1.33,
+          transparent: true,
+          opacity: 0.88
+        })
+      );
+      waterSheet.position.set(sg.x, sg.y + sg.h / 2 + 0.08, 0);
+      outfallGroup.add(waterSheet);
+    });
+
+    // Twin Safety Handrails on Outfall Canal
+    [-1.4, 1.4].forEach((rz) => {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.08, 0.08), yellowSafetyMat);
+      rail.position.set(0, 1.8, rz);
+      outfallGroup.add(rail);
+      for (let p = -2.8; p <= 2.8; p += 1.4) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.08), darkSteelMat);
+        post.position.set(p, 0.9, rz);
+        outfallGroup.add(post);
+      }
+    });
+
+    // Outfall Gantry & 3D Signboard
+    [-2.2, 2.2].forEach((gx) => {
+      const gCol = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.4, 0.2), darkSteelMat);
+      gCol.position.set(gx, 2.0, -1.4);
+      outfallGroup.add(gCol);
+    });
+    const outGBeam = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.2, 0.25), darkSteelMat);
+    outGBeam.position.set(0, 4.1, -1.4);
+    outfallGroup.add(outGBeam);
+
+    // High-Visibility 3D Illuminated Signboard: OUTLET
+    const outSignTex = makeSignboardTexture(
+      'FINAL TREATED EFFLUENT OUTFALL',
+      'Destination: Receiving River Outfall | DoE ECR Schedule-10 Compliant | Sₑ ≤ 75 mg/L',
+      'DISCHARGE STREAM ➡ (Q = 1000 m³/d, Clean Decolorized)',
+      true
+    );
+    const outSignMat = new THREE.MeshStandardMaterial({
+      map: outSignTex,
+      roughness: 0.3,
+      metalness: 0.1,
+      emissive: 0x065f46,
+      emissiveIntensity: 0.35
+    });
+    const outSignBoard = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.6, 0.08), outSignMat);
+    outSignBoard.position.set(0, 3.2, -1.4);
+    outfallGroup.add(outSignBoard);
+
+    // Glowing Green Compliance LED Beacon
+    const outBeacon = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), new THREE.MeshBasicMaterial({ color: 0x34d399 }));
+    outBeacon.position.set(0, 4.35, -1.4);
+    outfallGroup.add(outBeacon);
+    const outLight = new THREE.PointLight(0x10b981, 1.6, 8);
+    outLight.position.set(0, 4.35, -1.4);
+    outfallGroup.add(outLight);
+
+    // =========================================================================
     // D. HUMAN-SCALE ENGINEER FIGURE (1.75m Tall Reference) (Feature #25)
     // =========================================================================
     const engineerGroup = new THREE.Group();
@@ -1642,6 +2070,8 @@ export default function Bioreactor3D({
     tag(scadaGroup, 'scada_cabin');
     tag(pipeRackGroup, 'pipe_rack');
     tag(showerGroup, 'safety_station');
+    tag(intakeBasin, 'raw_intake');
+    tag(outfallBasin, 'final_outfall');
 
     // Selection marker for pinned equipment
     const pinMarker = new THREE.Mesh(
@@ -1988,38 +2418,29 @@ export default function Bioreactor3D({
           }
         });
 
-        // Animated Pipeline Streamline Packets: Speed & Size scale with Q (Influent), R (RAS), and kLa (Air)!
+        // 100% Mathematically Constrained Fluid Flow inside Transparent Glass Pipes
         pipeParticlesRef.current.forEach((pp) => {
-          if (pp.type === 'influent') {
-            pp.progress = (pp.progress + delta * 0.38 * flowFactor) % 1.0;
-            const sScale = Math.max(0.75, Math.min(1.65, 0.7 + (st.S0 || 750) / 1200));
-            pp.mesh.scale.setScalar(sScale);
-            const p = pp.progress;
-            if (pp.branch === 'cstr') {
-              pp.mesh.position.set(-13.5 + p * 5.2, 3.2, 0);
-            } else {
-              pp.mesh.position.set(-13.5 + p * 17.0, 3.2 - p * 3.0, -2.3);
-            }
-          } else if (pp.type === 'ras') {
-            pp.progress = (pp.progress + delta * 0.36 * rasFactor * Math.sqrt(flowFactor)) % 1.0;
-            pp.mesh.scale.setScalar(Math.max(0.65, Math.min(1.65, 0.6 + (st.recycleRatio || 0.6) * 0.75)));
-            const p = pp.progress;
-            if (pp.branch === 'cstr') {
-              pp.mesh.position.set(-7.5 - p * 3.2, -4.4 + p * 6.5, 4.2 - p * 4.2);
-            } else {
-              pp.mesh.position.set(9.4 - p * 5.8, -4.4 + p * 4.0, 4.3 - p * 6.6);
-            }
+          let spd = 0.28 * flowFactor;
+          if (pp.type === 'ras' || pp.type === 'was') {
+            spd = 0.25 * rasFactor * Math.sqrt(flowFactor);
           } else if (pp.type === 'air') {
+            spd = 0.40 * klaFactor;
             pp.mesh.visible = !st.blowerTrip;
-            pp.progress = (pp.progress + delta * 0.45 * klaFactor) % 1.0;
-            pp.mesh.scale.setScalar(bubbleSizeScale);
-            const p = pp.progress;
-            if (pp.branch === 'cstr') {
-              pp.mesh.position.set(-p * 7.5, -4.2 + p * 1.1, 4.6 - p * 4.6);
-            } else {
-              pp.mesh.position.set(p * 7.2, -4.2 + p * 1.9, 4.6 - p * 4.6);
-            }
           }
+          pp.progress = (pp.progress + delta * (pp.speedFactor || 1.0) * spd) % 1.0;
+
+          if (pp.type === 'influent') {
+            const sScale = Math.max(0.75, Math.min(1.5, 0.7 + (st.S0 || 750) / 1200));
+            pp.mesh.scale.setScalar(sScale);
+          } else if (pp.type === 'ras') {
+            pp.mesh.scale.setScalar(Math.max(0.65, Math.min(1.5, 0.6 + (st.recycleRatio || 0.6) * 0.75)));
+          } else if (pp.type === 'air') {
+            pp.mesh.scale.setScalar(bubbleSizeScale);
+          }
+
+          // Exact evaluation on Catmull-Rom centerline
+          const pt = pp.curve.getPointAt(pp.progress);
+          pp.mesh.position.copy(pt);
         });
       }
 
@@ -2302,6 +2723,88 @@ export default function Bioreactor3D({
       </div>
 
       {/* =====================================================================
+          WATER JOURNEY FLOW TRAIN ROADMAP (INLET ➔ BIOREACTORS ➔ OUTLET)
+      ===================================================================== */}
+      <div className="p-2.5 rounded-2xl bg-slate-900/95 border border-slate-800 flex items-center justify-between gap-2 overflow-x-auto text-xs shadow-inner">
+        <div className="flex items-center gap-2 shrink-0 font-bold text-slate-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+          <span className="tracking-wider uppercase text-[11px] text-cyan-300 font-extrabold">Water Journey:</span>
+        </div>
+        <div className="flex items-center gap-1.5 min-w-max text-[11px]">
+          {/* Step 1: Raw Intake & EQ */}
+          <button
+            onClick={() => applyCameraPreset('intake')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/80 hover:bg-purple-900/90 border border-purple-500/50 text-purple-200 font-semibold transition"
+            title="Click to view Raw Dyehouse Influent Intake & EQ Basin"
+          >
+            <span className="w-2 h-2 rounded-full bg-purple-400" />
+            <span>1. Raw Intake & EQ</span>
+            <span className="font-mono text-[9.5px] text-purple-300">({S0} mg/L bCOD)</span>
+          </button>
+          <span className="text-slate-500 font-bold">➔</span>
+
+          {/* Step 2: Fine Bar Screen */}
+          <button
+            onClick={() => applyCameraPreset('screen')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-950/80 hover:bg-indigo-900/90 border border-indigo-500/50 text-indigo-200 font-semibold transition"
+            title="Click to view Fine Drum Bar Screen"
+          >
+            <span className="w-2 h-2 rounded-full bg-indigo-400" />
+            <span>2. Bar Screen</span>
+            <span className="font-mono text-[9.5px] text-indigo-300">(Lint Removal)</span>
+          </button>
+          <span className="text-slate-500 font-bold">➔</span>
+
+          {/* Step 3: Bioreactors */}
+          <button
+            onClick={() => applyCameraPreset('bioreactors')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900/90 border border-cyan-500/50 text-cyan-200 font-semibold transition"
+            title="Click to view CSTR & PFR Biological Reaction Basins"
+          >
+            <span className="w-2 h-2 rounded-full bg-cyan-400" />
+            <span>3. Bioreactors</span>
+            <span className="font-mono text-[9.5px] text-cyan-300">(CSTR vs PFR)</span>
+          </button>
+          <span className="text-slate-500 font-bold">➔</span>
+
+          {/* Step 4: Clarifiers & RAS */}
+          <button
+            onClick={() => applyCameraPreset('clarifiers')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/80 hover:bg-amber-900/90 border border-amber-500/50 text-amber-200 font-semibold transition"
+            title="Click to view Secondary Clarifiers & Biomass Recycle Loop"
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span>4. Clarifiers & RAS</span>
+            <span className="font-mono text-[9.5px] text-amber-300">(R = {recycleRatio})</span>
+          </button>
+          <span className="text-slate-500 font-bold">➔</span>
+
+          {/* Step 5: Tertiary Filters */}
+          <button
+            onClick={() => applyCameraPreset('filters')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 hover:bg-teal-900/90 border border-teal-500/50 text-teal-200 font-semibold transition"
+            title="Click to view Tertiary Multi-Media Sand & Carbon Pressure Vessels"
+          >
+            <span className="w-2 h-2 rounded-full bg-teal-400" />
+            <span>5. Sand & Carbon</span>
+            <span className="font-mono text-[9.5px] text-teal-300">(Trace Polish)</span>
+          </button>
+          <span className="text-slate-500 font-bold">➔</span>
+
+          {/* Step 6: Final Compliant Outfall */}
+          <button
+            onClick={() => applyCameraPreset('outfall')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-400 text-emerald-200 font-bold shadow-lg shadow-emerald-500/20 transition"
+            title="Click to view Final Treated Discharge Outfall Canal"
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>6. Compliant River Outfall</span>
+            <span className="font-mono text-[9.5px] text-emerald-300">(Sₑ ≤ {targetSe} mg/L)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* =====================================================================
           MAIN 3D WEBGL VIEWPORT + HOLOGRAPHIC SCADA OVERLAYS
       ===================================================================== */}
       <div className="relative w-full rounded-2xl overflow-hidden border border-slate-700/70 shadow-2xl bg-[#060b16]">
@@ -2449,10 +2952,12 @@ export default function Bioreactor3D({
             <span>{heatmapMode === 'do' ? '0.0 (Hypoxic Sag)' : 'Low / Treated'}</span>
             <span>{heatmapMode === 'do' ? '5.0+ mg/L (Aerated)' : 'High / Inlet'}</span>
           </div>
-          <div className="pt-1 border-t border-slate-800/80 flex items-center gap-2 text-[10px] text-slate-400">
-            <span className="inline-block w-2 h-2 rounded-full bg-purple-400" /> Influent
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-400" /> RAS Loop
-            <span className="inline-block w-2 h-2 rounded-full bg-sky-400" /> Air Line
+          <div className="pt-1 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500" /> Raw Dye Feed</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-400" /> Treated Effluent</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> RAS Sludge</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-900" /> WAS Purge</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-400" /> Air Line</span>
           </div>
         </div>
 
@@ -2499,9 +3004,12 @@ export default function Bioreactor3D({
           <span className="text-slate-400 font-semibold px-1">Camera:</span>
           {[
             { id: 'overview', label: 'Full Plant' },
+            { id: 'intake', label: '⬅ Raw Intake' },
             { id: 'cstr_cutaway', label: 'CSTR Cutaway' },
             { id: 'pfr_sag', label: 'PFR DO-Sag' },
             { id: 'clarifiers', label: 'Clarifiers & RAS' },
+            { id: 'filters', label: 'Sand & Carbon' },
+            { id: 'outfall', label: 'River Outfall ➡' },
             { id: 'blueprint', label: 'Top Blueprint' }
           ].map((cam) => (
             <button
