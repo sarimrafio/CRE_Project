@@ -11,7 +11,11 @@ from .cstr import simulate_cstr, CSTRState
 from .pfr import simulate_pfr
 from .reactor_design import size_cstr, size_pfr
 from .sustainability import calculate_sustainability
-from .schemas import SimulationRequest, ProfileRequest, TransientRequest, KineticModel
+from .schemas import SimulationRequest, ProfileRequest, TransientRequest, KineticModel, PaperUpdateRequest
+
+PAPER_PASSCODE = "4554"
+PAPER_STORAGE_PATH = os.path.join(os.path.dirname(__file__), "saved_paper.json")
+
 
 app = FastAPI(
     title="Bioreactor Digital Twin API",
@@ -246,3 +250,34 @@ def export_csv_summary():
         f"Volume Ratio (CSTR / PFR),{round(cstr['V'] / pfr['V'], 4)},1.0,-"
     ]
     return "\n".join(lines)
+
+
+@app.get("/api/paper")
+def get_research_paper():
+    """Returns any custom-edited research paper HTML stored on the server."""
+    import json
+    if os.path.exists(PAPER_STORAGE_PATH):
+        try:
+            with open(PAPER_STORAGE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return {"custom": True, "content_html": data.get("content_html", ""), "updated_at": data.get("updated_at")}
+        except Exception:
+            pass
+    return {"custom": False, "content_html": None}
+
+
+@app.put("/api/paper")
+def update_research_paper(req: PaperUpdateRequest):
+    """Validates passcode 4554 and saves updated research paper HTML."""
+    import json
+    from datetime import datetime, timezone
+    if req.passcode.strip() != PAPER_PASSCODE:
+        raise HTTPException(status_code=403, detail="Invalid passcode. Access denied.")
+    payload = {
+        "content_html": req.content_html,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    with open(PAPER_STORAGE_PATH, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False)
+    return {"status": "saved", "updated_at": payload["updated_at"]}
+

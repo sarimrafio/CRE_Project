@@ -38,3 +38,8 @@ class TransientRequest(BaseModel):
     initial_DO: float = Field(default=4.0, description="Initial DO [mg/L]")
     days: float = Field(default=25.0, description="Simulation duration [days]")
     kinetics: Optional[KineticModel] = None
+
+class PaperUpdateRequest(BaseModel):
+    passcode: str = Field(..., description="Passcode required to edit the research paper (4554)")
+    content_html: str = Field(..., description="Updated HTML content of the research paper")
+

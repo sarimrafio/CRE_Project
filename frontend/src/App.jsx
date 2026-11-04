@@ -11,7 +11,8 @@ import {
   CheckCircle2,
   Cpu,
   Thermometer,
-  FlaskConical
+  FlaskConical,
+  BookOpen
 } from 'lucide-react';
 
 import Bioreactor3D from './components/Bioreactor3D';
@@ -19,6 +20,7 @@ import LevenspielPlot from './components/LevenspielPlot';
 import AxialProfilesPlot from './components/AxialProfilesPlot';
 import TransientPlot from './components/TransientPlot';
 import CREExperimentsPanel from './components/CREExperimentsPanel';
+import ResearchPaperPanel from './components/ResearchPaperPanel';
 import PresentationGuide from './components/PresentationGuide';
 
 import {
@@ -254,6 +256,19 @@ export default function App() {
                 <span>60 FPS Multi-Physics Engine</span>
               </>
             )}
+          </button>
+
+          {/* Research Paper Button */}
+          <button
+            onClick={() => setActiveTab('paper')}
+            className={`px-3.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-2 transition ${
+              activeTab === 'paper'
+                ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+                : 'bg-emerald-950/70 hover:bg-emerald-900/80 border-emerald-500/40 text-emerald-300'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>📄 Research Paper (Edit: 4554)</span>
           </button>
 
           {/* Presentation Mode Button */}
@@ -634,6 +649,15 @@ export default function App() {
               >
                 ⚡ Sustainability & LCA
               </button>
+              <button
+                onClick={() => setActiveTab('paper')}
+                className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
+                  activeTab === 'paper' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/20' : 'text-emerald-300 hover:text-white'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>📄 Full Research Paper</span>
+              </button>
             </div>
 
             {activeTab === '3d' && (
@@ -714,6 +738,10 @@ export default function App() {
 
           {activeTab === 'transient' && (
             <TransientPlot transientData={transient} />
+          )}
+
+          {activeTab === 'paper' && (
+            <ResearchPaperPanel apiUrl={renderApiUrl} />
           )}
 
           {activeTab === 'sustainability' && (
