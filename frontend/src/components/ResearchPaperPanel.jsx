@@ -19,7 +19,7 @@ const REQUIRED_PASSCODE = '4554';
 const SECTIONS = [
   { id: 'abstract', label: 'Abstract & Nomenclature', match: 'Executive Abstract' },
   { id: 'sec1', label: '1. Introduction & Motivation', match: '1. Introduction' },
-  { id: 'sec2', label: '2. Literature Review & PRISMA', match: '2. Comprehensive Literature' },
+  { id: 'sec2', label: '2. Literature Review & PRISMA', match: '2. Literature Review' },
   { id: 'sec3', label: '3. Fogler Mathematical Derivations', match: '3. Mathematical Modelling' },
   { id: 'sec4', label: '4. Mill Profile & Design Basis', match: '4. Literature Data Extraction' },
   { id: 'sec5', label: '5. Verification & Startup', match: '5. Model Verification' },
@@ -195,17 +195,18 @@ ${currentHtml}
 </xml>
 <![endif]-->
 <style>
-  @page { size: 8.5in 11in; margin: 1in; }
-  body { font-family: Cambria, Georgia, 'Times New Roman', serif; font-size: 11pt; line-height: 1.6; color: #111827; background: #ffffff; }
-  h1, h2, h3 { font-family: Cambria, 'Segoe UI', Arial, sans-serif; color: #0f172a; }
-  h1 { font-size: 17pt; border-bottom: 2px solid #0f172a; padding-bottom: 8pt; text-align: center; }
-  h2 { font-size: 13.5pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4pt; margin-top: 18pt; }
-  h3 { font-size: 11.5pt; color: #1e3a8a; margin-top: 12pt; }
-  table { border-collapse: collapse; width: 100%; margin: 12pt 0; font-size: 9.5pt; }
-  th, td { border: 1px solid #94a3b8; padding: 6pt 8pt; text-align: left; }
+  @page { size: 8.5in 11in; margin: 0.65in 0.75in; }
+  body { font-family: Cambria, Georgia, 'Times New Roman', serif; font-size: 10pt; line-height: 1.35; color: #111827; background: #ffffff; }
+  h1, h2, h3 { font-family: Cambria, 'Segoe UI', Arial, sans-serif; color: #0f172a; page-break-after: avoid; }
+  h1 { font-size: 14.5pt; border-bottom: 1.5pt solid #0f172a; padding-bottom: 6pt; text-align: center; }
+  h2 { font-size: 12pt; border-bottom: 1pt solid #cbd5e1; padding-bottom: 3pt; margin-top: 10pt; margin-bottom: 4pt; }
+  h3 { font-size: 10.5pt; color: #1e3a8a; margin-top: 7pt; margin-bottom: 2pt; }
+  p, li { margin-top: 1.5pt; margin-bottom: 3pt; }
+  table { border-collapse: collapse; width: 100%; margin: 6pt 0; font-size: 8.5pt; }
+  th, td { border: 1px solid #94a3b8; padding: 3pt 5pt; text-align: left; }
   th { background-color: #e2e8f0; font-weight: bold; }
-  img { max-width: 6.0in; height: auto; display: block; margin: 10pt auto; }
-  .math-block { margin: 8pt 0; padding: 8pt 12pt; background-color: #f8fafc; border-left: 3pt solid #0284c7; font-family: Cambria, Consolas, serif; font-size: 10.5pt; font-weight: bold; color: #0369a1; }
+  img { max-width: 5.2in; max-height: 2.55in; width: auto; height: auto; display: block; margin: 4pt auto; }
+  .math-block { margin: 4pt 0; padding: 4pt 8pt; background-color: #f8fafc; border-left: 2.5pt solid #0284c7; font-family: Cambria, Consolas, serif; font-size: 9.5pt; font-weight: bold; color: #0369a1; }
   .math-inline { font-family: Cambria, Consolas, serif; color: #0369a1; font-weight: bold; }
 </style>
 </head>

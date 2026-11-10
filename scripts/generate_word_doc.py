@@ -1,5 +1,6 @@
 import os
 import re
+from PIL import Image
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -19,7 +20,7 @@ OUT_PATHS = [
 
 # Map markdown figure filenames to actual files on disk
 FIG_MAP = {
-    "figures/fig1_reactor_schematic.png": "fig1_reactor_schematics.png",
+    "figures/fig1_reactor_schematic.png": "fig1_reactor_schematic.png",
     "figures/fig2_prisma_flowchart.png": "fig2_prisma_flowchart.png",
     "figures/fig3_monod_kinetics.png": "fig3_monod_kinetics.png",
     "figures/fig4_levenspiel_comparison.png": "fig4_levenspiel_comparison.png",
@@ -39,17 +40,78 @@ def set_cell_background(cell, fill_hex):
     tcPr.append(shd)
 
 
-def clean_latex_to_readable(text):
-    """Convert LaTeX math expressions into clean Unicode +_{sub} / ^{sup} tokens for Word runs."""
-    s = text
+def replace_frac_recursive(s):
+    """Replace \\frac{num}{den} even when num or den contains nested {...}."""
+    while r"\frac{" in s:
+        idx = s.find(r"\frac{")
+        if idx == -1:
+            break
+        # Parse first brace group
+        i = idx + 6
+        depth = 1
+        while i < len(s) and depth > 0:
+            if s[i] == "{":
+                depth += 1
+            elif s[i] == "}":
+                depth -= 1
+            i += 1
+        if depth != 0:
+            break
+        num = s[idx + 6 : i - 1]
+        if i >= len(s) or s[i] != "{":
+            break
+        j = i + 1
+        depth = 1
+        while j < len(s) and depth > 0:
+            if s[j] == "{":
+                depth += 1
+            elif s[j] == "}":
+                depth -= 1
+            j += 1
+        if depth != 0:
+            break
+        den = s[i + 1 : j - 1]
+        s = s[:idx] + f"({num})/({den})" + s[j:]
+    return s
 
-    # Replace display/inline math delimiters after processing inner content
+
+def strip_wrapper_recursive(s, prefix):
+    """Strip \\mathrm{...} or \\text{...} even when the body contains nested braces like {-1}."""
+    while prefix in s:
+        idx = s.find(prefix)
+        if idx == -1:
+            break
+        i = idx + len(prefix)
+        depth = 1
+        while i < len(s) and depth > 0:
+            if s[i] == "{":
+                depth += 1
+            elif s[i] == "}":
+                depth -= 1
+            i += 1
+        if depth != 0:
+            break
+        inner = s[idx + len(prefix) : i - 1]
+        s = s[:idx] + inner + s[i:]
+    return s
+
+
+def clean_latex_to_readable(text):
+    """Convert LaTeX math expressions into clean Unicode + _{sub} / ^{sup} tokens for Word runs."""
+    ESC_DOLLAR = "\uE000"
+    s = text.replace(r"\$", ESC_DOLLAR)
+
     def replace_math(match):
         m = match.group(1)
-        # Fractions
-        for _ in range(4):
-            m = re.sub(r"\\frac\{([^{}]+)\}\{([^{}]+)\}", r"(\1)/(\2)", m)
-        # Partial / integrals
+        # Replace \left and \right FIRST before \le or \ln
+        m = m.replace(r"\left(", "(").replace(r"\right)", ")")
+        m = m.replace(r"\left[", "[").replace(r"\right]", "]")
+        # Text/mathrm wrappers (supports nested braces such as \mathrm{day^{-1}})
+        m = strip_wrapper_recursive(m, r"\mathrm{")
+        m = strip_wrapper_recursive(m, r"\text{")
+        # Fractions (supports nested braces)
+        m = replace_frac_recursive(m)
+        # Partial / integrals / operators
         m = m.replace(r"\partial", "∂")
         m = m.replace(r"\int_V", "∫_V ")
         m = m.replace(r"\int_0^L", "∫_0^L ")
@@ -57,6 +119,7 @@ def clean_latex_to_readable(text):
         m = m.replace(r"\infty", "∞")
         m = m.replace(r"\implies", " ⇒ ")
         m = m.replace(r"\to", " → ")
+        m = m.replace(r"\in", " ∈ ")
         m = m.replace(r"\le", "≤")
         m = m.replace(r"\ge", "≥")
         m = m.replace(r"\gg", "≫")
@@ -68,8 +131,6 @@ def clean_latex_to_readable(text):
         m = m.replace(r"\cdot", "·")
         m = m.replace(r"\quad", "   ")
         m = m.replace(r"\,", " ")
-        m = m.replace(r"\left(", "(").replace(r"\right)", ")")
-        m = m.replace(r"\left[", "[").replace(r"\right]", "]")
         # Greek letters
         m = m.replace(r"\mu", "μ")
         m = m.replace(r"\theta", "θ")
@@ -77,31 +138,29 @@ def clean_latex_to_readable(text):
         m = m.replace(r"\alpha", "α")
         m = m.replace(r"\eta", "η")
         m = m.replace(r"\Delta", "Δ")
-        m = m.replace(r"^\circ", "°")
         m = m.replace(r"{^\circ}", "°")
-        # Text/mathrm wrappers
-        for _ in range(3):
-            m = re.sub(r"\\(?:mathrm|text)\{([^{}]+)\}", r"\1", m)
+        m = m.replace(r"^\circ", "°")
         m = m.replace(r"\max", "_{max}")
         m = m.replace(r"\min", "_{min}")
         m = m.replace(r"\ln", "ln")
         m = m.replace(r"\%", "%")
-        m = m.replace(r"\$", "$")
+        # Clean double subscript artifacts like _{_{max}}
+        m = m.replace("_{_{max}}", "_{max}").replace("_{_{min}}", "_{min}")
         return m
 
     s = re.sub(r"\$\$(.+?)\$\$", lambda m: replace_math(m), s)
     s = re.sub(r"\$(.+?)\$", lambda m: replace_math(m), s)
+    s = s.replace(ESC_DOLLAR, "$")
     return s
 
 
-def add_formatted_text(paragraph, raw_text, base_size=11, base_color=None, default_italic=False):
+def add_formatted_text(paragraph, raw_text, base_size=10, base_color=None, default_italic=False):
     """
     Parse bold (**...**), italic (*...*), subscripts (_{...} or _x), and superscripts (^{...} or ^x)
     and emit native Word runs with real subscript/superscript properties.
     """
     text = clean_latex_to_readable(raw_text)
 
-    # Tokenize by **bold** first
     bold_parts = re.split(r"(\*\*.*?\*\*)", text)
     for bpart in bold_parts:
         if not bpart:
@@ -111,7 +170,6 @@ def add_formatted_text(paragraph, raw_text, base_size=11, base_color=None, defau
             is_bold = True
             bpart = bpart[2:-2]
 
-        # Tokenize by *italic*
         italic_parts = re.split(r"(\*[^\*]+\*)", bpart)
         for ipart in italic_parts:
             if not ipart:
@@ -121,7 +179,6 @@ def add_formatted_text(paragraph, raw_text, base_size=11, base_color=None, defau
                 is_italic = True
                 ipart = ipart[1:-1]
 
-            # Tokenize by subscript/superscript: _{...}, ^{...}, _x, ^x
             pattern = r"(_\{[^{}]+\}|\^\{[^{}]+\}|_[A-Za-z0-9,]+|\^[A-Za-z0-9\-\+\*]+)"
             sub_parts = re.split(pattern, ipart)
             for spart in sub_parts:
@@ -157,23 +214,24 @@ def add_formatted_text(paragraph, raw_text, base_size=11, base_color=None, defau
 def build_docx():
     doc = Document()
 
-    # Page margins (1 inch all around)
+    # Compact academic margins so full report + 8 figures + 5 tables fit in ~13-15 pages (<=20 pages)
     for section in doc.sections:
-        section.top_margin = Inches(0.9)
-        section.bottom_margin = Inches(0.9)
-        section.left_margin = Inches(1.0)
-        section.right_margin = Inches(1.0)
+        section.top_margin = Inches(0.65)
+        section.bottom_margin = Inches(0.65)
+        section.left_margin = Inches(0.75)
+        section.right_margin = Inches(0.75)
 
-    # Default style
     normal_style = doc.styles["Normal"]
     normal_style.font.name = "Cambria"
-    normal_style.font.size = Pt(11)
+    normal_style.font.size = Pt(10)
 
     with open(MD_PATH, "r", encoding="utf-8") as f:
         lines = [line.rstrip("\r\n") for line in f.readlines()]
 
     i = 0
     n = len(lines)
+    in_references = False
+
     while i < n:
         line = lines[i].strip()
 
@@ -186,11 +244,12 @@ def build_docx():
             title_text = line[2:].strip()
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p.paragraph_format.space_before = Pt(6)
-            p.paragraph_format.space_after = Pt(12)
+            p.paragraph_format.space_before = Pt(2)
+            p.paragraph_format.space_after = Pt(6)
+            p.paragraph_format.keep_with_next = True
             run = p.add_run(title_text)
             run.font.name = "Cambria"
-            run.font.size = Pt(17)
+            run.font.size = Pt(14.5)
             run.bold = True
             run.font.color.rgb = RGBColor(15, 23, 42)
             i += 1
@@ -199,19 +258,22 @@ def build_docx():
         # 2. Section Headings (## ... or ### ...)
         if line.startswith("## "):
             h_text = line[3:].strip()
+            in_references = "References" in h_text
             p = doc.add_paragraph()
-            p.paragraph_format.space_before = Pt(16)
-            p.paragraph_format.space_after = Pt(6)
-            add_formatted_text(p, f"**{h_text}**", base_size=13.5, base_color=RGBColor(15, 23, 42))
+            p.paragraph_format.space_before = Pt(9)
+            p.paragraph_format.space_after = Pt(3)
+            p.paragraph_format.keep_with_next = True
+            add_formatted_text(p, f"**{h_text}**", base_size=12, base_color=RGBColor(15, 23, 42))
             i += 1
             continue
 
         if line.startswith("### "):
             h_text = line[4:].strip()
             p = doc.add_paragraph()
-            p.paragraph_format.space_before = Pt(12)
-            p.paragraph_format.space_after = Pt(4)
-            add_formatted_text(p, f"**{h_text}**", base_size=11.5, base_color=RGBColor(30, 58, 138))
+            p.paragraph_format.space_before = Pt(6)
+            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.keep_with_next = True
+            add_formatted_text(p, f"**{h_text}**", base_size=10.5, base_color=RGBColor(30, 58, 138))
             i += 1
             continue
 
@@ -222,23 +284,33 @@ def build_docx():
             fig_filename = FIG_MAP.get(img_rel, os.path.basename(img_rel))
             fig_full_path = os.path.join(FIG_DIR, fig_filename)
             if os.path.exists(fig_full_path):
+                with Image.open(fig_full_path) as im:
+                    w_px, h_px = im.size
+                aspect = w_px / float(h_px)
+                # Constrain width to <= 5.4 in and height to <= 2.55 in to avoid page-break gaps
+                max_w = 5.4
+                max_h = 2.55
+                disp_w = min(max_w, max_h * aspect)
+
                 p_img = doc.add_paragraph()
                 p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                p_img.paragraph_format.space_before = Pt(10)
-                p_img.paragraph_format.space_after = Pt(4)
+                p_img.paragraph_format.space_before = Pt(4)
+                p_img.paragraph_format.space_after = Pt(2)
+                p_img.paragraph_format.keep_with_next = True
                 run_img = p_img.add_run()
-                run_img.add_picture(fig_full_path, width=Inches(6.1))
+                run_img.add_picture(fig_full_path, width=Inches(disp_w))
             i += 1
             # Check if next line is italic caption
             if i < n and lines[i].strip().startswith("*") and lines[i].strip().endswith("*"):
                 cap_line = lines[i].strip()[1:-1]
                 p_cap = doc.add_paragraph()
                 p_cap.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-                p_cap.paragraph_format.space_after = Pt(12)
+                p_cap.paragraph_format.space_before = Pt(0)
+                p_cap.paragraph_format.space_after = Pt(5)
                 add_formatted_text(
                     p_cap,
                     cap_line,
-                    base_size=9.5,
+                    base_size=8.5,
                     base_color=RGBColor(71, 85, 105),
                     default_italic=True,
                 )
@@ -252,7 +324,6 @@ def build_docx():
                 table_lines.append(lines[i].strip())
                 i += 1
 
-            # Filter out separator row | :--- |
             rows_data = []
             for tline in table_lines:
                 cells = [c.strip() for c in tline.strip("|").split("|")]
@@ -270,15 +341,15 @@ def build_docx():
                     for c_idx in range(min(len(row_vals), num_cols)):
                         cell = table.cell(r_idx, c_idx)
                         p_cell = cell.paragraphs[0]
-                        p_cell.paragraph_format.space_before = Pt(3)
-                        p_cell.paragraph_format.space_after = Pt(3)
+                        p_cell.paragraph_format.space_before = Pt(1.5)
+                        p_cell.paragraph_format.space_after = Pt(1.5)
                         val = row_vals[c_idx]
                         if r_idx == 0:
                             set_cell_background(cell, "E2E8F0")
                             add_formatted_text(
                                 p_cell,
                                 f"**{val}**",
-                                base_size=9.5,
+                                base_size=8.5,
                                 base_color=RGBColor(15, 23, 42),
                             )
                         else:
@@ -287,22 +358,21 @@ def build_docx():
                             add_formatted_text(
                                 p_cell,
                                 val,
-                                base_size=9.5,
+                                base_size=8.5,
                                 base_color=RGBColor(30, 41, 59),
                             )
-                doc.add_paragraph().paragraph_format.space_after = Pt(4)
             continue
 
         # 5. Display Equation Block ($$...$$)
         if line.startswith("$$") and line.endswith("$$"):
             p_eq = doc.add_paragraph()
             p_eq.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p_eq.paragraph_format.space_before = Pt(6)
-            p_eq.paragraph_format.space_after = Pt(6)
+            p_eq.paragraph_format.space_before = Pt(2)
+            p_eq.paragraph_format.space_after = Pt(2.5)
             add_formatted_text(
                 p_eq,
                 f"**{line}**",
-                base_size=11,
+                base_size=9.5,
                 base_color=RGBColor(3, 105, 161),
             )
             i += 1
@@ -311,22 +381,22 @@ def build_docx():
         # 6. Bullet or Numbered List
         if line.startswith("- "):
             p_bul = doc.add_paragraph(style="List Bullet")
-            p_bul.paragraph_format.space_before = Pt(2)
-            p_bul.paragraph_format.space_after = Pt(3)
-            add_formatted_text(p_bul, line[2:].strip(), base_size=10.5)
+            p_bul.paragraph_format.space_before = Pt(1)
+            p_bul.paragraph_format.space_after = Pt(1.5)
+            add_formatted_text(p_bul, line[2:].strip(), base_size=9.5)
             i += 1
             continue
 
         num_match = re.match(r"^(\d+)\.\s+(.*)$", line)
         if num_match:
             p_num = doc.add_paragraph()
-            p_num.paragraph_format.left_indent = Inches(0.25)
-            p_num.paragraph_format.space_before = Pt(2)
-            p_num.paragraph_format.space_after = Pt(3)
+            p_num.paragraph_format.left_indent = Inches(0.2)
+            p_num.paragraph_format.space_before = Pt(0.5 if in_references else 1)
+            p_num.paragraph_format.space_after = Pt(1.0 if in_references else 2)
             add_formatted_text(
                 p_num,
                 f"**{num_match.group(1)}.** {num_match.group(2)}",
-                base_size=10.5,
+                base_size=8.5 if in_references else 9.5,
             )
             i += 1
             continue
@@ -334,9 +404,15 @@ def build_docx():
         # 7. Standard Paragraph
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(6)
-        add_formatted_text(p, line, base_size=11)
+        p.paragraph_format.space_before = Pt(1)
+        p.paragraph_format.space_after = Pt(3.5)
+        if line.startswith("Table "):
+            p.paragraph_format.space_before = Pt(6)
+            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.keep_with_next = True
+            add_formatted_text(p, f"**{line}**", base_size=9.5, base_color=RGBColor(15, 23, 42))
+        else:
+            add_formatted_text(p, line, base_size=10)
         i += 1
 
     for out_path in OUT_PATHS:

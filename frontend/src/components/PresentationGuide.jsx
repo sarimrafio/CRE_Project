@@ -19,7 +19,8 @@ import {
   Award,
   Volume2,
   Eye,
-  Printer
+  Printer,
+  Download
 } from 'lucide-react';
 import Bioreactor3D from './Bioreactor3D';
 import LevenspielPlot from './LevenspielPlot';
@@ -856,6 +857,16 @@ export default function PresentationGuide({
             <BookOpen className="w-3.5 h-3.5" />
             {showNotes ? 'Hide Notes' : 'Speaker Notes'}
           </button>
+
+          <a
+            href="/presenter_7_slide_script_and_qa_guide.pdf"
+            download="Textile_Bioreactor_7_Slide_Defense_Guide.pdf"
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-terracotta hover:bg-terracotta/90 text-linen border border-terracotta/40 transition-all flex items-center gap-1.5 shadow"
+            title="Download Complete 14-Page Presenter Script, Theory & Q&A PDF"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download PDF Guide
+          </a>
 
           <button
             onClick={() => window.print()}

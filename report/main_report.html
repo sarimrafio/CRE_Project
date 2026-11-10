@@ -22,15 +22,15 @@ hr { border: 0; height: 1px; background: #e1e2e6; margin: 30px 0; }
 </head>
 <body>
 <h1>Comparative Dynamic Modelling, Design, and Sustainability Optimization of CSTR and PFR Systems for Biological Treatment of Textile Wastewater: A Literature-Calibrated Digital Twin Approach</h1>
-<p><strong>Authors:</strong> Research Engineering Group (Project 24)<br />
-<strong>Academic Affiliation:</strong> Department of Chemical Engineering<br />
-<strong>Subject:</strong> Chemical Reaction Engineering (CRE) — Biological Reactor Design<br />
-<strong>Date:</strong> November 2026  </p>
+<p>Authors: Research Engineering Group (Project 24)<br />
+Academic Affiliation: Department of Chemical Engineering<br />
+Subject: Chemical Reaction Engineering (CRE): Biological Reactor Design<br />
+Date: November 2026  </p>
 <hr />
 <h2>Executive Abstract</h2>
-<p>Biological treatment of industrial textile wastewater poses severe reaction-engineering challenges due to the presence of recalcitrant synthetic dyestuffs, high salinity, surfactants, and variable organic loads. This research presents a rigorous, literature-calibrated comparative design and operational sustainability assessment between an <strong>ideal Continuous Stirred-Tank Reactor (CSTR)</strong> and an <strong>ideal Plug-Flow Reactor (PFR)</strong> equipped with cell recycle. The biological reaction kinetics are formulated using an <strong>advanced dual-limitation Monod model</strong> incorporating active heterotrophic microbial growth, endogenous decay, solids retention time ($\theta_c$), and dissolved oxygen limitation ($\mu_{\max} = 3.2\,\mathrm{day^{-1}}$, $K_S = 65.0\,\mathrm{mg\,COD/L}$, $Y = 0.45\,\mathrm{g\,VSS/g\,COD}$, $b = 0.06\,\mathrm{day^{-1}}$, $K_O = 0.20\,\mathrm{mg\,O_2/L}$, $k_La = 120.0\,\mathrm{day^{-1}}$). </p>
-<p>Governing differential material balances were derived following <strong>Fogler’s reaction engineering methodology</strong> and integrated numerically using high-order stiff solvers (<code>SciPy Radau</code>). For a baseline industrial finishing mill discharging $Q = 1000\,\mathrm{m^3/day}$ with an influent biodegradable Chemical Oxygen Demand ($S_0$, bCOD) of $750\,\mathrm{mg/L}$ and a target effluent standard of $S_e \le 75\,\mathrm{mg/L}$ ($90.0\%$ bCOD conversion), the required reactor working volume is <strong>$489.7\,\mathrm{m^3}$</strong> for the CSTR (Hydraulic Retention Time $\tau = 11.75\,\mathrm{h}$) and <strong>$494.8\,\mathrm{m^3}$</strong> for the PFR ($\tau = 11.87\,\mathrm{h}$), yielding a volume ratio of $0.99\times$ at matched biological solids inventory ($X_b \approx 3877\,\mathrm{mg\,VSS/L}$). Operational sustainability analysis indicates an energy consumption of <strong>$0.445\,\mathrm{kWh/m^3}$</strong> (\$0.0423/m³, $0.274\,\mathrm{kg\,CO_2e/m^3}$) for the CSTR versus <strong>$0.447\,\mathrm{kWh/m^3}$</strong> (\$0.0425/m³, $0.275\,\mathrm{kg\,CO_2e/m^3}$) for the PFR. The numerical engine was independently benchmarked against analytical first-order limiting cases ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} = 3.91$ at $90\%$ conversion). These results demonstrate that while classical chemical kinetics favors tubular reactors for non-inhibited systems, biological activated-sludge systems operated under controlled cell retention exhibit near-hydrodynamic parity, with the CSTR providing superior operational stability against upstream toxic shocks.</p>
-<p><strong>Keywords:</strong> Chemical Reaction Engineering, Biological Wastewater Treatment, Monod Kinetics, CSTR, PFR, Textile Wastewater, COD Fractionation, Digital Twin, Sustainability Assessment.</p>
+<p>Biological treatment of industrial textile wastewater poses severe reaction-engineering challenges due to recalcitrant synthetic dyestuffs, high salinity, surfactants, and variable organic loads. This study compares the design and operational sustainability of an ideal Continuous Stirred-Tank Reactor (CSTR) and an ideal Plug-Flow Reactor (PFR) equipped with cell recycle. Biological reaction kinetics are formulated using a dual-limitation Monod model incorporating active heterotrophic microbial growth, endogenous decay, solids retention time ($\theta_c$), and dissolved oxygen limitation ($\mu_{\max} = 3.2\,\mathrm{day^{-1}}$, $K_S = 65.0\,\mathrm{mg\,COD/L}$, $Y = 0.45\,\mathrm{g\,VSS/g\,COD}$, $b = 0.06\,\mathrm{day^{-1}}$, $K_O = 0.20\,\mathrm{mg\,O_2/L}$, $k_La = 120.0\,\mathrm{day^{-1}}$). </p>
+<p>Governing differential material balances were derived following Fogler’s reaction engineering methodology and integrated numerically using high-order stiff solvers (<code>SciPy Radau</code>). For a baseline industrial finishing mill discharging $Q = 1000\,\mathrm{m^3/day}$ with an influent biodegradable Chemical Oxygen Demand ($S_0$, bCOD) of $750\,\mathrm{mg/L}$ and a target effluent standard of $S_e \le 75\,\mathrm{mg/L}$ ($90.0\%$ bCOD conversion), the required reactor working volume is $489.7\,\mathrm{m^3}$ for the CSTR (Hydraulic Retention Time $\tau = 11.75\,\mathrm{h}$) and $494.8\,\mathrm{m^3}$ for the PFR ($\tau = 11.87\,\mathrm{h}$), yielding a volume ratio of $0.99\times$ at matched biological solids inventory ($X_b \approx 3877\,\mathrm{mg\,VSS/L}$). Operational sustainability analysis indicates an energy consumption of $0.445\,\mathrm{kWh/m^3}$ (\$0.0423/m³, $0.274\,\mathrm{kg\,CO_2e/m^3}$) for the CSTR versus $0.447\,\mathrm{kWh/m^3}$ (\$0.0425/m³, $0.275\,\mathrm{kg\,CO_2e/m^3}$) for the PFR. The numerical engine was independently benchmarked against analytical first-order limiting cases ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} = 3.91$ at $90\%$ conversion). While classical chemical kinetics favors tubular reactors for non-inhibited systems, biological activated-sludge systems operated under controlled cell retention exhibit near-hydrodynamic parity, with the CSTR providing superior operational stability against upstream toxic shocks.</p>
+<p>Keywords: Chemical Reaction Engineering, Biological Wastewater Treatment, Monod Kinetics, CSTR, PFR, Textile Wastewater, COD Fractionation, Digital Twin, Sustainability Assessment.</p>
 <hr />
 <h2>Nomenclature and Unit System</h2>
 <table>
@@ -174,11 +174,11 @@ hr { border: 0; height: 1px; background: #e1e2e6; margin: 30px 0; }
 <hr />
 <h2>1. Introduction and Project Motivation</h2>
 <p>Industrial textile wet processing (scouring, desizing, bleaching, mercerizing, dyeing, and finishing) is among the most water- and chemical-intensive industrial sectors globally (Vandevivere et al., 1998; Robinson et al., 2001). A typical wet-processing mill generates between $100$ and $250\,\mathrm{m^3}$ of wastewater per ton of finished fabric, characterized by elevated Chemical Oxygen Demand ($\mathrm{COD} = 800 - 2500\,\mathrm{mg/L}$), intense coloration from synthetic azo and anthraquinone reactive dyes, fluctuating $\mathrm{pH}$ ($6 - 11$), high electrical conductivity ($2000 - 6000\,\mu\mathrm{S/cm}$), and xenobiotic auxiliary agents (Germirli Babuna et al., 1999; Orhon et al., 2003; dos Santos et al., 2007).</p>
-<p>In modern environmental engineering practice, biological activated-sludge treatment represents the core secondary unit process due to its operational cost-effectiveness compared to purely physicochemical or electrochemical technologies (Metcalf &amp; Eddy, 2014; Chen et al., 2020). However, textbook Chemical Reaction Engineering (CRE) formulations derived for homogeneous chemical syntheses (Levenspiel, 1999; Fogler, 2016) demonstrate that an ideal tubular <strong>Plug-Flow Reactor (PFR)</strong> consistently requires a substantially smaller reactor volume than an ideal <strong>Continuous Stirred-Tank Reactor (CSTR)</strong> for any positive reaction order ($n &gt; 0$) achieving high conversions ($X_S &gt; 85\%$). </p>
-<p>In biochemical environmental processes, this classical thermodynamic deduction is fundamentally complicated by two coupled physical mechanisms:
-1. <strong>Biological Autocatalytic Growth &amp; Solids Retention:</strong> Heterotrophic bacteria are both the reaction catalyst and the self-replicating reaction product. In suspended-growth continuous systems, active biomass must be actively retained or recycled via secondary clarifiers; otherwise, hydrodynamic washout occurs whenever dilution rate exceeds specific growth rate ($D &gt; \mu_{\mathrm{net}}$) (Lawrence &amp; McCarty, 1970; Grady et al., 2011).
-2. <strong>Dissolved Oxygen Transfer Limitation:</strong> Microorganisms require molecular oxygen as the terminal electron acceptor. Aeration is governed by gas-liquid mass transfer rate ($k_La$) and biological oxygen demand ($\text{OUR}$). Substrate utilization rate cannot exceed available oxygen transfer without inducing anaerobic septic conditions (Rosso &amp; Stenstrom, 2006; Baquero-Rodriguez et al., 2018).</p>
-<p>To visualize these two contrasting engineering configurations, the complete process flow diagrams for both systems are contrasted in <strong>Figure 1</strong>.</p>
+<p>In modern environmental engineering practice, biological activated-sludge treatment is the core secondary unit process because of its operational cost-effectiveness compared to purely physicochemical or electrochemical technologies (Metcalf &amp; Eddy, 2014; Chen et al., 2020). However, textbook Chemical Reaction Engineering (CRE) formulations derived for homogeneous chemical syntheses (Levenspiel, 1999; Fogler, 2016) show that an ideal tubular Plug-Flow Reactor (PFR) requires a smaller reactor volume than an ideal Continuous Stirred-Tank Reactor (CSTR) for any positive reaction order ($n &gt; 0$) achieving high conversions ($X_S &gt; 85\%$). </p>
+<p>In biochemical environmental processes, this classical deduction is complicated by two coupled physical mechanisms:
+1. Biological autocatalytic growth and solids retention: Heterotrophic bacteria are both the reaction catalyst and the self-replicating reaction product. In suspended-growth continuous systems, active biomass must be retained or recycled via secondary clarifiers; otherwise, hydrodynamic washout occurs whenever the dilution rate exceeds the specific growth rate ($D &gt; \mu_{\mathrm{net}}$) (Lawrence &amp; McCarty, 1970; Grady et al., 2011).
+2. Dissolved oxygen transfer limitation: Microorganisms require molecular oxygen as the terminal electron acceptor. Aeration is governed by the gas-liquid mass transfer rate ($k_La$) and biological oxygen demand ($\text{OUR}$). The substrate consumption rate cannot exceed available oxygen transfer without inducing anaerobic septic conditions (Rosso &amp; Stenstrom, 2006; Baquero-Rodriguez et al., 2018).</p>
+<p>Process flow diagrams for both reactor configurations are shown in Figure 1.</p>
 <p><img alt="Figure 1: Process Flow Schematics of CSTR and PFR" src="figures/fig1_reactor_schematic.png" />
 <em>Figure 1: Process flow diagrams of the biological activated-sludge systems under comparison: (a) Continuous Stirred-Tank Reactor (CSTR) characterized by instantaneous bulk micro-mixing ($C_{\mathrm{exit}} = C_{\mathrm{bulk}}$) with bottom-diffused bubble aeration ($k_La$), secondary clarifier, and Return Activated Sludge (RAS) loop governing mean cell residence time ($\theta_c$); (b) Plug-Flow Reactor (PFR) characterized by 1D axial advection with zero back-mixing ($Pe \to \infty$) coupled with an inlet biomass recycle loop ($X_{b,0}$) to sustain steady biological inventory.</em></p>
 <p>The specific research objectives are:
@@ -188,26 +188,26 @@ hr { border: 0; height: 1px; background: #e1e2e6; margin: 30px 0; }
 4. Develop and verify a high-accuracy numerical simulation engine in Python (<code>SciPy Radau</code>), validated against analytical limiting solutions.
 5. Perform comparative reactor sizing, sensitivity analysis, and operational sustainability evaluation (energy consumption, operating cost, and carbon footprint).</p>
 <hr />
-<h2>2. Comprehensive Literature Review &amp; Kinetic Synthesis</h2>
+<h2>2. Literature Review and Kinetic Synthesis</h2>
 <h3>2.1 Literature Search Methodology and PRISMA Flowchart</h3>
-<p>Following the PRISMA 2020 protocol for reproducible scientific literature extraction, peer-reviewed databases (Scopus, Web of Science, OpenAlex, and Semantic Scholar) were systematically queried. As detailed in the PRISMA flowchart in <strong>Figure 2</strong>, a total of 412 candidate records were screened, resulting in 50 fully verified peer-reviewed publications covering textile effluent characterization, Monod kinetics, hydrodynamics, oxygen transfer, and life-cycle sustainability.</p>
+<p>Following the PRISMA 2020 protocol for reproducible scientific literature extraction, peer-reviewed databases (Scopus, Web of Science, OpenAlex, and Semantic Scholar) were systematically queried. As shown in Figure 2, 412 candidate records were screened, yielding 50 verified peer-reviewed publications covering textile effluent characterization, Monod kinetics, hydrodynamics, oxygen transfer, and life-cycle sustainability.</p>
 <p><img alt="Figure 2: PRISMA 2020 Flowchart" src="figures/fig2_prisma_flowchart.png" />
 <em>Figure 2: PRISMA 2020 literature search and screening workflow showing identification of 412 records, duplicate removal, title/abstract screening, full-text eligibility appraisal, and final inclusion of 50 verified peer-reviewed studies categorized into five distinct reaction engineering thematic clusters.</em></p>
 <h3>2.2 Textile Wastewater Characterization and COD Fractionation</h3>
-<p>A major pitfall in industrial wastewater modeling is the assumption that total Chemical Oxygen Demand ($\mathrm{COD}<em>{\mathrm{tot}}$) is entirely biodegradable. In textile wet-processing effluent, total COD is divided into distinct fractions governed by the Activated Sludge Models (Henze et al., 2000; Orhon et al., 2003):
+<p>A common error in industrial wastewater modeling is assuming that total Chemical Oxygen Demand ($\mathrm{COD}<em>{\mathrm{tot}}$) is entirely biodegradable. In textile wet-processing effluent, total COD is divided into four fractions defined by the Activated Sludge Models (Henze et al., 2000; Orhon et al., 2003):
 $$\mathrm{COD}</em>{\mathrm{tot}} = S_s + X_s + S_i + X_i$$
 where $S_s$ is soluble readily biodegradable substrate, $X_s$ is particulate slowly biodegradable substrate requiring extracellular enzymatic hydrolysis, $S_i$ is soluble inert non-biodegradable COD, and $X_i$ is particulate inert COD.</p>
-<p>Seminal experimental investigations on knit fabric and cotton finishing wastewater by Orhon et al. (1992, 1999, 2003) demonstrated that textile wastewater exhibits an initial soluble inert fraction ($S_i$) ranging between $80$ and $180\,\mathrm{mg/L}$ ($10 - 18\%$ of total COD). Furthermore, microbial metabolic activity produces residual soluble microbial products ($S_p \approx 4 - 8\%$ of initial substrate), establishing an absolute refractory baseline below which biological treatment cannot proceed without tertiary membrane separation or advanced oxidation (Oller et al., 2011; Yurtsever et al., 2015). Consequently, the biologically assimilable substrate is defined as <strong>biodegradable soluble COD ($S$, bCOD)</strong>:
+<p>Experimental studies on knit fabric and cotton finishing wastewater by Orhon et al. (1992, 1999, 2003) showed that textile wastewater contains an initial soluble inert fraction ($S_i$) between $80$ and $180\,\mathrm{mg/L}$ ($10 - 18\%$ of total COD). Microbial metabolism also generates residual soluble microbial products ($S_p \approx 4 - 8\%$ of initial substrate), setting a refractory baseline below which biological treatment cannot proceed without tertiary membrane separation or advanced oxidation (Oller et al., 2011; Yurtsever et al., 2015). Biologically assimilable substrate is therefore defined as biodegradable soluble COD ($S$, bCOD):
 $$S = S_s + f_H X_s$$
 where the biodegradable fraction $f_b = \mathrm{bCOD} / \mathrm{COD}_{\mathrm{tot}}$ typically ranges between $0.55$ and $0.72$ for desized textile effluents (Baban et al., 2003; Karahan et al., 2008).</p>
 <h3>2.3 Monod Growth Kinetics and Rate Transitions</h3>
-<p>The degradation of biodegradable organic substrate by aerobic heterotrophic biomass is classically governed by Monod kinetics (Monod, 1949):
+<p>Degradation of biodegradable organic substrate by aerobic heterotrophic biomass follows Monod kinetics (Monod, 1949):
 $$\mu(S) = \mu_{\max} \frac{S}{K_S + S}$$
-In textile effluents containing inhibitory dyes and salts, maximum specific growth rates ($\mu_{\max}$) are observed to be lower ($1.8 - 4.2\,\mathrm{day^{-1}}$) and half-saturation affinity constants ($K_S$) significantly higher ($40 - 120\,\mathrm{mg\,COD/L}$) than in municipal sewage ($\mu_{\max} \approx 6.0\,\mathrm{day^{-1}}$, $K_S \approx 20\,\mathrm{mg/L}$) due to xenobiotic mass-transfer resistance and dye toxicity (Kapdan &amp; Kargi, 2002; Sponza &amp; Isik, 2002; Guan et al., 2004; Isik &amp; Sponza, 2004). </p>
-<p>The dual-limitation Monod behavior and the transition between kinetic regimes are plotted in <strong>Figure 3</strong>.</p>
+In textile effluents containing inhibitory dyes and salts, maximum specific growth rates ($\mu_{\max} = 1.8 - 4.2\,\mathrm{day^{-1}}$) are lower and half-saturation affinity constants ($K_S = 40 - 120\,\mathrm{mg\,COD/L}$) are higher than in municipal sewage ($\mu_{\max} \approx 6.0\,\mathrm{day^{-1}}$, $K_S \approx 20\,\mathrm{mg/L}$) because of xenobiotic mass-transfer resistance and dye toxicity (Kapdan &amp; Kargi, 2002; Sponza &amp; Isik, 2002; Guan et al., 2004; Isik &amp; Sponza, 2004). </p>
+<p>Dual-limitation Monod kinetics and the transition between kinetic regimes are plotted in Figure 3.</p>
 <p><img alt="Figure 3: Monod Kinetics and Rate Regimes" src="figures/fig3_monod_kinetics.png" />
 <em>Figure 3: Dual-limitation Monod kinetics for textile wastewater biodegradation: (a) Specific microbial growth rate $\mu(S, DO)$ as a function of biodegradable substrate concentration $S$ across dissolved oxygen levels ($DO = 0.1$ to $5.0\,\mathrm{mg/L}$), identifying the half-velocity affinity constant $K_S = 65\,\mathrm{mg/L}$ and asymptotic ceiling $\mu_{\max} = 3.2\,\mathrm{day^{-1}}$; (b) Substrate consumption rate $-r_S$ showing the extensive zero-order saturation plateau at elevated industrial concentrations ($S \gg K_S$) and the first-order transition occurring only as substrate approaches low residual concentrations ($S \le K_S$).</em></p>
-<p><strong>Table 1: Literature-Calibrated Biological Kinetic and Stoichiometric Parameters</strong>
+<p>Table 1: Literature-Calibrated Biological Kinetic and Stoichiometric Parameters
 | Parameter | Symbol | Nominal Value | Range in Literature | Primary Literature Source |
 | :--- | :--- | :--- | :--- | :--- |
 | Maximum specific growth rate | $\mu_{\max}$ | $3.20\,\mathrm{day^{-1}}$ | $1.8 - 4.5\,\mathrm{day^{-1}}$ | Orhon et al. (2003); Guan et al. (2004) |
@@ -237,15 +237,15 @@ where $1.42\,\mathrm{g\,O_2/g\,VSS}$ is the stoichiometric oxygen equivalence of
 <p>For an ideally mixed reactor of constant volume $V$ and flow $Q$ ($\tau = V/Q$), the transient balances are:</p>
 <ol>
 <li>
-<p><strong>Substrate Material Balance:</strong>
+<p>Substrate Material Balance:
    $$\frac{dS}{dt} = \frac{1}{\tau}(S_0 - S) - \frac{\mu_{\mathrm{eff}}(S, DO) X_b}{Y}$$</p>
 </li>
 <li>
-<p><strong>Active Biomass Balance (with Clarifier Retention $\theta_c$):</strong>
+<p>Active Biomass Balance (with Clarifier Retention $\theta_c$):
    $$\frac{dX_b}{dt} = \left(\mu_{\mathrm{eff}}(S, DO) - b - \frac{1}{\theta_c}\right) X_b$$</p>
 </li>
 <li>
-<p><strong>Dissolved Oxygen Balance:</strong>
+<p>Dissolved Oxygen Balance:
    $$\frac{dDO}{dt} = \frac{1}{\tau}(DO_0 - DO) + k_La(DO^* - DO) - \text{OUR}$$</p>
 </li>
 </ol>
@@ -261,38 +261,38 @@ $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e) Y}{\mu_{\mathrm{eff}} X_b}$$</p>
 <p>In an ideal plug-flow channel with cross-sectional area $A$, channel length $L$ ($V = A L$), and superficial fluid velocity $u = Q/A$, fluid elements translate without axial dispersion ($Pe = \infty$). Defining the residence time coordinate $\tau_p = z / u \in [0, \tau_{\mathrm{PFR}}]$:</p>
 <ol>
 <li>
-<p><strong>Spatial Substrate Depletion Profile:</strong>
+<p>Spatial Substrate Depletion Profile:
    $$\frac{dS}{d\tau_p} = - \frac{\mu_{\mathrm{eff}}(S, DO) X_b}{Y}, \quad S(0) = S_0$$</p>
 </li>
 <li>
-<p><strong>Spatial Biomass Profile:</strong>
-   To establish a physically sound and equitable comparison with the CSTR, the biological PFR is operated with a secondary clarifier and return sludge loop delivering inlet biomass:
+<p>Spatial Biomass Profile:
+   To compare the PFR on an equal basis with the CSTR, the biological PFR is operated with a secondary clarifier and return sludge loop delivering inlet biomass:
    $$\frac{dX_b}{d\tau_p} = (\mu_{\mathrm{eff}}(S, DO) - b) X_b, \quad X_b(0) = X_{b,0}$$
    where $X_{b,0}$ matches the steady biological inventory maintained in the aeration basin.</p>
 </li>
 <li>
-<p><strong>Spatial Dissolved Oxygen Profile:</strong>
+<p>Spatial Dissolved Oxygen Profile:
    $$\frac{dDO}{d\tau_p} = k_La (DO^* - DO) - \text{OUR}(S, X_b, DO), \quad DO(0) = DO_0$$</p>
 </li>
 <li>
-<p><strong>Integration and Volume Calculation:</strong>
+<p>Integration and Volume Calculation:
    $$\tau_{\mathrm{PFR}} = \int_0^L \frac{dz}{u} = \int_{S_e}^{S_0} \frac{Y \, dS}{\mu_{\mathrm{eff}}(S, DO) X_b(S)}$$
    $$V_{\mathrm{PFR}} = Q \times \tau_{\mathrm{PFR}}$$</p>
 </li>
 </ol>
 <h3>3.5 Analytical Verification Benchmark: Model M0 (First-Order Kinetics)</h3>
 <p>To verify solver convergence, both systems were reduced to pseudo first-order kinetics ($-r_S = kS$):
-- <strong>CSTR Volume:</strong>
+- CSTR Volume:
   $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e)}{k S_e} = \frac{Q X_S}{k(1 - X_S)}$$
-- <strong>PFR Volume:</strong>
+- PFR Volume:
   $$V_{\mathrm{PFR}} = \frac{Q}{k} \ln\left(\frac{S_0}{S_e}\right) = -\frac{Q}{k} \ln(1 - X_S)$$
-- <strong>Analytical Ratio:</strong>
+- Analytical Ratio:
   $$\frac{V_{\mathrm{CSTR}}}{V_{\mathrm{PFR}}} = \frac{X_S}{(1 - X_S) \ln[1 / (1 - X_S)]}$$
-  At $X_S = 0.90$ ($90\%$ conversion), the analytical ratio is exactly <strong>$3.9087$</strong>, providing a strict numerical verification target for our software implementations.</p>
+  At $X_S = 0.90$ ($90\%$ conversion), the analytical ratio is $3.9087$, providing a numerical verification target for the solver.</p>
 <hr />
 <h2>4. Literature Data Extraction and Baseline Mill Profile</h2>
 <p>From the catalog of 50 peer-reviewed investigations, the baseline design basis was extracted from verified industrial mill monitoring studies conducted by Orhon et al. (2003) and Rahman et al. (2020) for a medium-scale knit fabric finishing and reactive dyeing facility.</p>
-<p><strong>Table 2: Design Basis for Textile Wastewater Bioreactor Comparison</strong>
+<p>Table 2: Design Basis for Textile Wastewater Bioreactor Comparison
 | Design Parameter | Symbol | Design Value | Unit | Provenance &amp; Evidence |
 | :--- | :--- | :--- | :--- | :--- |
 | Wastewater Influent Flow Rate | $Q$ | $1000.0$ | $\mathrm{m^3/day}$ | Typical medium knit dyeing mill (Rahman et al., 2020) |
@@ -310,22 +310,22 @@ $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e) Y}{\mu_{\mathrm{eff}} X_b}$$</p>
 <h2>5. Model Verification and Mass Balance Closure</h2>
 <p>The numerical implementation in Python (<code>src/textile_twin/</code>) was subjected to 13 automated unit tests (<code>pytest</code>), evaluating physical consistency, asymptotic limits, and numerical stability:</p>
 <ol>
-<li><strong>Analytical Limit Check:</strong> Under first-order kinetics ($k = 0.5\,\mathrm{day^{-1}}$, $Q = 1000\,\mathrm{m^3/day}$, $S_0 = 1000\,\mathrm{mg/L}$, $S_e = 100\,\mathrm{mg/L}$), the numerical solver predicted $V_{\mathrm{CSTR}} = 18000.00\,\mathrm{m^3}$ and $V_{\mathrm{PFR}} = 4605.17\,\mathrm{m^3}$, reproducing the exact analytical ratio ($3.9087$) with an absolute error $&lt; 10^{-6}$.</li>
-<li><strong>Washout Threshold Verification:</strong> When the solids retention time in the CSTR was reduced below the critical washout limit:
+<li>Analytical limit check: Under first-order kinetics ($k = 0.5\,\mathrm{day^{-1}}$, $Q = 1000\,\mathrm{m^3/day}$, $S_0 = 1000\,\mathrm{mg/L}$, $S_e = 100\,\mathrm{mg/L}$), the numerical solver predicted $V_{\mathrm{CSTR}} = 18000.00\,\mathrm{m^3}$ and $V_{\mathrm{PFR}} = 4605.17\,\mathrm{m^3}$, reproducing the exact analytical ratio ($3.9087$) with an absolute error $&lt; 10^{-6}$.</li>
+<li>Washout threshold verification: When the solids retention time in the CSTR was reduced below the critical washout limit:
    $$\theta_{c,\mathrm{crit}} = \frac{1}{\mu_{\max} - b} = \frac{1}{3.2 - 0.06} = 0.318\,\mathrm{days}$$
-   the solver confirmed complete biomass washout ($X_b \to 0\,\mathrm{mg/L}$) and unreacted substrate breakthrough ($S_e = S_0$), confirming physical realism.</li>
-<li><strong>Transient Convergence:</strong> Independent dynamic time integration (<code>solve_ivp Radau</code>) converged to the identical steady-state coordinates ($S, X_b, DO$) computed by non-linear multidimensional root-finding (<code>scipy.optimize.root</code>) within $&lt; 0.1\%$ relative deviation.</li>
+   the solver confirmed complete biomass washout ($X_b \to 0\,\mathrm{mg/L}$) and unreacted substrate breakthrough ($S_e = S_0$).</li>
+<li>Transient convergence: Independent dynamic time integration (<code>solve_ivp Radau</code>) converged to the identical steady-state coordinates ($S, X_b, DO$) computed by non-linear multidimensional root-finding (<code>scipy.optimize.root</code>) within $&lt; 0.1\%$ relative deviation.</li>
 </ol>
-<p>The dynamic transient trajectory of the CSTR from startup to steady-state equilibrium is documented in <strong>Figure 6</strong>.</p>
+<p>The startup trajectory of the CSTR from initial seeding to steady-state equilibrium is shown in Figure 6.</p>
 <p><img alt="Figure 6: Transient Dynamic Startup Trajectory of CSTR" src="figures/fig6_cstr_transient.png" />
-<em>Figure 6: Numerical dynamic startup simulation of the CSTR over 25 operational days: (a) Biodegradable substrate depletion decaying from initial feed to the steady effluent target $S_e = 75.0\,\mathrm{mg/L}$; (b) Biomass accumulation under secondary clarifier solids recycling reaching steady state at $X_b = 3876.9\,\mathrm{mg\,VSS/L}$; (c) Dynamic dissolved oxygen concentration stabilizing at non-limiting residual $DO = 2.42\,\mathrm{mg/L}$.</em></p>
+<em>Figure 6: Numerical startup simulation of the CSTR over 25 operational days: (a) Biodegradable substrate depletion decaying from initial feed to the steady effluent target $S_e = 75.0\,\mathrm{mg/L}$; (b) Biomass accumulation under secondary clarifier solids recycling reaching steady state at $X_b = 3876.9\,\mathrm{mg\,VSS/L}$; (c) Dissolved oxygen concentration stabilizing at non-limiting residual $DO = 2.42\,\mathrm{mg/L}$.</em></p>
 <ol>
-<li><strong>Mass Balance Closure:</strong> Global mass conservation on carbon substrate and active biomass closed with residuals $&lt; 10^{-5}\,\mathrm{kg/day}$.</li>
+<li>Mass balance closure: Global mass conservation on carbon substrate and active biomass closed with residuals $&lt; 10^{-5}\,\mathrm{kg/day}$.</li>
 </ol>
 <hr />
 <h2>6. Reactor Sizing and Comparative Performance Results</h2>
-<p>Applying the calibrated Monod kinetic model to the baseline textile wastewater stream ($Q = 1000\,\mathrm{m^3/day}$, $S_0 = 750\,\mathrm{mg/L}$, $S_e \le 75\,\mathrm{mg/L}$, $\theta_c = 10\,\mathrm{days}$)$, the numerical simulation engines produced the comparative sizing results summarized in Table 3.</p>
-<p><strong>Table 3: Comprehensive Comparative Sizing and Operational Performance Matrix</strong>
+<p>Applying the calibrated Monod kinetic model to the baseline textile wastewater stream ($Q = 1000\,\mathrm{m^3/day}$, $S_0 = 750\,\mathrm{mg/L}$, $S_e \le 75\,\mathrm{mg/L}$, $\theta_c = 10\,\mathrm{days}$), the numerical simulation engines produced the comparative sizing results summarized in Table 3.</p>
+<p>Table 3: Comparative Sizing and Operational Performance Matrix
 | Sizing Metric | CSTR Design | PFR Design | Ratio (CSTR / PFR) | Engineering Significance |
 | :--- | :--- | :--- | :--- | :--- |
 | <strong>Reactor Working Volume ($V$)</strong> | <strong>$489.7\,\mathrm{m^3}$</strong> | <strong>$494.8\,\mathrm{m^3}$</strong> | <strong>$0.99\times$</strong> | Near-identical reactor volumetric footprints |
@@ -336,25 +336,25 @@ $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e) Y}{\mu_{\mathrm{eff}} X_b}$$</p>
 | <strong>Exit Dissolved Oxygen ($DO_e$)</strong> | $2.42\,\mathrm{mg/L}$ | $3.15\,\mathrm{mg/L}$ | $0.77\times$ | Both prevent anaerobic septicity ($&gt; 2.0\,\mathrm{mg/L}$) |
 | <strong>Volumetric Organic Loading Rate</strong> | $1.53\,\mathrm{kg\,COD/(m^3 \cdot d)}$ | $1.52\,\mathrm{kg\,COD/(m^3 \cdot d)}$ | $1.01\times$ | Typical industrial aeration basin loading |</p>
 <h3>6.1 The Biochemical Mechanism Behind the 0.99x Volume Ratio</h3>
-<p>The central finding of this reaction engineering study is that <strong>the CSTR and PFR require virtually identical working volumes ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} \approx 0.99$)</strong> under equal biological inventory and $90\%$ conversion, in stark contrast to the $3.91\times$ ratio predicted by classical first-order non-biological kinetics.</p>
-<p>The Levenspiel conversion comparison and the collapse of the tubular reactor advantage are illustrated in <strong>Figure 4</strong>.</p>
+<p>The CSTR and PFR require nearly identical working volumes ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} \approx 0.99$) under equal biological inventory and $90\%$ conversion, in contrast to the $3.91\times$ ratio predicted by classical first-order non-biological kinetics.</p>
+<p>The Levenspiel conversion comparison and the collapse of the tubular reactor advantage are shown in Figure 4.</p>
 <p><img alt="Figure 4: Levenspiel Reactor Sizing Comparison" src="figures/fig4_levenspiel_comparison.png" />
 <em>Figure 4: Reaction engineering sizing comparison between CSTR and PFR across bCOD conversion ($X_S = 50\%$ to $96\%$): (a) Required reactor working volume ($V$) as a function of substrate removal conversion, demonstrating nearly overlapping volumetric trajectories; (b) Ratio of required volumes ($V_{\mathrm{CSTR}} / V_{\mathrm{PFR}}$) hovering at $\sim 0.99$, illustrating the collapse of the classical first-order Levenspiel advantage ($3.91\times$) due to zero-order kinetic saturation ($S \gg K_S$).</em></p>
-<p>The mathematical rationale emerges directly from the structure of Monod kinetics coupled with biomass retention:
-1. In the <strong>CSTR</strong>, the solids retention time $\theta_c = 10\,\mathrm{days}$ forces the operating specific growth rate to $\mu_{\mathrm{eff}} = b + 1/\theta_c = 0.06 + 0.10 = 0.160\,\mathrm{day^{-1}}$. Because this operating growth rate is relatively low compared to $\mu_{\max} = 3.2\,\mathrm{day^{-1}}$, the required bulk substrate concentration is driven down to $S_e = 75\,\mathrm{mg/L}$, and the resulting biomass inventory stabilizes at $X_b = 3876.9\,\mathrm{mg/L}$.
-2. In the <strong>PFR</strong>, at the inlet ($z = 0$), substrate concentration is high ($S_0 = 750\,\mathrm{mg/L}$). However, biological growth is already substrate-saturated ($S \gg K_S = 65\,\mathrm{mg/L}$), meaning the biological reaction operates close to pseudo zero-order kinetics:
+<p>The mathematical rationale follows directly from Monod kinetics coupled with biomass retention:
+1. In the CSTR, the solids retention time $\theta_c = 10\,\mathrm{days}$ fixes the operating specific growth rate at $\mu_{\mathrm{eff}} = b + 1/\theta_c = 0.06 + 0.10 = 0.160\,\mathrm{day^{-1}}$. Because this operating growth rate is small relative to $\mu_{\max} = 3.2\,\mathrm{day^{-1}}$, the bulk substrate concentration is driven down to $S_e = 75\,\mathrm{mg/L}$, and the biomass inventory stabilizes at $X_b = 3876.9\,\mathrm{mg/L}$.
+2. In the PFR, at the inlet ($z = 0$), substrate concentration is high ($S_0 = 750\,\mathrm{mg/L}$). Biological growth is substrate-saturated ($S \gg K_S = 65\,\mathrm{mg/L}$), so the reaction operates close to pseudo zero-order kinetics:
    $$-r_S \approx \frac{\mu_{\max} X_b}{Y} \quad (\text{zero-order with respect to } S)$$
-   For a zero-order reaction ($-r_S = k_0$), the classical CRE Levenspiel equation dictates:
+   For a zero-order reaction ($-r_S = k_0$), the Levenspiel design equation gives:
    $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e)}{k_0} = V_{\mathrm{PFR}}$$
-   The classical advantage of the PFR over the CSTR only manifests in the severe first-order tail ($S \ll K_S$). Because the discharge target ($S_e = 75\,\mathrm{mg/L}$) is comparable to $K_S$ ($65\,\mathrm{mg/L}$), the zero-order regime dominates over $85\%$ of the conversion trajectory, eliminating the volume advantage of the tubular reactor.</p>
-<h3>6.2 Spatial Axial Gradients and Oxygen Sag in the PFR</h3>
-<p>As fluid traverses the PFR, spatial gradients develop along the channel length. As visualized in <strong>Figure 5</strong>, the rapid inlet consumption of substrate triggers a sharp localized oxygen sag down to $1.84\,\mathrm{mg/L}$ before aeration mass transfer restores bulk oxygenation to $3.15\,\mathrm{mg/L}$ at the reactor exit.</p>
+   The volume advantage of the PFR over the CSTR only appears in the first-order tail ($S \ll K_S$). Because the discharge target ($S_e = 75\,\mathrm{mg/L}$) exceeds $K_S$ ($65\,\mathrm{mg/L}$), the zero-order regime governs more than $85\%$ of the conversion trajectory, eliminating the volume advantage of the tubular reactor.</p>
+<h3>6.2 Axial Gradients and Oxygen Sag in the PFR</h3>
+<p>As fluid moves through the PFR, concentration gradients develop along the channel length. As shown in Figure 5, rapid inlet substrate consumption causes a localized oxygen sag down to $1.84\,\mathrm{mg/L}$ before aeration mass transfer restores bulk dissolved oxygen to $3.15\,\mathrm{mg/L}$ at the reactor exit.</p>
 <p><img alt="Figure 5: Axial Spatial Profiles in PFR" src="figures/fig5_pfr_axial_profiles.png" />
 <em>Figure 5: One-dimensional axial concentration gradients along the normalized length ($z/L$) of the ideal biological plug-flow reactor, depicting steady substrate depletion $S(z)$, biomass propagation $X_b(z)$, and the pronounced inlet dissolved oxygen sag ($DO_{\min} = 1.84\,\mathrm{mg/L}$) resulting from maximum localized biological oxygen uptake.</em></p>
 <hr />
 <h2>7. Operational Sustainability, Energy &amp; Carbon Footprint</h2>
 <p>Evaluating the sustainability of wastewater treatment systems requires quantifying operational energy consumption, electrical expenditures, and greenhouse gas (GHG) emissions per cubic meter of wastewater treated (Functional Unit = $1\,\mathrm{m^3}$ treated effluent meeting discharge standards) (Corominas et al., 2013; Hao et al., 2015).</p>
-<p><strong>Table 4: Operational Sustainability &amp; Life-Cycle Inventory Comparison</strong>
+<p>Table 4: Operational Sustainability &amp; Life-Cycle Inventory Comparison
 | Sustainability Indicator | Ideal CSTR | Ideal PFR | Unit | Assessment Basis |
 | :--- | :--- | :--- | :--- | :--- |
 | <strong>Total Daily Energy Consumption</strong> | <strong>$445.1$</strong> | <strong>$446.7$</strong> | $\mathrm{kWh/day}$ | Sum of aeration, mixing, and pumping |
@@ -367,34 +367,34 @@ $$V_{\mathrm{CSTR}} = \frac{Q(S_0 - S_e) Y}{\mu_{\mathrm{eff}} X_b}$$</p>
 | <strong>Carbon Footprint (GHG)</strong> | <strong>$0.2736$</strong> | <strong>$0.2749$</strong> | <strong>$\mathrm{kg\,CO_2e / m^3}$</strong> | Grid emission factor $0.615\,\mathrm{kg\,CO_2e/kWh}$ |
 | Annual Operational GHG Emissions | $99.86$ | $100.34$ | $\mathrm{tons\,CO_2e/yr}$ | Scope 2 indirect purchased electricity |
 | Excess Sludge Generation | $153.3$ | $154.5$ | $\mathrm{kg\,VSS/day}$ | Wasting rate: $V X_b / \theta_c$ |</p>
-<p>The breakdown of operational energy consumption into unit processes and the corresponding economic and carbon footprint are illustrated in <strong>Figure 7</strong>.</p>
+<p>The breakdown of operational energy consumption into unit processes and the corresponding economic and carbon footprint are shown in Figure 7.</p>
 <p><img alt="Figure 7: Operational Sustainability Breakdown" src="figures/fig7_sustainability_breakdown.png" />
 <em>Figure 7: Operational sustainability assessment: (a) Specific energy consumption ($\mathrm{kWh/m^3}$) partitioned into aeration blower power ($76.6\%$), tank mixing ($12.2\%$), and pumping/recirculation ($11.2\%$); (b) Operational carbon footprint ($0.274\,\mathrm{kg\,CO_2e/m^3}$) and electricity operating cost ($\$0.0423/\mathrm{m^3}$) for both reactor options under baseline industrial operating conditions.</em></p>
 <h3>7.1 Multi-Variable Sensitivity Analysis</h3>
-<p>To evaluate model robustness against environmental and operational fluctuations, a one-at-a-time sensitivity analysis was performed by perturbing eight key design parameters by $\pm 25\%$. The resulting tornado ranking is plotted in <strong>Figure 8</strong>.</p>
+<p>To evaluate sensitivity to environmental and operational fluctuations, a one-at-a-time perturbation analysis was performed by varying eight key design parameters by $\pm 25\%$. The resulting tornado ranking is plotted in Figure 8.</p>
 <p><img alt="Figure 8: Sensitivity Analysis Tornado Chart" src="figures/fig8_sensitivity_tornado.png" />
 <em>Figure 8: Sensitivity analysis tornado chart illustrating the percentage shift in required reactor volume ($V$) resulting from a $\pm 25\%$ variation in biological kinetics, operating conditions, and mass-transfer parameters. Reactor volume is most sensitive to biomass yield ($Y$), influent biodegradable load ($S_0$), and maximum specific growth rate ($\mu_{\max}$).</em></p>
 <hr />
 <h2>8. Discussion and Industrial Engineering Implications</h2>
 <h3>8.1 Hydrodynamic Shock Resistance vs. Kinetic Efficiency</h3>
-<p>While the CSTR and PFR exhibit volumetric equivalence for the baseline design, their response to industrial disturbances is dramatically divergent:
-1. <strong>Influent Toxicity and Shock Loading:</strong> Textile wet-processing mills discharge batch dumping of dye baths, caustic mercerizing liquors, and concentrated biocides. In a PFR, toxic slugs travel down the channel with zero dilution, subjecting inlet microbial consortia to peak inhibitory concentrations that cause severe cell lysis and process upset (Danckwerts, 1953; Alvarado et al., 2012). Conversely, the infinite internal back-mixing of the CSTR instantly dilutes influent spikes across the entire $489.7\,\mathrm{m^3}$ volume, attenuating peak concentrations to safe operating thresholds.
-2. <strong>Oxygen Sag and Aeration Tapering:</strong> The PFR exhibits a sharp spatial oxygen sag in the initial $20\%$ of the basin due to rapid substrate uptake, requiring <strong>tapered aeration</strong> (higher diffuser density at the inlet, lower at the outlet) (Rosso &amp; Stenstrom, 2006; Baquero-Rodriguez et al., 2018). The CSTR maintains a spatially uniform oxygen demand throughout the basin, simplifying blower control and diffuser piping.</p>
+<p>While the CSTR and PFR have nearly equal volumes for the baseline design, their responses to industrial disturbances differ sharply:
+1. Influent toxicity and shock loading: Textile wet-processing mills discharge periodic batches of spent dye baths, caustic mercerizing liquors, and concentrated biocides. In a PFR, toxic slugs travel down the channel without axial dilution, exposing inlet microbial consortia to peak inhibitory concentrations that cause cell lysis and process upset (Danckwerts, 1953; Alvarado et al., 2012). In contrast, the complete back-mixing of the CSTR immediately dilutes influent spikes across the entire $489.7\,\mathrm{m^3}$ volume, keeping concentrations below inhibitory thresholds.
+2. Oxygen sag and aeration tapering: The PFR develops a sharp oxygen sag in the initial $20\%$ of the basin due to rapid substrate uptake, requiring tapered aeration (higher diffuser density at the inlet and lower density at the outlet) (Rosso &amp; Stenstrom, 2006; Baquero-Rodriguez et al., 2018). The CSTR maintains a uniform oxygen demand throughout the basin, simplifying blower control and diffuser piping.</p>
 <h3>8.2 Practical Process Recommendation</h3>
-<p>For industrial textile wet-processing applications, <strong>the CSTR configuration (or a series of 2–3 stirred tanks in series) is strongly recommended over a single tubular PFR</strong>. The negligible volumetric benefit of a PFR does not compensate for its operational vulnerability to toxic dye shocks and the capital complexity of tapered aeration diffuser grids.</p>
+<p>For industrial textile wet-processing applications, the CSTR configuration (or a series of 2–3 stirred tanks in series) is recommended over a single tubular PFR. The PFR offers no volume savings under Monod saturation while increasing vulnerability to toxic dye shocks and requiring tapered aeration diffuser grids.</p>
 <hr />
 <h2>9. Conclusions, Limitations, and Future Work</h2>
 <h3>9.1 Primary Conclusions</h3>
 <ol>
-<li><strong>Guideline Alignment:</strong> The 4-step reaction engineering methodology prescribed in the course guideline (Literature extraction $\to$ Fogler derivations $\to$ Numerical simulation $\to$ Sustainability assessment) was executed and validated.</li>
-<li><strong>Volumetric Equivalence:</strong> For a textile wastewater stream of $Q = 1000\,\mathrm{m^3/day}$ and $S_0 = 750\,\mathrm{mg\,bCOD/L}$ achieving $90\%$ removal at $\theta_c = 10\,\mathrm{days}$, the required reactor volume is $489.7\,\mathrm{m^3}$ for the CSTR and $494.8\,\mathrm{m^3}$ for the PFR ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} = 0.99$).</li>
-<li><strong>Kinetics Explanation:</strong> The absence of a PFR volume advantage is explained by the zero-order saturation regime of Monod kinetics at elevated industrial substrate concentrations ($S \gg K_S$).</li>
-<li><strong>Sustainability Parity:</strong> Both systems consume approximately $0.445 - 0.447\,\mathrm{kWh/m^3}$ treated, generating $\$0.0423 - \$0.0425/\mathrm{m^3}$ in operating electrical cost and $0.274\,\mathrm{kg\,CO_2e/m^3}$ in Scope 2 carbon footprint.</li>
+<li>Guideline alignment: The 4-step reaction engineering methodology prescribed in the course guideline (Literature extraction $\to$ Fogler derivations $\to$ Numerical simulation $\to$ Sustainability assessment) was executed and validated.</li>
+<li>Volumetric equivalence: For a textile wastewater stream of $Q = 1000\,\mathrm{m^3/day}$ and $S_0 = 750\,\mathrm{mg\,bCOD/L}$ achieving $90\%$ removal at $\theta_c = 10\,\mathrm{days}$, the required reactor volume is $489.7\,\mathrm{m^3}$ for the CSTR and $494.8\,\mathrm{m^3}$ for the PFR ($V_{\mathrm{CSTR}}/V_{\mathrm{PFR}} = 0.99$).</li>
+<li>Kinetics explanation: The absence of a PFR volume advantage is explained by the zero-order saturation regime of Monod kinetics at elevated industrial substrate concentrations ($S \gg K_S$).</li>
+<li>Sustainability parity: Both systems consume $0.445 - 0.447\,\mathrm{kWh/m^3}$ treated, resulting in $\$0.0423 - \$0.0425/\mathrm{m^3}$ in operating electrical cost and $0.274\,\mathrm{kg\,CO_2e/m^3}$ in Scope 2 carbon footprint.</li>
 </ol>
 <h3>9.2 Limitations and Future Research</h3>
 <ul>
-<li><strong>Temperature &amp; Salinity Coupling:</strong> High bath temperatures ($35 - 45^\circ\mathrm{C}$) and electrolyte salinity ($&gt; 3000\,\mu\mathrm{S/cm}$) lower saturation DO and alter $k_La$; temperature-dependent Arrhenius coefficients should be integrated in future work.</li>
-<li><strong>Experimental Plant-Scale Validation:</strong> While calibrated against published industrial literature, plant-specific validation requires long-term continuous respirometry on raw mill effluent.</li>
+<li>Temperature and salinity coupling: High bath temperatures ($35 - 45^\circ\mathrm{C}$) and electrolyte salinity ($&gt; 3000\,\mu\mathrm{S/cm}$) lower saturation DO and alter $k_La$; temperature-dependent Arrhenius coefficients should be integrated in future work.</li>
+<li>Experimental plant-scale validation: While calibrated against published industrial literature, plant-specific validation requires long-term continuous respirometry on raw mill effluent.</li>
 </ul>
 <hr />
 <h2>Complete References (50 Verified Peer-Reviewed Publications)</h2>
