@@ -647,18 +647,18 @@ export default function PresentationGuide({
 
   // Helper to render the right-hand interactive visualization for each slide
   const renderSlideVisual = () => {
-    // SLIDE 1 (step === 0): WELCOME & 5 GROUP MEMBERS SHOWCASE + LIVE 3D DIGITAL TWIN PREVIEW
+    // SLIDE 1 (step === 0): WELCOME & 5 GROUP MEMBERS SHOWCASE + PRESENTATION ROADMAP
     if (step === 0) {
       return (
-        <div className="flex flex-col h-full justify-between space-y-3 bg-sumi/90 border border-putty/20 rounded-2xl p-5 shadow-xl">
-          <div className="bg-gradient-to-r from-terracotta/25 via-ochre/15 to-pine/30 border border-ochre/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col h-full justify-between space-y-4 bg-sumi/90 border border-putty/20 rounded-2xl p-5 shadow-xl">
+          <div className="bg-gradient-to-r from-terracotta/25 via-ochre/15 to-pine/30 border border-ochre/40 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-ochre/20 border border-ochre/40 text-ochre text-[10px] font-mono font-bold uppercase tracking-wider">
                 <Sparkles className="w-3 h-3" />
                 Chemical Reaction Engineering • Course Design Project
               </div>
               <h3 className="text-base sm:text-lg font-extrabold text-linen">
-                Welcome to Our Interactive Digital Twin Presentation
+                Welcome to Our Presentation Defense
               </h3>
               <p className="text-xs text-putty/80">
                 Comparative CSTR vs. PFR Bioreactor Sizing, Multi-Physics ODEs &amp; Techno-Economic Defense
@@ -674,7 +674,7 @@ export default function PresentationGuide({
           </div>
 
           {/* 5 Group Members Showcase Grid */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-celadon flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-ochre" />
@@ -684,16 +684,16 @@ export default function PresentationGuide({
                 Chemical Reaction Engineering Research Team
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {GROUP_MEMBERS.map((member, idx) => (
                 <div
                   key={member.id}
-                  className={`bg-sumi border border-putty/20 rounded-xl p-3 flex items-center gap-3 ${
+                  className={`bg-sumi border border-putty/20 rounded-xl p-3.5 flex items-center gap-3 ${
                     idx === 4 ? 'sm:col-span-2' : ''
                   }`}
                 >
                   <div className="w-9 h-9 rounded-xl bg-terracotta/20 border border-terracotta/40 text-ochre font-mono font-extrabold text-sm flex items-center justify-center shrink-0">
-                    {member.id}
+                    0{member.id}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-extrabold text-linen truncate">
@@ -705,27 +705,34 @@ export default function PresentationGuide({
             </div>
           </div>
 
-          {/* Live 3D ETP Plant Mini-Preview */}
-          <div className="flex-1 min-h-[210px] rounded-xl overflow-hidden border border-putty/25 relative">
-            <Bioreactor3D
-              Q={Q}
-              S0={S0}
-              targetSe={targetSe}
-              thetaC={thetaC}
-              kLa={kLa}
-              recycleRatio={recycleRatio}
-              cstrResult={cstrResult}
-              pfrResult={pfrResult}
-              removalPct={removalPct}
-              activeMode="both"
-              aerationMode={aerationMode}
-              onToggleAerationMode={() => setAerationMode && setAerationMode(aerationMode === 'uniform' ? 'tapered' : 'uniform')}
-              blowerTrip={blowerTrip}
-              onToggleBlowerTrip={() => setBlowerTrip && setBlowerTrip(!blowerTrip)}
-              probeZ={probeZ}
-              onChangeProbeZ={setProbeZ}
-              temperature={temperature}
-            />
+          {/* Presentation Agenda / Outline Card (No 3D Simulation on Slide 1) */}
+          <div className="bg-putty/5 border border-putty/20 rounded-xl p-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-ochre">
+                Presentation Deck Structure (Slides S2 – S8)
+              </span>
+              <span className="text-[11px] font-mono text-celadon">Click any topic to jump</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {[
+                { idx: 1, tag: 'S2', title: 'Industrial ETP Problem & 3D Digital Twin' },
+                { idx: 2, tag: 'S3', title: 'Dual Monod-Haldane Kinetics & Arrhenius' },
+                { idx: 3, tag: 'S4', title: 'Levenspiel Sizing (CSTR vs. PFR Volume)' },
+                { idx: 4, tag: 'S5', title: '1D Spatial PFR ODEs & Entrance DO Sag' },
+                { idx: 5, tag: 'S6', title: 'Fogler RTD E(θ), Dye Shock & 25-Day Startup' },
+                { idx: 6, tag: 'S7', title: 'TEA/LCA Energy & Civil Concrete CAPEX' },
+                { idx: 7, tag: 'S8', title: 'Final 4-Stage Hybrid Cascade Verdict' }
+              ].map((item) => (
+                <button
+                  key={item.tag}
+                  onClick={() => setStep(item.idx)}
+                  className="text-left px-3 py-2 rounded-lg bg-sumi hover:bg-putty/10 border border-putty/15 hover:border-ochre/40 flex items-center gap-2 transition-all"
+                >
+                  <span className="font-mono font-bold text-terracotta text-[11px]">{item.tag}</span>
+                  <span className="text-linen/90 truncate">{item.title}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       );
