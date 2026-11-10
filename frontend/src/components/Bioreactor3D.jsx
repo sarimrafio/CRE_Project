@@ -933,10 +933,16 @@ export default function Bioreactor3D({
     cstrClarifier.add(cstrRake);
     cstrRakeRef.current = cstrRake;
 
-    // RAS Recycle Pipe (Clarifier Underflow -> CSTR Inlet)
-    const rasPipeVert = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 5.4, 12), rasPipeMat);
-    rasPipeVert.position.set(-3.6, -1.6, 2.1);
-    cstrGroup.add(rasPipeVert);
+    // Clarifier Structural Support Legs & Underflow Pump Pedestal (Anchored to Floor y = -5.6)
+    for (let cl = 0; cl < 4; cl++) {
+      const cAng = (cl * Math.PI) / 2 + Math.PI / 4;
+      const cLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.14, 2.2, 12), darkSteelMat);
+      cLeg.position.set(Math.cos(cAng) * 1.35, -1.3, Math.sin(cAng) * 1.35);
+      cstrClarifier.add(cLeg);
+    }
+    const cstrUnderflowPump = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.45, 0.65, 16), darkSteelMat);
+    cstrUnderflowPump.position.set(0, -2.1, 0);
+    cstrClarifier.add(cstrUnderflowPump);
 
     // =========================================================================
     // B. PFR SERPENTINE PROCESS TRAIN (RIGHT SIDE: x = 7.2)
@@ -948,7 +954,7 @@ export default function Bioreactor3D({
     pfrGroup.position.set(7.2, 0, 0);
     scene.add(pfrGroup);
 
-    // Dynamic PFR Basin Sub-Group (Scales in 3D when PFR volume V & channel length L change!)
+    // PFR Basin Sub-Group (Anchored to concrete foundation & process nozzles)
     const pfrBasin = new THREE.Group();
     pfrGroup.add(pfrBasin);
     pfrBasinRef.current = pfrBasin;
@@ -960,7 +966,15 @@ export default function Bioreactor3D({
     const zoneLen = passLen / zonesPerPass;
     const pfrZones = [];
 
-    // Outer Concrete/Glass Basin Frame & Chicane Baffle Walls (Feature #5)
+    // Reinforced Concrete Foundation Plinth Anchoring PFR Basin to Plant Slab (y = -5.6 to -2.35)
+    const pfrPlinth = new THREE.Mesh(
+      new THREE.BoxGeometry(passLen + 0.5, 3.25, 6.45),
+      concreteMat
+    );
+    pfrPlinth.position.set(0, -3.98, 0);
+    pfrGroup.add(pfrPlinth);
+
+    // Outer Concrete/Glass Basin Frame, Chicane Baffle Walls & End Closure Walls (Feature #5)
     for (let wallIdx = 0; wallIdx < 5; wallIdx++) {
       const zWall = (wallIdx - 2) * 1.55;
       const baffleWall = new THREE.Mesh(
@@ -970,6 +984,25 @@ export default function Bioreactor3D({
       baffleWall.position.set(0, -0.95, zWall);
       pfrBasin.add(baffleWall);
     }
+    [-passLen / 2 - 0.14, passLen / 2 + 0.14].forEach((xEndWall) => {
+      const endWall = new THREE.Mesh(
+        new THREE.BoxGeometry(0.14, passHeight + 0.3, 6.32),
+        concreteMat
+      );
+      endWall.position.set(xEndWall, -0.95, 0);
+      pfrBasin.add(endWall);
+    });
+
+    // Submerged PFR Aeration Diffuser Header Manifold (DIF-201 connected to airPfr pipe)
+    [-2.325, -0.775, 0.775, 2.325].forEach((zPass) => {
+      const pfrAirHeader = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.06, passLen - 0.3, 12),
+        airPipeMat
+      );
+      pfrAirHeader.rotation.z = Math.PI / 2;
+      pfrAirHeader.position.set(0, -2.15, zPass);
+      pfrBasin.add(pfrAirHeader);
+    });
 
     // 16 Axial Fluid Zones along the Serpentine Path (z/L in [0, 1])
     for (let pass = 0; pass < 4; pass++) {
@@ -1078,12 +1111,24 @@ export default function Bioreactor3D({
     pfrClarifier.add(pfrRake);
     pfrRakeRef.current = pfrRake;
 
+    // PFR Clarifier Structural Support Legs & Underflow Pump Pedestal (Anchored to Floor y = -5.6)
+    for (let cl = 0; cl < 4; cl++) {
+      const cAng = (cl * Math.PI) / 2 + Math.PI / 4;
+      const cLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.14, 2.2, 12), darkSteelMat);
+      cLeg.position.set(Math.cos(cAng) * 1.35, -1.3, Math.sin(cAng) * 1.35);
+      pfrClarifier.add(cLeg);
+    }
+    const pfrUnderflowPump = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.45, 0.65, 16), darkSteelMat);
+    pfrUnderflowPump.position.set(0, -2.1, 0);
+    pfrClarifier.add(pfrUnderflowPump);
+
     // Bangladesh DoE Regulatory Compliance Beacon Gate (Feature #24)
     const gateGroup = new THREE.Group();
     gateGroup.position.set(5.4, -3.2, 4.3);
     pfrGroup.add(gateGroup);
 
-    const gatePillar = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.6, 0.6), darkSteelMat);
+    const gatePillar = new THREE.Mesh(new THREE.BoxGeometry(0.75, 3.8, 0.75), darkSteelMat);
+    gatePillar.position.y = -0.5;
     gateGroup.add(gatePillar);
 
     const beaconSphere = new THREE.Mesh(
@@ -1101,7 +1146,8 @@ export default function Bioreactor3D({
     blowerStation.position.set(0, -4.6, 4.6);
     scene.add(blowerStation);
 
-    const blowerBase = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.4, 1.8), concreteMat);
+    const blowerBase = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.8, 1.8), concreteMat);
+    blowerBase.position.y = -0.5;
     blowerStation.add(blowerBase);
 
     const blowerCasing = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 1.6, 24), motorMat);
@@ -1200,11 +1246,24 @@ export default function Bioreactor3D({
     scene.add(pipeGroup);
 
     const pipeFlangeMat = steelMat;
-    const addTransparentPipe = (curve, radius, mat, sampleT = [0.03, 0.5, 0.97]) => {
-      const tubeGeo = new THREE.TubeGeometry(curve, 64, radius, 14, false);
+    const addTransparentPipe = (curve, radius, mat, coreColorHex = 0xa855f7, sampleT = [0.02, 0.33, 0.66, 0.98]) => {
+      // Outer Borosilicate Glass / Acrylic Tube
+      const tubeGeo = new THREE.TubeGeometry(curve, 72, radius, 16, false);
       const tube = new THREE.Mesh(tubeGeo, mat);
       pipeGroup.add(tube);
 
+      // Continuous Internal Liquid Stream Core Filling the Pipe from Endpoint to Endpoint
+      const coreGeo = new THREE.TubeGeometry(curve, 72, radius * 0.58, 12, false);
+      const coreMat = new THREE.MeshBasicMaterial({
+        color: coreColorHex,
+        transparent: true,
+        opacity: 0.46,
+        depthWrite: false
+      });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      pipeGroup.add(coreMesh);
+
+      // Bolted Stainless Flanges Along the Pipe
       const flangeGeo = new THREE.TorusGeometry(radius * 1.25, radius * 0.22, 8, 20);
       sampleT.forEach((t) => {
         const pt = curve.getPointAt(t);
@@ -1214,125 +1273,196 @@ export default function Bioreactor3D({
         flange.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent);
         pipeGroup.add(flange);
       });
+
+      // Heavy Equipment Nozzle Collars at Both Endpoints (t = 0.01 and t = 0.99)
+      [0.01, 0.99].forEach((tEnd) => {
+        const pt = curve.getPointAt(tEnd);
+        const tangent = curve.getTangentAt(tEnd);
+        const collar = new THREE.Mesh(
+          new THREE.CylinderGeometry(radius * 1.42, radius * 1.42, radius * 2.4, 16),
+          darkSteelMat
+        );
+        collar.position.copy(pt);
+        collar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+        pipeGroup.add(collar);
+      });
       return tube;
     };
 
-    // 16 Complete Continuous Process Piping Curves (Connecting origin to destination)
+    // 19 Complete Continuous Process Piping Curves (Every endpoint anchored deep inside its equipment!)
     const pipeCurves = {
+      // 1. Raw Intake Flume (INF-001, x=-25.5, y=-4.0, z=-4.5) -> EQ Basin (TK-001, x=-19.0, y=-2.5, z=-4.5)
       rawIntake: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-25.5, -1.8, -4.5),
-        new THREE.Vector3(-22.0, -0.2, -4.5),
-        new THREE.Vector3(-19.0, 0.5, -4.5)
+        new THREE.Vector3(-24.2, -3.5, -4.5),
+        new THREE.Vector3(-23.2, -2.2, -4.5),
+        new THREE.Vector3(-22.2, 0.1, -4.5),
+        new THREE.Vector3(-20.8, 0.1, -4.5),
+        new THREE.Vector3(-20.5, -1.8, -4.5)
       ]),
+      // 2. Automated Chemical Dosing Skid (SKD-002, x=-19.0, y=-4.05, z=4.5) -> EQ Basin (TK-001, z=-2.4)
+      chemToEq: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-19.0, -4.05, 4.5),
+        new THREE.Vector3(-19.0, -4.3, 1.5),
+        new THREE.Vector3(-19.0, -4.3, -1.5),
+        new THREE.Vector3(-19.0, -3.2, -2.4),
+        new THREE.Vector3(-19.0, -3.2, -3.3)
+      ]),
+      // 3. EQ Basin (TK-001, right wall x=-15.75) -> Fine Rotary Drum Screen (SCR-001, x=-15.5, y=-4.0, z=-4.5)
       eqToScreen: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-17.2, -2.8, -4.5),
-        new THREE.Vector3(-16.3, -2.8, -4.5),
-        new THREE.Vector3(-15.5, -3.2, -4.5)
+        new THREE.Vector3(-16.8, -3.8, -4.5),
+        new THREE.Vector3(-16.0, -3.8, -4.5),
+        new THREE.Vector3(-15.5, -3.8, -4.5)
       ]),
+      // 4. Fine Rotary Drum Screen (SCR-001) -> Overhead Pipe Bridge Raw Feed Header (y=5.35, z=-4.9)
       screenToRack: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-14.8, -3.2, -4.5),
-        new THREE.Vector3(-14.4, 0.5, -4.5),
-        new THREE.Vector3(-14.2, 4.8, -4.5),
-        new THREE.Vector3(-14.0, 5.2, -4.5)
+        new THREE.Vector3(-14.6, -4.0, -4.5),
+        new THREE.Vector3(-13.8, -4.0, -4.7),
+        new THREE.Vector3(-13.8, 0.5, -4.9),
+        new THREE.Vector3(-13.8, 4.9, -4.9),
+        new THREE.Vector3(-13.2, 5.35, -4.9)
       ]),
+      // 5. Overhead Raw Feed Header (y=5.35, z=-4.9) -> CSTR Submerged Feed Dip-Pipe (BIO-101, x=-7.5, y=1.0, z=-1.5)
       rackToCstr: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-14.0, 5.2, -4.5),
-        new THREE.Vector3(-7.5, 5.2, -4.5),
-        new THREE.Vector3(-7.5, 4.2, -2.2),
-        new THREE.Vector3(-7.5, 3.4, 0.0)
+        new THREE.Vector3(-13.2, 5.35, -4.9),
+        new THREE.Vector3(-7.5, 5.35, -4.9),
+        new THREE.Vector3(-7.5, 5.0, -3.2),
+        new THREE.Vector3(-7.5, 3.8, -1.5),
+        new THREE.Vector3(-7.5, 1.0, -1.5)
       ]),
+      // 6. Overhead Raw Feed Header (y=5.35, z=-4.9) -> PFR Pass 0 Inlet Blending Chamber (MIX-201, x=3.9, y=-1.2, z=-2.325)
       rackToPfr: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-7.5, 5.2, -4.5),
-        new THREE.Vector3(3.4, 5.2, -4.5),
-        new THREE.Vector3(3.4, 3.2, -3.2),
-        new THREE.Vector3(3.4, 0.6, -2.3)
+        new THREE.Vector3(-7.5, 5.35, -4.9),
+        new THREE.Vector3(3.9, 5.35, -4.9),
+        new THREE.Vector3(3.9, 4.2, -3.6),
+        new THREE.Vector3(3.9, 1.0, -2.325),
+        new THREE.Vector3(3.9, -1.2, -2.325)
       ]),
+      // 7. CSTR Overflow Weir (BIO-101) -> CSTR Secondary Clarifier Center Well (CLR-101, x=-7.5, y=-3.3, z=4.2)
       cstrOverflow: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-7.5, 2.0, 3.1),
-        new THREE.Vector3(-7.5, 0.5, 3.6),
-        new THREE.Vector3(-7.5, -0.8, 4.0),
-        new THREE.Vector3(-7.5, -1.8, 4.2)
+        new THREE.Vector3(-7.5, 1.4, 2.6),
+        new THREE.Vector3(-7.5, 1.4, 3.35),
+        new THREE.Vector3(-7.5, -0.4, 3.85),
+        new THREE.Vector3(-7.5, -2.1, 4.2),
+        new THREE.Vector3(-7.5, -3.3, 4.2)
       ]),
+      // 8. PFR Pass 3 Outlet (BIO-201, z=2.325) -> PFR Secondary Clarifier Center Well (CLR-201, x=9.4, y=-3.3, z=4.3)
       pfrExit: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(11.0, -0.8, 2.3),
-        new THREE.Vector3(10.6, -1.2, 3.2),
-        new THREE.Vector3(9.8, -1.5, 3.9),
-        new THREE.Vector3(9.4, -1.8, 4.3)
+        new THREE.Vector3(9.4, -1.2, 2.1),
+        new THREE.Vector3(9.4, -1.2, 3.15),
+        new THREE.Vector3(9.4, -1.8, 3.9),
+        new THREE.Vector3(9.4, -2.3, 4.3),
+        new THREE.Vector3(9.4, -3.3, 4.3)
       ]),
+      // 9. CSTR Clarifier Underflow Hopper (CLR-101, y=-4.9) -> CSTR Submerged RAS Return (BIO-101, x=-9.4, y=1.0, z=0)
       cstrRas: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-7.5, -4.6, 4.2),
-        new THREE.Vector3(-9.2, -4.8, 3.5),
-        new THREE.Vector3(-10.8, -3.2, 1.8),
-        new THREE.Vector3(-10.8, 0.8, 0.0),
-        new THREE.Vector3(-8.8, 2.6, 0.0)
+        new THREE.Vector3(-7.5, -4.9, 4.2),
+        new THREE.Vector3(-9.5, -4.9, 3.4),
+        new THREE.Vector3(-11.1, -2.8, 1.4),
+        new THREE.Vector3(-11.1, 3.4, 0.0),
+        new THREE.Vector3(-9.8, 3.5, 0.0),
+        new THREE.Vector3(-9.4, 1.0, 0.0)
       ]),
+      // 10. PFR Clarifier Underflow Hopper (CLR-201, y=-4.9) -> PFR Pass 0 Inlet Blending Chamber (MIX-201, x=3.9, y=-1.2, z=-2.325)
       pfrRas: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(9.4, -4.6, 4.3),
-        new THREE.Vector3(8.0, -4.8, 3.2),
-        new THREE.Vector3(5.6, -4.4, 0.5),
-        new THREE.Vector3(3.4, -2.5, -2.3),
-        new THREE.Vector3(3.4, 0.2, -2.3)
+        new THREE.Vector3(9.4, -4.9, 4.3),
+        new THREE.Vector3(6.2, -4.9, 3.6),
+        new THREE.Vector3(3.0, -4.9, 1.0),
+        new THREE.Vector3(3.0, -4.9, -2.325),
+        new THREE.Vector3(3.0, 0.7, -2.325),
+        new THREE.Vector3(3.5, 0.7, -2.325),
+        new THREE.Vector3(3.9, -1.2, -2.325)
       ]),
+      // 11. CSTR Clarifier Underflow WAS Bleed -> Belt Filter Press Machine (DW-401, x=-2.2, y=-4.0, z=-9.5)
       wasSludge: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-4.0, -4.8, 3.5),
-        new THREE.Vector3(-1.0, -4.8, 0.0),
-        new THREE.Vector3(-1.0, -4.6, -5.0),
-        new THREE.Vector3(-1.0, -2.2, -8.5)
+        new THREE.Vector3(-7.5, -4.9, 4.2),
+        new THREE.Vector3(-4.5, -5.0, 2.5),
+        new THREE.Vector3(-2.2, -5.0, -2.0),
+        new THREE.Vector3(-2.2, -5.0, -7.8),
+        new THREE.Vector3(-2.2, -4.0, -9.5)
       ]),
+      // 12. PFR Clarifier Underflow WAS Bleed -> Belt Filter Press Machine (DW-401, x=-1.6, y=-4.0, z=-9.5)
+      pfrWasSludge: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(9.4, -4.9, 4.3),
+        new THREE.Vector3(4.5, -5.0, 2.5),
+        new THREE.Vector3(0.5, -5.0, -3.0),
+        new THREE.Vector3(-1.6, -5.0, -7.8),
+        new THREE.Vector3(-1.6, -4.0, -9.5)
+      ]),
+      // 13. CSTR Clarifier Effluent Weir (CLR-101) -> DoE Compliance Gate Housing (DOE-201, x=12.6, y=-3.1, z=4.3)
       cstrEffluent: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-7.5, -2.4, 5.2),
-        new THREE.Vector3(-7.5, -3.6, 4.2),
-        new THREE.Vector3(0.0, -3.6, 4.2),
-        new THREE.Vector3(14.0, -3.6, 4.2)
+        new THREE.Vector3(-6.2, -2.8, 4.2),
+        new THREE.Vector3(-5.5, -2.8, 4.2),
+        new THREE.Vector3(-4.8, -4.6, 3.4),
+        new THREE.Vector3(6.5, -4.6, 3.4),
+        new THREE.Vector3(11.6, -3.1, 4.3),
+        new THREE.Vector3(12.6, -3.1, 4.3)
       ]),
+      // 14. PFR Clarifier Effluent Weir (CLR-201) -> DoE Compliance Gate Housing (DOE-201, x=12.6, y=-2.8, z=4.3)
       pfrEffluent: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(9.4, -2.4, 4.3),
-        new THREE.Vector3(12.6, -2.4, 4.3),
-        new THREE.Vector3(14.0, -3.6, 4.2)
+        new THREE.Vector3(10.7, -2.8, 4.3),
+        new THREE.Vector3(11.6, -2.8, 4.3),
+        new THREE.Vector3(12.6, -2.8, 4.3)
       ]),
+      // 15. DoE Compliance Gate (DOE-201) -> Tertiary Sand Filter Vessel 1 (PSF-301, x=16.8, y=-1.2, z=1.5)
       toTertiary: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(14.0, -3.6, 4.2),
-        new THREE.Vector3(16.5, -3.0, 3.0),
-        new THREE.Vector3(17.2, -1.0, 1.5),
-        new THREE.Vector3(18.0, 0.5, 1.5)
+        new THREE.Vector3(12.6, -2.8, 4.3),
+        new THREE.Vector3(14.6, -2.6, 3.1),
+        new THREE.Vector3(16.8, -1.2, 2.3),
+        new THREE.Vector3(16.8, -1.2, 1.5)
       ]),
+      // 16. Filter Vessel 1 Bottom (x=16.8) -> Filter Vessel 2 Top (GAC-302, x=19.2, y=-1.2, z=1.5)
+      filterInterstage: new THREE.CatmullRomCurve3([
+        new THREE.Vector3(16.8, -3.6, 1.5),
+        new THREE.Vector3(16.8, -3.6, 2.45),
+        new THREE.Vector3(18.0, -2.4, 2.45),
+        new THREE.Vector3(19.2, -1.2, 2.45),
+        new THREE.Vector3(19.2, -1.2, 1.5)
+      ]),
+      // 17. Filter Vessel 2 Bottom (GAC-302, x=19.2) -> Final Outfall Step 1 Pool (OUTFALL-001, x=24.6, y=-3.32, z=1.5)
       toOutfall: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(19.2, -2.0, 1.5),
-        new THREE.Vector3(21.5, -3.0, 1.5),
-        new THREE.Vector3(24.0, -3.6, 1.5),
-        new THREE.Vector3(26.5, -4.0, 1.5)
+        new THREE.Vector3(19.2, -3.4, 1.5),
+        new THREE.Vector3(20.5, -3.4, 1.5),
+        new THREE.Vector3(22.5, -3.3, 1.5),
+        new THREE.Vector3(24.6, -3.32, 1.5)
       ]),
+      // 18. Roots Blower Casing (BLO-101, x=-0.5, y=-3.85, z=4.6) -> CSTR Diffuser Ring Torus (DIF-101, x=-7.5, y=-3.05, z=1.9)
       airCstr: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, -3.8, 4.6),
-        new THREE.Vector3(-3.5, -4.2, 3.2),
-        new THREE.Vector3(-7.5, -4.2, 1.5),
-        new THREE.Vector3(-7.5, -3.1, 0.0)
+        new THREE.Vector3(-0.5, -3.85, 4.6),
+        new THREE.Vector3(-3.2, -4.3, 3.6),
+        new THREE.Vector3(-6.0, -4.3, 2.4),
+        new THREE.Vector3(-7.5, -3.3, 1.9),
+        new THREE.Vector3(-7.5, -3.05, 1.9)
       ]),
+      // 19. Roots Blower Casing (BLO-101, x=0.5, y=-3.85, z=4.6) -> PFR Submerged Aeration Manifold (DIF-201, x=5.4, y=-2.15, z=-2.325)
       airPfr: new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, -3.8, 4.6),
-        new THREE.Vector3(3.5, -4.2, 3.2),
-        new THREE.Vector3(7.2, -4.2, 1.5),
-        new THREE.Vector3(7.2, -3.1, -1.0)
+        new THREE.Vector3(0.5, -3.85, 4.6),
+        new THREE.Vector3(2.8, -4.3, 3.4),
+        new THREE.Vector3(4.8, -3.8, 0.2),
+        new THREE.Vector3(5.4, -2.5, -2.325),
+        new THREE.Vector3(5.4, -2.15, -2.325)
       ])
     };
 
-    // Instantiate physical transparent tubes
-    addTransparentPipe(pipeCurves.rawIntake, 0.18, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.eqToScreen, 0.16, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.screenToRack, 0.18, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.rackToCstr, 0.16, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.rackToPfr, 0.16, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.cstrOverflow, 0.16, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.pfrExit, 0.16, glassPipeRawMat);
-    addTransparentPipe(pipeCurves.cstrRas, 0.14, glassPipeSludgeMat);
-    addTransparentPipe(pipeCurves.pfrRas, 0.14, glassPipeSludgeMat);
-    addTransparentPipe(pipeCurves.wasSludge, 0.13, glassPipeSludgeMat);
-    addTransparentPipe(pipeCurves.cstrEffluent, 0.15, glassPipeCleanMat);
-    addTransparentPipe(pipeCurves.pfrEffluent, 0.15, glassPipeCleanMat);
-    addTransparentPipe(pipeCurves.toTertiary, 0.16, glassPipeCleanMat);
-    addTransparentPipe(pipeCurves.toOutfall, 0.18, glassPipeCleanMat);
-    addTransparentPipe(pipeCurves.airCstr, 0.12, glassPipeAirMat);
-    addTransparentPipe(pipeCurves.airPfr, 0.12, glassPipeAirMat);
+    // Instantiate physical transparent tubes with internal fluid cores & flanged equipment collars
+    addTransparentPipe(pipeCurves.rawIntake, 0.18, glassPipeRawMat, 0x9333ea);
+    addTransparentPipe(pipeCurves.chemToEq, 0.11, glassPipeSludgeMat, 0xea580c);
+    addTransparentPipe(pipeCurves.eqToScreen, 0.16, glassPipeRawMat, 0xa855f7);
+    addTransparentPipe(pipeCurves.screenToRack, 0.18, glassPipeRawMat, 0xa855f7);
+    addTransparentPipe(pipeCurves.rackToCstr, 0.16, glassPipeRawMat, 0xc084fc);
+    addTransparentPipe(pipeCurves.rackToPfr, 0.16, glassPipeRawMat, 0xc084fc);
+    addTransparentPipe(pipeCurves.cstrOverflow, 0.16, glassPipeRawMat, 0x0d9488);
+    addTransparentPipe(pipeCurves.pfrExit, 0.16, glassPipeRawMat, 0x0d9488);
+    addTransparentPipe(pipeCurves.cstrRas, 0.14, glassPipeSludgeMat, 0xf59e0b);
+    addTransparentPipe(pipeCurves.pfrRas, 0.14, glassPipeSludgeMat, 0xf59e0b);
+    addTransparentPipe(pipeCurves.wasSludge, 0.13, glassPipeSludgeMat, 0x78350f);
+    addTransparentPipe(pipeCurves.pfrWasSludge, 0.12, glassPipeSludgeMat, 0x78350f);
+    addTransparentPipe(pipeCurves.cstrEffluent, 0.15, glassPipeCleanMat, 0x14b8a6);
+    addTransparentPipe(pipeCurves.pfrEffluent, 0.15, glassPipeCleanMat, 0x14b8a6);
+    addTransparentPipe(pipeCurves.toTertiary, 0.16, glassPipeCleanMat, 0x06b6d4);
+    addTransparentPipe(pipeCurves.filterInterstage, 0.14, glassPipeCleanMat, 0x06b6d4);
+    addTransparentPipe(pipeCurves.toOutfall, 0.18, glassPipeCleanMat, 0x34d399);
+    addTransparentPipe(pipeCurves.airCstr, 0.12, glassPipeAirMat, 0x38bdf8);
+    addTransparentPipe(pipeCurves.airPfr, 0.12, glassPipeAirMat, 0x38bdf8);
 
     // Populate Animated Fluid Flow Particles (Strictly locked inside the 3D curves)
     const pipeParticles = [];
@@ -1353,6 +1483,7 @@ export default function Bioreactor3D({
     };
 
     const matRawDye = new THREE.MeshBasicMaterial({ color: 0x9333ea });
+    const matChem = new THREE.MeshBasicMaterial({ color: 0xf97316 });
     const matScreened = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
     const matFeed = new THREE.MeshBasicMaterial({ color: 0xc084fc });
     const matMixed = new THREE.MeshBasicMaterial({ color: 0x0d9488 });
@@ -1363,20 +1494,23 @@ export default function Bioreactor3D({
     const matOutfall = new THREE.MeshBasicMaterial({ color: 0x34d399 });
     const matAir = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
-    spawnStream(pipeCurves.rawIntake, 8, matRawDye, 'influent', 0.9);
+    spawnStream(pipeCurves.rawIntake, 10, matRawDye, 'influent', 0.9);
+    spawnStream(pipeCurves.chemToEq, 8, matChem, 'influent', 0.85);
     spawnStream(pipeCurves.eqToScreen, 6, matScreened, 'influent', 1.0);
-    spawnStream(pipeCurves.screenToRack, 8, matScreened, 'influent', 1.0);
-    spawnStream(pipeCurves.rackToCstr, 10, matFeed, 'influent', 1.1);
-    spawnStream(pipeCurves.rackToPfr, 12, matFeed, 'influent', 1.1);
+    spawnStream(pipeCurves.screenToRack, 10, matScreened, 'influent', 1.0);
+    spawnStream(pipeCurves.rackToCstr, 12, matFeed, 'influent', 1.1);
+    spawnStream(pipeCurves.rackToPfr, 14, matFeed, 'influent', 1.1);
     spawnStream(pipeCurves.cstrOverflow, 8, matMixed, 'mixed_liquor', 0.95);
     spawnStream(pipeCurves.pfrExit, 8, matMixed, 'mixed_liquor', 0.95);
-    spawnStream(pipeCurves.cstrRas, 10, matRas, 'ras', 0.9);
-    spawnStream(pipeCurves.pfrRas, 10, matRas, 'ras', 0.9);
-    spawnStream(pipeCurves.wasSludge, 8, matWas, 'was', 0.8);
-    spawnStream(pipeCurves.cstrEffluent, 8, matEffluent, 'effluent', 1.0);
-    spawnStream(pipeCurves.pfrEffluent, 8, matEffluent, 'effluent', 1.0);
+    spawnStream(pipeCurves.cstrRas, 12, matRas, 'ras', 0.9);
+    spawnStream(pipeCurves.pfrRas, 12, matRas, 'ras', 0.9);
+    spawnStream(pipeCurves.wasSludge, 10, matWas, 'was', 0.8);
+    spawnStream(pipeCurves.pfrWasSludge, 10, matWas, 'was', 0.8);
+    spawnStream(pipeCurves.cstrEffluent, 12, matEffluent, 'effluent', 1.0);
+    spawnStream(pipeCurves.pfrEffluent, 6, matEffluent, 'effluent', 1.0);
     spawnStream(pipeCurves.toTertiary, 8, matPolished, 'effluent', 1.0);
-    spawnStream(pipeCurves.toOutfall, 12, matOutfall, 'effluent', 1.2);
+    spawnStream(pipeCurves.filterInterstage, 8, matPolished, 'effluent', 1.05);
+    spawnStream(pipeCurves.toOutfall, 10, matOutfall, 'effluent', 1.2);
     spawnStream(pipeCurves.airCstr, 10, matAir, 'air', 1.3);
     spawnStream(pipeCurves.airPfr, 10, matAir, 'air', 1.3);
 
@@ -1461,54 +1595,55 @@ export default function Bioreactor3D({
     });
 
     // Longitudinal Pipe Tray Channels
-    const trayGeo = new THREE.BoxGeometry(44, 0.15, 2.0);
+    const trayGeo = new THREE.BoxGeometry(40.4, 0.15, 2.0);
     const tray = new THREE.Mesh(trayGeo, galvanizedMat);
     tray.position.set(0, 5.0, 0);
     pipeRackGroup.add(tray);
 
-    // Multi-Tier Process Utility Pipes Spanning Facility:
-    // (a) Blue Compressed Air Header
-    const airLineOverhead = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 44, 16), airPipeMat);
-    airLineOverhead.rotation.z = Math.PI / 2;
-    airLineOverhead.position.set(0, 5.35, -0.6);
-    pipeRackGroup.add(airLineOverhead);
+    // Multi-Tier Process Utility Pipes Spanning Facility (Anchored at x = -20 and x = +20 into vertical riser manifolds):
+    const overheadHeaders = [
+      { r: 0.18, z: -0.6, mat: airPipeMat },
+      { r: 0.22, z: -0.1, mat: new THREE.MeshStandardMaterial({ color: 0xa855f7, metalness: 0.6, roughness: 0.3 }) },
+      { r: 0.16, z: 0.4, mat: new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.6, roughness: 0.3 }) },
+      { r: 0.14, z: 0.8, mat: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.8, roughness: 0.25 }) }
+    ];
+    overheadHeaders.forEach((hdr) => {
+      const hPipe = new THREE.Mesh(new THREE.CylinderGeometry(hdr.r, hdr.r, 40.0, 16), hdr.mat);
+      hPipe.rotation.z = Math.PI / 2;
+      hPipe.position.set(0, 5.35, hdr.z);
+      pipeRackGroup.add(hPipe);
 
-    // (b) Purple Raw Influent Header
-    const feedLineOverhead = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.22, 0.22, 44, 16),
-      new THREE.MeshStandardMaterial({ color: 0xa855f7, metalness: 0.6, roughness: 0.3 })
-    );
-    feedLineOverhead.rotation.z = Math.PI / 2;
-    feedLineOverhead.position.set(0, 5.35, -0.1);
-    pipeRackGroup.add(feedLineOverhead);
+      // Connect both endpoints (x = -20 and x = +20) vertically down to ground utility manifold boxes (y = -5.6)
+      [-20, 20].forEach((endX) => {
+        const elbow = new THREE.Mesh(new THREE.SphereGeometry(hdr.r * 1.22, 14, 14), darkSteelMat);
+        elbow.position.set(endX, 5.35, hdr.z);
+        pipeRackGroup.add(elbow);
 
-    // (c) Emerald Treated Polishing Line
-    const treatedLineOverhead = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.16, 0.16, 44, 16),
-      new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.6, roughness: 0.3 })
-    );
-    treatedLineOverhead.rotation.z = Math.PI / 2;
-    treatedLineOverhead.position.set(0, 5.35, 0.4);
-    pipeRackGroup.add(treatedLineOverhead);
+        const vDrop = new THREE.Mesh(new THREE.CylinderGeometry(hdr.r * 0.9, hdr.r * 0.9, 10.9, 14), hdr.mat);
+        vDrop.position.set(endX, -0.1, hdr.z);
+        pipeRackGroup.add(vDrop);
+      });
+    });
 
-    // (d) Insulated Steam / High-Temp Pipe
-    const steamLineOverhead = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.14, 0.14, 44, 16),
-      new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.8, roughness: 0.25 })
-    );
-    steamLineOverhead.rotation.z = Math.PI / 2;
-    steamLineOverhead.position.set(0, 5.35, 0.8);
-    pipeRackGroup.add(steamLineOverhead);
+    // Ground Utility Header Manifold Boxes at Both Ends of the Pipe Bridge (x = -20, x = +20)
+    [-20, 20].forEach((endX) => {
+      const groundManifold = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.2, 2.2), darkSteelMat);
+      groundManifold.position.set(endX, -5.0, 0);
+      pipeRackGroup.add(groundManifold);
+    });
 
     // 3. UPSTREAM EQUALIZATION & NEUTRALIZATION TANK (EQ BASIN: x = -19.0, z = -4.5)
     const eqGroup = new THREE.Group();
     eqGroup.position.set(-19.0, -2.5, -4.5);
     industrialPlant.add(eqGroup);
 
-    // Concrete Basin Walls (Nano Banana HD Concrete PBR)
+    // Concrete Basin Walls + Foundation Base Plinth (Anchored to Floor y = -5.6)
     const eqBasinGeo = new THREE.BoxGeometry(6.5, 4.5, 4.2);
     const eqBasinMesh = new THREE.Mesh(eqBasinGeo, concreteMat);
     eqGroup.add(eqBasinMesh);
+    const eqBasePlinth = new THREE.Mesh(new THREE.BoxGeometry(6.9, 1.1, 4.6), concreteMat);
+    eqBasePlinth.position.y = -2.6;
+    eqGroup.add(eqBasePlinth);
 
     // Agitated Raw Dye Wastewater Inside EQ Basin (GLSL Water & Caustics Shader)
     const eqLiquid = new THREE.Mesh(
@@ -1556,7 +1691,10 @@ export default function Bioreactor3D({
     chemGroup.position.set(-19.0, -4.5, 3.5);
     industrialPlant.add(chemGroup);
 
-    // Raised Steel Drip Tray Containment Skid
+    // Concrete Foundation Pad & Raised Steel Drip Tray Containment Skid
+    const chemPad = new THREE.Mesh(new THREE.BoxGeometry(6.1, 1.1, 2.9), concreteMat);
+    chemPad.position.y = -0.6;
+    chemGroup.add(chemPad);
     const skidTray = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.28, 2.6), darkSteelMat);
     chemGroup.add(skidTray);
 
@@ -1586,7 +1724,11 @@ export default function Bioreactor3D({
       chemGroup.add(cap);
     });
 
-    // Twin Motorized Metering Diaphragm Pumps
+    // Twin Motorized Metering Diaphragm Pumps & Dosing Header Manifold
+    const chemHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.8, 12), steelMat);
+    chemHeader.rotation.z = Math.PI / 2;
+    chemHeader.position.set(0, 0.45, 1.0);
+    chemGroup.add(chemHeader);
     [-0.8, 0.8].forEach((pX) => {
       const pMotor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.4), motorMat);
       pMotor.position.set(pX, 0.45, 1.0);
@@ -1603,8 +1745,9 @@ export default function Bioreactor3D({
     screenGroup.position.set(-15.5, -4.0, -4.5);
     industrialPlant.add(screenGroup);
 
-    // Concrete Inflow Channel
-    const screenChannel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 1.2), concreteMat);
+    // Concrete Inflow Channel & Base Support Plinth (Anchored to Floor y = -5.6)
+    const screenChannel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 1.4), concreteMat);
+    screenChannel.position.y = -0.5;
     screenGroup.add(screenChannel);
 
     // Stainless Rotary Drum (Wedge-Wire)
@@ -1625,6 +1768,11 @@ export default function Bioreactor3D({
     const filterGroup = new THREE.Group();
     filterGroup.position.set(18.0, -2.8, 1.5);
     industrialPlant.add(filterGroup);
+
+    // Concrete Equipment Foundation Pad under Filter Vessels
+    const filterPad = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.35, 2.6), concreteMat);
+    filterPad.position.set(0, -2.65, 0);
+    filterGroup.add(filterPad);
 
     // Two Pressure Vessels (Sand Filter & Carbon Filter)
     [-1.2, 1.2].forEach((vX, vIdx) => {
@@ -1657,16 +1805,27 @@ export default function Bioreactor3D({
       filterGroup.add(frontValve);
     });
 
-    // Connecting Pipe Bridge between vessels
+    // Connecting Pipe Bridge between vessels (with 90-deg elbows entering both vessel bodies)
     const connectPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.4, 12), steelMat);
     connectPipe.rotation.z = Math.PI / 2;
     connectPipe.position.set(0, 1.2, 0.95);
     filterGroup.add(connectPipe);
+    [-1.2, 1.2].forEach((vX) => {
+      const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.95, 12), steelMat);
+      stub.rotation.x = Math.PI / 2;
+      stub.position.set(vX, 1.2, 0.48);
+      filterGroup.add(stub);
+    });
 
     // 7. MECHANICAL SLUDGE DEWATERING HOUSE & ROLL-OFF SKIP CONTAINER (x = -1.0, z = -9.5)
     const dewaterGroup = new THREE.Group();
     dewaterGroup.position.set(-1.0, -2.5, -9.5);
     industrialPlant.add(dewaterGroup);
+
+    // Concrete Foundation Plinth under Dewatering House
+    const dewaterPad = new THREE.Mesh(new THREE.BoxGeometry(7.0, 0.8, 4.4), concreteMat);
+    dewaterPad.position.set(0, -2.75, 0);
+    dewaterGroup.add(dewaterPad);
 
     // Open Steel Canopy Building (Nano Banana HD Corrugated Cladding PBR)
     const shedRoof = new THREE.Mesh(
@@ -1679,15 +1838,15 @@ export default function Bioreactor3D({
     // 4 Corner Steel Columns
     [-3.3, 3.3].forEach((cX) => {
       [-2.0, 2.0].forEach((cZ) => {
-        const col = new THREE.Mesh(new THREE.BoxGeometry(0.25, 6.2, 0.25), darkSteelMat);
-        col.position.set(cX, 0.5, cZ);
+        const col = new THREE.Mesh(new THREE.BoxGeometry(0.25, 6.6, 0.25), darkSteelMat);
+        col.position.set(cX, 0.3, cZ);
         dewaterGroup.add(col);
       });
     });
 
     // Belt Filter Press Machine Base & Rollers
-    const bfpBase = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.2, 1.8), industrialBlueMat);
-    bfpBase.position.set(-1.2, -1.8, 0);
+    const bfpBase = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.4, 1.8), industrialBlueMat);
+    bfpBase.position.set(-1.2, -1.7, 0);
     dewaterGroup.add(bfpBase);
 
     // Press Tension Rollers
@@ -1702,12 +1861,12 @@ export default function Bioreactor3D({
     const skipGeo = new THREE.BoxGeometry(2.4, 1.4, 1.8);
     const skipMat = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.7, metalness: 0.2 });
     const skipContainer = new THREE.Mesh(skipGeo, skipMat);
-    skipContainer.position.set(2.0, -2.0, 0);
+    skipContainer.position.set(2.0, -1.7, 0);
     dewaterGroup.add(skipContainer);
 
     // Dewatered Sludge Cake Inside Container
     const sludgeCake = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 1.6), sludgeCakeMat);
-    sludgeCake.position.set(2.0, -1.6, 0);
+    sludgeCake.position.set(2.0, -1.3, 0);
     dewaterGroup.add(sludgeCake);
 
     // Sludge Discharge Chute from Press into Skip
@@ -1720,6 +1879,11 @@ export default function Bioreactor3D({
     const scadaGroup = new THREE.Group();
     scadaGroup.position.set(17.0, -3.2, -6.5);
     industrialPlant.add(scadaGroup);
+
+    // Concrete Foundation Plinth under SCADA Cabin
+    const scadaPad = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.8, 3.8), concreteMat);
+    scadaPad.position.y = -2.05;
+    scadaGroup.add(scadaPad);
 
     // Modular Containerized Cabin Shell (Nano Banana HD Corrugated Cladding PBR)
     const cabinMesh = new THREE.Mesh(
@@ -2324,22 +2488,14 @@ export default function Bioreactor3D({
         : Math.max(0.25, Math.min(2.5, (st.kLa || 120) / 120.0));
       shaderUniforms.uFlowFactor.value = Math.max(0.25, Math.min(3.5, (st.Q || 1000) / 1000.0));
 
-      // 1. Dynamically Scale 3D CSTR & PFR Vessel Geometries with Calculated Reactor Volume V!
-      if (cstrVesselRef.current && st.cstrResult?.V) {
-        const volRatioCstr = Math.max(0.18, Math.min(4.2, st.cstrResult.V / 490.0));
-        const rScale = Math.max(0.62, Math.min(1.48, Math.pow(volRatioCstr, 0.34)));
-        const hScale = Math.max(0.65, Math.min(1.42, Math.pow(volRatioCstr, 0.30)));
-        cstrVesselRef.current.scale.lerp(new THREE.Vector3(rScale, hScale, rScale), 0.12);
-        // Keep tank bottom sitting cleanly on support legs
-        cstrVesselRef.current.position.y = (hScale - 1.0) * 3.1;
+      // 1. Keep 3D CSTR & PFR Structural Vessels Anchored to Civil Foundations & Flanged Pipe Nozzles
+      if (cstrVesselRef.current) {
+        cstrVesselRef.current.scale.set(1, 1, 1);
+        cstrVesselRef.current.position.y = 0;
       }
-
-      if (pfrBasinRef.current && st.pfrResult?.V) {
-        const volRatioPfr = Math.max(0.18, Math.min(4.2, st.pfrResult.V / 495.0));
-        const lenScale = Math.max(0.60, Math.min(1.48, Math.pow(volRatioPfr, 0.38)));
-        const depthScale = Math.max(0.68, Math.min(1.38, Math.pow(volRatioPfr, 0.26)));
-        pfrBasinRef.current.scale.lerp(new THREE.Vector3(lenScale, depthScale, 1.0), 0.12);
-        pfrBasinRef.current.position.y = (depthScale - 1.0) * 1.8;
+      if (pfrBasinRef.current) {
+        pfrBasinRef.current.scale.set(1, 1, 1);
+        pfrBasinRef.current.position.y = 0;
       }
 
       // 2. Update CSTR Liquid Color & Cutaway Wall (Coupled to Se, DO, r_S, S0, and Xb)
