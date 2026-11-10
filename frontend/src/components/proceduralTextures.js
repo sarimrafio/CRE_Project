@@ -101,7 +101,14 @@ function grayData(values, size, mapFn) {
 }
 
 function loadHDTexture(loader, url, renderer, srgb = true) {
-  const tex = loader.load(url);
+  const clones = [];
+  const tex = loader.load(url, (loaded) => {
+    clones.forEach((c) => {
+      c.source = loaded.source;
+      c.needsUpdate = true;
+    });
+  });
+  tex._clones = clones;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.generateMipmaps = true;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
@@ -172,7 +179,11 @@ function tiled(tex, rx, ry) {
   const c = tex.clone();
   c.wrapS = c.wrapT = THREE.RepeatWrapping;
   c.repeat.set(rx, ry);
-  c.needsUpdate = true;
+  if (tex.image) {
+    c.needsUpdate = true;
+  } else if (tex._clones) {
+    tex._clones.push(c);
+  }
   return c;
 }
 
@@ -356,12 +367,23 @@ export function applyFoamShader(material, waterSet, sharedUniforms) {
 // ---------------------------------------------------------------------------
 export function applyGlassPipeFlowShader(material, sharedUniforms, tintHex = 0x38bdf8, speed = 1.8) {
   const flowTint = new THREE.Color(tintHex);
-  material.defines = { ...(material.defines || {}), USE_UV: '' };
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = sharedUniforms.uTime;
     shader.uniforms.uFlowFactor = sharedUniforms.uFlowFactor;
     shader.uniforms.uFlowTint = { value: flowTint };
     shader.uniforms.uPipeSpeed = { value: speed };
+
+    shader.vertexShader =
+      `
+      varying vec2 vPipeUv;
+      ` +
+      shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+        #include <begin_vertex>
+        vPipeUv = uv;
+        `
+      );
 
     shader.fragmentShader =
       `
@@ -369,13 +391,14 @@ export function applyGlassPipeFlowShader(material, sharedUniforms, tintHex = 0x3
       uniform float uFlowFactor;
       uniform vec3 uFlowTint;
       uniform float uPipeSpeed;
+      varying vec2 vPipeUv;
       ` +
       shader.fragmentShader.replace(
         '#include <map_fragment>',
         `
         #include <map_fragment>
-        float axialPhase = vUv.x * 28.0 - uTime * uPipeSpeed * clamp(uFlowFactor, 0.3, 3.0);
-        float ripple = 0.5 + 0.5 * sin(axialPhase + sin(vUv.y * 12.56));
+        float axialPhase = vPipeUv.x * 28.0 - uTime * uPipeSpeed * clamp(uFlowFactor, 0.3, 3.0);
+        float ripple = 0.5 + 0.5 * sin(axialPhase + sin(vPipeUv.y * 12.56));
         float pulseBand = smoothstep(0.35, 0.92, ripple);
         diffuseColor.rgb = mix(diffuseColor.rgb, uFlowTint, 0.42 * pulseBand);
         diffuseColor.a = clamp(diffuseColor.a + 0.16 * pulseBand, 0.22, 0.78);

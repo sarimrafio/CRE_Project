@@ -1452,7 +1452,7 @@ export default function Bioreactor3D({
     addTransparentPipe(pipeCurves.rackToPfr, 0.16, glassPipeRawMat, 0xc084fc);
     addTransparentPipe(pipeCurves.cstrOverflow, 0.16, glassPipeRawMat, 0x0d9488);
     addTransparentPipe(pipeCurves.pfrExit, 0.16, glassPipeRawMat, 0x0d9488);
-    addTransparentPipe(pipeCurves.cstrRas, 0.14, glassPipeSludgeMat, 0xf59e0b);
+    const rasPipeVert = addTransparentPipe(pipeCurves.cstrRas, 0.14, glassPipeSludgeMat, 0xf59e0b);
     addTransparentPipe(pipeCurves.pfrRas, 0.14, glassPipeSludgeMat, 0xf59e0b);
     addTransparentPipe(pipeCurves.wasSludge, 0.13, glassPipeSludgeMat, 0x78350f);
     addTransparentPipe(pipeCurves.pfrWasSludge, 0.12, glassPipeSludgeMat, 0x78350f);
