@@ -100,16 +100,10 @@ function grayData(values, size, mapFn) {
   return d;
 }
 
-function loadHDTexture(loader, url, renderer, srgb = true) {
-  const clones = [];
-  const tex = loader.load(url, (loaded) => {
-    clones.forEach((c) => {
-      c.source = loaded.source;
-      c.needsUpdate = true;
-    });
-  });
-  tex._clones = clones;
+function loadHDTexture(loader, url, renderer, srgb = true, rx = 1, ry = 1) {
+  const tex = loader.load(url);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(rx, ry);
   tex.generateMipmaps = true;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
   tex.magFilter = THREE.LinearFilter;
@@ -141,28 +135,38 @@ export function buildTextureKit(renderer) {
 
   return {
     concrete: {
-      map: loadHDTexture(loader, '/textures/concrete_albedo.jpg', renderer, true),
-      normalMap: loadHDTexture(loader, '/textures/concrete_normal.jpg', renderer, false),
+      loader,
+      renderer,
+      mapUrl: '/textures/concrete_albedo.jpg',
+      normalUrl: '/textures/concrete_normal.jpg',
       roughnessMap: concreteRough
     },
     asphalt: {
-      map: loadHDTexture(loader, '/textures/asphalt_albedo.jpg', renderer, true),
-      normalMap: loadHDTexture(loader, '/textures/asphalt_normal.jpg', renderer, false),
+      loader,
+      renderer,
+      mapUrl: '/textures/asphalt_albedo.jpg',
+      normalUrl: '/textures/asphalt_normal.jpg',
       roughnessMap: asphaltRough
     },
     grass: {
-      map: loadHDTexture(loader, '/textures/grass_albedo.jpg', renderer, true),
-      normalMap: loadHDTexture(loader, '/textures/grass_normal.jpg', renderer, false),
+      loader,
+      renderer,
+      mapUrl: '/textures/grass_albedo.jpg',
+      normalUrl: '/textures/grass_normal.jpg',
       roughnessMap: grassRough
     },
     steel: {
-      map: loadHDTexture(loader, '/textures/steel_albedo.jpg', renderer, true),
-      normalMap: loadHDTexture(loader, '/textures/steel_normal.jpg', renderer, false),
+      loader,
+      renderer,
+      mapUrl: '/textures/steel_albedo.jpg',
+      normalUrl: '/textures/steel_normal.jpg',
       roughnessMap: steelRough
     },
     cladding: {
-      map: loadHDTexture(loader, '/textures/industrial_cladding.jpg', renderer, true),
-      normalMap: loadHDTexture(loader, '/textures/cladding_normal.jpg', renderer, false),
+      loader,
+      renderer,
+      mapUrl: '/textures/industrial_cladding.jpg',
+      normalUrl: '/textures/cladding_normal.jpg',
       roughnessMap: claddingRough
     },
     water: {
@@ -173,29 +177,32 @@ export function buildTextureKit(renderer) {
   };
 }
 
-function tiled(tex, rx, ry) {
+function tiledDataTex(tex, rx, ry) {
   if (!tex) return null;
   if (rx === 1 && ry === 1) return tex;
   const c = tex.clone();
   c.wrapS = c.wrapT = THREE.RepeatWrapping;
   c.repeat.set(rx, ry);
-  if (tex.image) {
-    c.needsUpdate = true;
-  } else if (tex._clones) {
-    tex._clones.push(c);
-  }
+  c.needsUpdate = true;
   return c;
 }
 
 // Build a MeshStandardMaterial from a Nano Banana HD texture set with tiling repeat
 export function pbr(set, params = {}, rx = 1, ry = 1) {
   const m = new THREE.MeshStandardMaterial({ ...params });
-  if (set.map) m.map = tiled(set.map, rx, ry);
-  if (set.normalMap) {
-    m.normalMap = tiled(set.normalMap, rx, ry);
+  if (set.mapUrl) {
+    m.map = loadHDTexture(set.loader, set.mapUrl, set.renderer, true, rx, ry);
+  } else if (set.map) {
+    m.map = tiledDataTex(set.map, rx, ry);
+  }
+  if (set.normalUrl) {
+    m.normalMap = loadHDTexture(set.loader, set.normalUrl, set.renderer, false, rx, ry);
+    m.normalScale = params.normalScale || new THREE.Vector2(1.15, 1.15);
+  } else if (set.normalMap) {
+    m.normalMap = tiledDataTex(set.normalMap, rx, ry);
     m.normalScale = params.normalScale || new THREE.Vector2(1.15, 1.15);
   }
-  if (set.roughnessMap) m.roughnessMap = tiled(set.roughnessMap, rx, ry);
+  if (set.roughnessMap) m.roughnessMap = tiledDataTex(set.roughnessMap, rx, ry);
   return m;
 }
 
@@ -211,7 +218,6 @@ export function applyBioreactorWaterShader(material, waterSet, sharedUniforms, o
   const uvScale = opts.uvScale ?? 2.2;
   const topYThreshold = opts.topYThreshold ?? 0.2;
 
-  material.defines = { ...(material.defines || {}), USE_UV: '' };
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = sharedUniforms.uTime;
     shader.uniforms.uKLaFactor = sharedUniforms.uKLaFactor;
@@ -232,12 +238,14 @@ export function applyBioreactorWaterShader(material, waterSet, sharedUniforms, o
       uniform float uTopYThreshold;
       varying vec3 vLocalPos;
       varying vec3 vWorldPos;
+      varying vec3 vObjNormal;
       ` +
       shader.vertexShader.replace(
         '#include <begin_vertex>',
         `
         #include <begin_vertex>
         vLocalPos = position;
+        vObjNormal = normalize(normal);
         float topMask = smoothstep(uTopYThreshold - 0.5, uTopYThreshold + 0.5, position.y);
         float turb = clamp(0.45 + 0.45 * uKLaFactor + 0.25 * uFlowFactor, 0.2, 2.2);
         float w1 = sin(position.x * 2.8 + uTime * 3.2) * cos(position.z * 2.6 + uTime * 2.5);
@@ -264,6 +272,7 @@ export function applyBioreactorWaterShader(material, waterSet, sharedUniforms, o
       uniform float uUvScale;
       varying vec3 vLocalPos;
       varying vec3 vWorldPos;
+      varying vec3 vObjNormal;
       ` +
       shader.fragmentShader.replace(
         '#include <map_fragment>',
@@ -277,7 +286,7 @@ export function applyBioreactorWaterShader(material, waterSet, sharedUniforms, o
 
         // Extract bright cellular bubble/foam filaments from Nano Banana caustics map
         float foamWeb = smoothstep(0.42, 0.85, dot(caustBlend, vec3(0.333)));
-        float topSurfaceFactor = clamp(normal.y, 0.0, 1.0);
+        float topSurfaceFactor = clamp(vObjNormal.y, 0.0, 1.0);
         float sideDepthFactor = clamp((vLocalPos.y + 3.0) / 6.0, 0.15, 1.0);
 
         // Beer-Lambert depth absorption & Subsurface Scattering (SSS)
