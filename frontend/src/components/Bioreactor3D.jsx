@@ -3050,7 +3050,9 @@ export default function Bioreactor3D({
           >
             <span className="w-2.5 h-2.5 rounded-full bg-celadon animate-pulse" />
             <span>6. Compliant River Outfall</span>
-            <span className="font-mono text-[9.5px] text-celadon">(Sₑ ≤ {targetSe} mg/L)</span>
+            <span className="font-mono text-[9.5px] text-celadon">
+              (S<sub>e</sub> ≤ {targetSe} mg/L)
+            </span>
           </button>
         </div>
       </div>
@@ -3345,7 +3347,7 @@ export default function Bioreactor3D({
         {/* Draggable 3D Sonde Probe Bar (7 cols) */}
         <div className="lg:col-span-7 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-sumi flex items-center gap-1.5">
+            <span className="font-bold text-ochre flex items-center gap-1.5">
               <span>🛰️ Interactive 3D Multiparameter Sonde Probe (Slide along PFR Channel)</span>
             </span>
             <span className="font-mono font-bold text-white bg-amber-500/20 border border-amber-400/40 px-2 py-0.5 rounded">
@@ -3376,7 +3378,7 @@ export default function Bioreactor3D({
               <div className="text-slate-500">
                 Rate −r<sub>S</sub>(z)
               </div>
-              <div className="font-mono font-bold text-sumi">{sondeReading.rate} mg/L·d</div>
+              <div className="font-mono font-bold text-ochre">{sondeReading.rate} mg/L·d</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
               <div className="text-slate-500">Local OUR(z)</div>
@@ -3416,7 +3418,7 @@ export default function Bioreactor3D({
               <div>Dim: {pfrResult?.geometry?.totalChannelLength?.toFixed(0)}m × 2.2m × 3.5m</div>
               <div>Concrete: {pfrResult?.geometry?.concreteM3?.toFixed(0)} m<sup>3</sup></div>
               <div>Footprint: {pfrResult?.geometry?.footprintM2?.toFixed(0)} m<sup>2</sup></div>
-              <div className="text-sumi font-bold">CAPEX: ${(pfrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
+              <div className="text-ochre font-bold">CAPEX: ${(pfrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
             </div>
           </div>
         </div>

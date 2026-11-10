@@ -8,17 +8,10 @@ import {
   Maximize2,
   Minimize2,
   Sliders,
-  CheckCircle2,
-  AlertTriangle,
   Sparkles,
   BookOpen,
-  Layers,
-  Gauge,
-  Activity,
   Zap,
   Award,
-  Volume2,
-  Eye,
   Printer,
   Download
 } from 'lucide-react';
@@ -110,75 +103,234 @@ export default function PresentationGuide({
       category: 'INDUSTRIAL PROBLEM & ETP ARCHITECTURE',
       title: 'Biological Treatment of Textile Dyeing Effluent: CSTR vs. PFR Digital Twin',
       subtitle: 'Gazipur-Narayanganj Wet-Processing Corridor | Bangladesh DoE ECR Schedule-10 Compliance',
-      equation: 'Q₀ = ' + Q + ' m³/d   |   S₀ = ' + S0 + ' mg bCOD/L   ➔   Target Sₑ ≤ ' + targetSe + ' mg/L (' + removalPct.toFixed(1) + '% Removal)',
+      equation: (
+        <>
+          Q<sub>0</sub> = {Q} m<sup>3</sup>/d &nbsp;|&nbsp; S<sub>0</sub> = {S0} mg bCOD/L &nbsp;➔&nbsp; Target S<sub>e</sub> ≤ {targetSe} mg/L ({removalPct.toFixed(1)}% Removal)
+        </>
+      ),
       preset: 'baseline',
       presetLabel: 'Load Baseline Textile ETP (32°C)',
       kpis: [
-        { label: 'Design Flow (Q₀)', value: `${Q} m³/d`, color: 'text-linen' },
-        { label: 'Influent bCOD (S₀)', value: `${S0} mg/L`, color: 'text-terracotta' },
-        { label: 'Target Effluent (Sₑ)', value: `${targetSe} mg/L`, color: 'text-celadon' },
+        {
+          label: (
+            <>
+              Design Flow (Q<sub>0</sub>)
+            </>
+          ),
+          value: (
+            <>
+              {Q} m<sup>3</sup>/d
+            </>
+          ),
+          color: 'text-linen'
+        },
+        {
+          label: (
+            <>
+              Influent bCOD (S<sub>0</sub>)
+            </>
+          ),
+          value: `${S0} mg/L`,
+          color: 'text-terracotta'
+        },
+        {
+          label: (
+            <>
+              Target Effluent (S<sub>e</sub>)
+            </>
+          ),
+          value: `${targetSe} mg/L`,
+          color: 'text-celadon'
+        },
         { label: 'Process Temp (T)', value: `${temperature}°C`, color: 'text-ochre' }
       ],
       bullets: [
-        `Export-oriented knit/woven dyeing mills discharge high-strength alkaline organic effluent (S₀ = ${S0} mg/L bCOD, reactive azo dyes, starch sizing, and Glauber's salt).`,
-        `Complete 8-stage hydraulic train modeled in 3D: Raw Intake (INF-001) ➔ FeSO₄/Lime Coagulation (CHEM-001) ➔ Equalization (EQ-001) ➔ Rotary Screen (SCR-001) ➔ Parallel CSTR-101 & PFR-102 ➔ Secondary Clarifiers (CLR-201/202) ➔ Tertiary Filters (FLT-301) ➔ River Outfall (OUTFALL-001).`,
-        `Core Chemical Reaction Engineering (CRE) objective: Rigorously size and compare an Ideal Back-Mixed CSTR against a 4-Pass Baffled Serpentine PFR under identical biological sludge age (θc = ${thetaC.toFixed(1)} d).`
+        <>
+          Export-oriented knit/woven dyeing mills discharge high-strength alkaline organic effluent (S<sub>0</sub> = {S0} mg/L bCOD, reactive azo dyes, starch sizing, and Glauber&apos;s salt).
+        </>,
+        <>
+          Complete 8-stage hydraulic train modeled in 3D: Raw Intake (INF-001) ➔ FeSO<sub>4</sub>/Lime Coagulation (CHEM-001) ➔ Equalization (EQ-001) ➔ Rotary Screen (SCR-001) ➔ Parallel CSTR-101 &amp; PFR-102 ➔ Secondary Clarifiers (CLR-201/202) ➔ Tertiary Filters (FLT-301) ➔ River Outfall (OUTFALL-001).
+        </>,
+        <>
+          Core Chemical Reaction Engineering (CRE) objective: Rigorously size and compare an Ideal Back-Mixed CSTR against a 4-Pass Baffled Serpentine PFR under identical biological sludge age (θ<sub>c</sub> = {thetaC.toFixed(1)} d).
+        </>
       ],
-      speakerNotes:
-        'Open the presentation by rotating the live 3D Digital Twin on the right. Point out the dark indigo raw intake pipe (INF-001) on the left and follow the transparent glass process pipes with internal fluid flow all the way to the emerald-clear compliance outfall (OUTFALL-001) on the right.'
+      speakerNotes: (
+        <>
+          Open the presentation by rotating the live 3D Digital Twin on the right. Point out the dark indigo raw intake pipe (INF-001) on the left and follow the transparent glass process pipes with internal fluid flow all the way to the emerald-clear compliance outfall (OUTFALL-001) on the right.
+        </>
+      )
     },
     {
       number: 'SLIDE 02 / 07',
       category: 'BIOCHEMICAL REACTION KINETICS',
       title: 'Dual-Limitation Monod-Haldane Kinetics & Arrhenius Thermal Coupling',
       subtitle: 'Simultaneous Carbon Substrate (S), Dissolved Oxygen (DO), and Toxic Azo-Dye Inhibition Modeling',
-      equation: 'μ(S, DO, T) = μ_max(T) · [ S / (K_S + S + S²/K_I) ] · [ DO / (K_OH + DO) ]   |   r_s = -(μ / Y) · X_b',
+      equation: (
+        <>
+          μ(S, DO, T) = μ<sub>max</sub>(T) · [ S / (K<sub>S</sub> + S + S<sup>2</sup>/K<sub>I</sub>) ] · [ DO / (K<sub>OH</sub> + DO) ] &nbsp;|&nbsp; r<sub>s</sub> = −(μ / Y) · X<sub>b</sub>
+        </>
+      ),
       preset: 'monsoon_cool',
       presetLabel: 'Test Winter/Monsoon Cool (22°C)',
       kpis: [
-        { label: `μ_max (${temperature}°C)`, value: `${muMaxT.toFixed(2)} d⁻¹`, color: 'text-ochre' },
-        { label: 'Half-Velocity K_S', value: `${currentKinetics?.Ks ?? 60} mg/L`, color: 'text-linen' },
-        { label: 'Oxygen K_OH', value: `${currentKinetics?.K_oh ?? 0.2} mg/L`, color: 'text-celadon' },
-        { label: 'Min SRT (θ_c,min)', value: `${thetaMin.toFixed(2)} d`, color: 'text-terracotta' }
+        {
+          label: (
+            <>
+              μ<sub>max</sub> ({temperature}°C)
+            </>
+          ),
+          value: (
+            <>
+              {muMaxT.toFixed(2)} d<sup>−1</sup>
+            </>
+          ),
+          color: 'text-ochre'
+        },
+        {
+          label: (
+            <>
+              Half-Velocity K<sub>S</sub>
+            </>
+          ),
+          value: `${currentKinetics?.Ks ?? 60} mg/L`,
+          color: 'text-linen'
+        },
+        {
+          label: (
+            <>
+              Oxygen K<sub>OH</sub>
+            </>
+          ),
+          value: `${currentKinetics?.K_oh ?? 0.2} mg/L`,
+          color: 'text-celadon'
+        },
+        {
+          label: (
+            <>
+              Min SRT (θ<sub>c,min</sub>)
+            </>
+          ),
+          value: `${thetaMin.toFixed(2)} d`,
+          color: 'text-terracotta'
+        }
       ],
       bullets: [
-        `Arrhenius thermal scaling (θ_T = 1.072) boosts maximum specific growth rate from 3.20 d⁻¹ at 20°C to ${muMaxT.toFixed(2)} d⁻¹ at ${temperature}°C (typical warm textile vat discharge).`,
-        `Dual-substrate Monod switching multiplies organic carbon saturation S/(K_S + S) by oxygen availability DO/(K_OH + DO), capturing anoxic rate collapse whenever DO drops near K_OH = 0.20 mg/L.`,
-        `Under extreme factory vat dumps (S > 1,200 mg/L), Haldane substrate inhibition (S²/K_I, K_I = 1,200 mg/L) depresses microbial growth in unbuffered plug-flow inlet zones.`
+        <>
+          Arrhenius thermal scaling (θ<sub>T</sub> = 1.072) boosts maximum specific growth rate from 3.20 d<sup>−1</sup> at 20°C to {muMaxT.toFixed(2)} d<sup>−1</sup> at {temperature}°C (typical warm textile vat discharge).
+        </>,
+        <>
+          Dual-substrate Monod switching multiplies organic carbon saturation S/(K<sub>S</sub> + S) by oxygen availability DO/(K<sub>OH</sub> + DO), capturing anoxic rate collapse whenever DO drops near K<sub>OH</sub> = 0.20 mg/L.
+        </>,
+        <>
+          Under extreme factory vat dumps (S &gt; 1,200 mg/L), Haldane substrate inhibition (S<sup>2</sup>/K<sub>I</sub>, K<sub>I</sub> = 1,200 mg/L) depresses microbial growth in unbuffered plug-flow inlet zones.
+        </>
       ],
-      speakerNotes:
-        'Use the Temperature slider below to shift between 22°C (Winter) and 38°C (Hot Dye Discharge) while watching the Monod growth curve and washout threshold update in real time on the right.'
+      speakerNotes: (
+        <>
+          Use the Temperature slider below to shift between 22°C (Winter) and 38°C (Hot Dye Discharge) while watching the Monod growth curve and washout threshold (1/θ<sub>c</sub> + k<sub>d</sub>) update in real time on the right.
+        </>
+      )
     },
     {
       number: 'SLIDE 03 / 07',
       category: 'STEADY-STATE REACTOR SIZING (FOGLER CH. 2)',
       title: 'Levenspiel Reciprocal-Rate Sizing: Why PFR Saves 68% Volume at 90% Removal',
-      subtitle: 'Graphical Integration of (-1/r_s) vs. Conversion X from X = 0 to X = ' + (removalPct / 100).toFixed(2),
-      equation: 'V_CSTR = F_S0 · X_target · (-1/r_s)_exit = ' + cstrV.toFixed(1) + ' m³   vs.   V_PFR = F_S0 ∫ (-1/r_s) dX = ' + pfrV.toFixed(1) + ' m³',
+      subtitle: (
+        <>
+          Graphical Integration of (−1/r<sub>s</sub>) vs. Conversion X from X = 0 to X = {(removalPct / 100).toFixed(2)}
+        </>
+      ),
+      equation: (
+        <>
+          V<sub>CSTR</sub> = F<sub>S0</sub> · X<sub>target</sub> · (−1/r<sub>s</sub>)<sub>exit</sub> = {cstrV.toFixed(1)} m<sup>3</sup> &nbsp; vs. &nbsp; V<sub>PFR</sub> = F<sub>S0</sub> ∫ (−1/r<sub>s</sub>) dX = {pfrV.toFixed(1)} m<sup>3</sup>
+        </>
+      ),
       preset: 'high_target_se',
-      presetLabel: 'Demo High Target Sₑ = 300 mg/L',
+      presetLabel: (
+        <>
+          Demo High Target S<sub>e</sub> = 300 mg/L
+        </>
+      ),
       kpis: [
-        { label: 'CSTR Volume (V_CSTR)', value: `${cstrV.toFixed(1)} m³`, color: 'text-terracotta' },
-        { label: 'PFR Volume (V_PFR)', value: `${pfrV.toFixed(1)} m³`, color: 'text-celadon' },
-        { label: 'Volume Ratio (V_C/V_P)', value: `${volumeRatio.toFixed(2)}×`, color: 'text-ochre' },
-        { label: 'HRT (τ_CSTR / τ_PFR)', value: `${cstrTauHr.toFixed(1)}h / ${pfrTauHr.toFixed(1)}h`, color: 'text-linen' }
+        {
+          label: (
+            <>
+              CSTR Volume (V<sub>CSTR</sub>)
+            </>
+          ),
+          value: (
+            <>
+              {cstrV.toFixed(1)} m<sup>3</sup>
+            </>
+          ),
+          color: 'text-terracotta'
+        },
+        {
+          label: (
+            <>
+              PFR Volume (V<sub>PFR</sub>)
+            </>
+          ),
+          value: (
+            <>
+              {pfrV.toFixed(1)} m<sup>3</sup>
+            </>
+          ),
+          color: 'text-celadon'
+        },
+        {
+          label: (
+            <>
+              Volume Ratio (V<sub>C</sub>/V<sub>P</sub>)
+            </>
+          ),
+          value: `${volumeRatio.toFixed(2)}×`,
+          color: 'text-ochre'
+        },
+        {
+          label: (
+            <>
+              HRT (τ<sub>CSTR</sub> / τ<sub>PFR</sub>)
+            </>
+          ),
+          value: `${cstrTauHr.toFixed(1)}h / ${pfrTauHr.toFixed(1)}h`,
+          color: 'text-linen'
+        }
       ],
       bullets: [
-        `In an Ideal CSTR, perfect back-mixing forces the entire ${cstrV.toFixed(1)} m³ vessel to operate at the lowest exit substrate concentration (Sₑ = ${targetSe} mg/L), where (-1/r_s) is at its peak (${(levenspiel?.cstrInvRate ?? 0.65).toFixed(3)} L·d/mg).`,
-        `In a 4-Pass PFR, substrate concentration grades progressively from ${S0} mg/L at the inlet to ${targetSe} mg/L at the exit, keeping reaction rates high across the first 70% of the channel and requiring only ${pfrV.toFixed(1)} m³.`,
-        `Interactive Proof: Drag Target Sₑ from 75 mg/L (${volumeRatio.toFixed(2)}× ratio) up to 300 mg/L (saturation regime where S ≫ K_S, pseudozero-order) to watch the CSTR rectangle and PFR integral converge toward 1.59×!`
+        <>
+          In an Ideal CSTR, perfect back-mixing forces the entire {cstrV.toFixed(1)} m<sup>3</sup> vessel to operate at the lowest exit substrate concentration (S<sub>e</sub> = {targetSe} mg/L), where (−1/r<sub>s</sub>) is at its peak ({(levenspiel?.cstrInvRate ?? 0.65).toFixed(3)} L·d/mg).
+        </>,
+        <>
+          In a 4-Pass PFR, substrate concentration grades progressively from {S0} mg/L at the inlet to {targetSe} mg/L at the exit, keeping reaction rates high across the first 70% of the channel and requiring only {pfrV.toFixed(1)} m<sup>3</sup>.
+        </>,
+        <>
+          Interactive Proof: Drag Target S<sub>e</sub> from 75 mg/L ({volumeRatio.toFixed(2)}× ratio) up to 300 mg/L (saturation regime where S ≫ K<sub>S</sub>, pseudo-zero-order) to watch the CSTR rectangle and PFR integral converge toward 1.59×!
+        </>
       ],
-      speakerNotes:
-        'Hover over the live Levenspiel Plot on the right to inspect (-1/r_s) at any conversion X. Drag the Target Effluent Sₑ slider between 40 mg/L and 300 mg/L to prove why CSTR penalty is severe only at deep compliance targets (Sₑ ≈ K_S).'
+      speakerNotes: (
+        <>
+          Hover over the live Levenspiel Plot on the right to inspect (−1/r<sub>s</sub>) at any conversion X. Drag the Target Effluent S<sub>e</sub> slider between 40 mg/L and 300 mg/L to prove why CSTR penalty is severe only at deep compliance targets (S<sub>e</sub> ≈ K<sub>S</sub>).
+        </>
+      )
     },
     {
       number: 'SLIDE 04 / 07',
       category: '1D SPATIAL PFR ODEs & OXYGEN MASS TRANSFER',
       title: 'Coupled Axial PFR Profiles & The Entrance Dissolved Oxygen Sag Trap',
       subtitle: '4th-Order Runge-Kutta Integration Along Dimensionless Channel Length (z/L ∈ [0, 1])',
-      equation: 'd(DO)/dτ = k_La · (DO_sat - DO) - [ (1 - 1.42 Y_obs)/Y ] · μ · X_b - 1.42 · k_d · X_b',
+      equation: (
+        <>
+          d(DO)/dτ = k<sub>L</sub>a · (DO<sub>sat</sub> − DO) − [ (1 − 1.42 Y<sub>obs</sub>)/Y ] · μ · X<sub>b</sub> − 1.42 · k<sub>d</sub> · X<sub>b</sub>
+        </>
+      ),
       preset: 'baseline',
-      presetLabel: 'Reset to Uniform Aeration (k_La=150)',
+      presetLabel: (
+        <>
+          Reset to Uniform Aeration (k<sub>L</sub>a = 150)
+        </>
+      ),
       kpis: [
         { label: 'CSTR Uniform DO', value: `${cstrDO.toFixed(2)} mg/L`, color: 'text-celadon' },
         { label: 'PFR Minimum DO', value: `${pfrMinDO.toFixed(2)} mg/L`, color: pfrMinDO < 1.0 ? 'text-terracotta' : 'text-celadon' },
@@ -186,63 +338,154 @@ export default function PresentationGuide({
         { label: 'PFR SVI Settling', value: `${pfrResult?.svi ?? 165} mL/g`, color: 'text-linen' }
       ],
       bullets: [
-        `At the PFR inlet (z/L = 0.05–0.25), high substrate S₀ = ${S0} mg/L drives intense microbial oxygen uptake (OUR) that outpaces uniform diffuser supply (k_La = ${kLa} d⁻¹).`,
-        `Bulk DO plunges to ${pfrMinDO.toFixed(2)} mg/L in Pass 1 (below the 1.0 mg/L aerobic threshold), triggering Sphaerotilus natans filamentous sludge bulking (SVI = ${pfrResult?.svi ?? 165} mL/g).`,
-        `Engineering Solution: Click "Tapered Aeration" below (1.65× diffuser density at inlet, 0.45× at exit) to eliminate the DO sag without increasing total blower energy!`
+        <>
+          At the PFR inlet (z/L = 0.05–0.25), high substrate S<sub>0</sub> = {S0} mg/L drives intense microbial oxygen uptake (OUR) that outpaces uniform diffuser supply (k<sub>L</sub>a = {kLa} d<sup>−1</sup>).
+        </>,
+        <>
+          Bulk DO plunges to {pfrMinDO.toFixed(2)} mg/L in Pass 1 (below the 1.0 mg/L aerobic threshold), triggering <em>Sphaerotilus natans</em> filamentous sludge bulking (SVI = {pfrResult?.svi ?? 165} mL/g).
+        </>,
+        <>
+          Engineering Solution: Click &ldquo;Tapered k<sub>L</sub>a&rdquo; on the right panel (1.65× diffuser density at inlet, 0.45× at exit) to eliminate the DO sag without increasing total blower energy!
+        </>
       ],
-      speakerNotes:
-        'Slide the Virtual Sonde Probe (z/L) across the PFR channel on the right to show S(z), X_b(z), and DO(z). Click the "Tapered Aeration" toggle button on the slide to demonstrate how spatial k_La allocation rescues Pass-1 Dissolved Oxygen.'
+      speakerNotes: (
+        <>
+          Slide the Virtual Sonde Probe (z/L) across the PFR channel on the right to show S(z), X<sub>b</sub>(z), and DO(z). Click the &ldquo;Tapered k<sub>L</sub>a&rdquo; toggle button on the slide to demonstrate how spatial k<sub>L</sub>a allocation rescues Pass-1 Dissolved Oxygen.
+        </>
+      )
     },
     {
       number: 'SLIDE 05 / 07',
       category: 'NON-IDEAL FLOW, RTD E(θ), SHOCK LOADS & DYNAMICS',
       title: 'Residence Time Distribution, Toxic Vat Dump Buffering & 25-Day Startup',
       subtitle: 'Fogler E(θ) Dispersion Modeling, 2-Hour Azo-Dye Shock Wave, and Dynamic Biomass Washout',
-      equation: 'E_CSTR(θ) = exp(-θ)   |   E_N-Series(θ) = [N·(Nθ)^(N-1)/(N-1)!]·exp(-Nθ)   |   dX_b/dt = (μ - 1/θ_c - k_d)·X_b',
+      equation: (
+        <>
+          E<sub>CSTR</sub>(θ) = e<sup>−θ</sup> &nbsp;|&nbsp; E<sub>N-Series</sub>(θ) = [N·(Nθ)<sup>N−1</sup>/(N−1)!]·e<sup>−Nθ</sup> &nbsp;|&nbsp; dX<sub>b</sub>/dt = (μ − 1/θ<sub>c</sub> − k<sub>d</sub>)·X<sub>b</sub>
+        </>
+      ),
       preset: 'toxic_shock',
-      presetLabel: 'Trigger Toxic Shock (S₀ = 1800 mg/L)',
+      presetLabel: (
+        <>
+          Trigger Toxic Shock (S<sub>0</sub> = 1800 mg/L)
+        </>
+      ),
       kpis: [
-        { label: 'Operating SRT (θc)', value: `${thetaC.toFixed(2)} d`, color: thetaC <= thetaMin * 1.2 ? 'text-terracotta' : 'text-celadon' },
-        { label: 'Washout Limit (θc,min)', value: `${thetaMin.toFixed(2)} d`, color: 'text-ochre' },
-        { label: 'Active Biomass (X_b)', value: `${cstrXb.toFixed(0)} mg/L`, color: 'text-linen' },
+        {
+          label: (
+            <>
+              Operating SRT (θ<sub>c</sub>)
+            </>
+          ),
+          value: `${thetaC.toFixed(2)} d`,
+          color: thetaC <= thetaMin * 1.2 ? 'text-terracotta' : 'text-celadon'
+        },
+        {
+          label: (
+            <>
+              Washout Limit (θ<sub>c,min</sub>)
+            </>
+          ),
+          value: `${thetaMin.toFixed(2)} d`,
+          color: 'text-ochre'
+        },
+        {
+          label: (
+            <>
+              Active Biomass (X<sub>b</sub>)
+            </>
+          ),
+          value: `${cstrXb.toFixed(0)} mg/L`,
+          color: 'text-linen'
+        },
         { label: 'Safety Factor (SF)', value: `${(thetaC / Math.max(0.01, thetaMin)).toFixed(1)}×`, color: 'text-celadon' }
       ],
       bullets: [
-        `Real baffled basins deviate from ideal plug flow via axial dispersion (Peclet Pe = 30) and are modeled as N-staged CSTRs-in-series (N = 4 approaches PFR efficiency while retaining back-mixed stability).`,
-        `Crucial CSTR Advantage: During a 2-hour factory dye vat dump (2,200 mg/L), the CSTR's ${cstrV.toFixed(0)} m³ volume instantaneously dilutes the pulse below the 75 mg/L limit, whereas a PFR suffers an unattenuated toxic plug breakthrough!`,
-        `Dynamic Startup ODEs: From seed inoculation (X_b,0 = 150 mg/L), the bioreactor requires ~12–15 days (≈ 3 × θc) to reach steady-state MLVSS (${cstrXb.toFixed(0)} mg/L). Dropping θc below ${thetaMin.toFixed(2)} d causes complete biomass washout.`
+        <>
+          Real baffled basins deviate from ideal plug flow via axial dispersion (Peclet Pe = 30) and are modeled as N-staged CSTRs-in-series (N = 4 approaches PFR efficiency while retaining back-mixed stability).
+        </>,
+        <>
+          Crucial CSTR Advantage: During a 2-hour factory dye vat dump (2,200 mg/L), the CSTR&apos;s {cstrV.toFixed(0)} m<sup>3</sup> volume instantaneously dilutes the pulse below the 75 mg/L limit, whereas a PFR suffers an unattenuated toxic plug breakthrough!
+        </>,
+        <>
+          Dynamic Startup ODEs: From seed inoculation (X<sub>b,0</sub> = 150 mg/L), the bioreactor requires ~12–15 days (≈ 3 × θ<sub>c</sub>) to reach steady-state MLVSS ({cstrXb.toFixed(0)} mg/L). Dropping θ<sub>c</sub> below {thetaMin.toFixed(2)} d causes complete biomass washout.
+        </>
       ],
-      speakerNotes:
-        'Use the toggle at the top of the right panel to switch between the Fogler RTD & Toxic Shock Cannon and the 25-Day Startup ODE Trajectory. Click "Trigger Washout" to show what happens when SRT drops below θ_c,min.'
+      speakerNotes: (
+        <>
+          Use the toggle at the top of the right panel to switch between the Fogler RTD &amp; Toxic Shock Cannon and the 25-Day Startup ODE Trajectory. Drag θ<sub>c</sub> below θ<sub>c,min</sub> (0.42 d) to show washout live.
+        </>
+      )
     },
     {
       number: 'SLIDE 06 / 07',
       category: 'TECHNO-ECONOMIC ANALYSIS (TEA) & LIFE CYCLE ASSESSMENT (LCA)',
       title: 'Why Smaller Volume ≠ Lower Energy: Civil CAPEX, Blower Power & Carbon Parity',
-      subtitle: 'Bangladesh Industrial Tariff ($0.095/kWh), Grid Emission Factor (0.615 kg CO₂e/kWh) & Concrete Sizing',
-      equation: 'OUR_total = Q₀·(S₀ - Sₑ)·(1 - 1.42·Y_obs) = ' + ((sustCSTR?.aeration_kwh_day ?? 488) * 1.8).toFixed(0) + ' kg O₂/d   ➔   E_aeration = ' + (sustCSTR?.aeration_kwh_day ?? 488).toFixed(1) + ' kWh/d',
+      subtitle: (
+        <>
+          Bangladesh Industrial Tariff ($0.095/kWh), Grid Emission Factor (0.615 kg CO<sub>2</sub>e/kWh) &amp; Concrete Sizing
+        </>
+      ),
+      equation: (
+        <>
+          OUR<sub>total</sub> = Q<sub>0</sub>·(S<sub>0</sub> − S<sub>e</sub>)·(1 − 1.42·Y<sub>obs</sub>) = {((sustCSTR?.aeration_kwh_day ?? 488) * 1.8).toFixed(0)} kg O<sub>2</sub>/d &nbsp;➔&nbsp; E<sub>aeration</sub> = {(sustCSTR?.aeration_kwh_day ?? 488).toFixed(1)} kWh/d
+        </>
+      ),
       preset: 'baseline',
-      presetLabel: 'Restore Design Baseline (Q=1000)',
+      presetLabel: (
+        <>
+          Restore Design Baseline (Q<sub>0</sub> = 1000)
+        </>
+      ),
       kpis: [
         { label: 'CSTR Civil CAPEX', value: `$${(cstrResult?.geometry?.capexUSD ?? 129600).toLocaleString()}`, color: 'text-celadon' },
         { label: 'PFR Civil CAPEX', value: `$${(pfrResult?.geometry?.capexUSD ?? 141200).toLocaleString()}`, color: 'text-ochre' },
-        { label: 'Specific Energy', value: `${(sustCSTR?.energy_kwh_per_m3 ?? 0.642).toFixed(3)} kWh/m³`, color: 'text-linen' },
-        { label: 'Carbon Footprint', value: `${((sustCSTR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(0)} kg CO₂e/d`, color: 'text-terracotta' }
+        {
+          label: 'Specific Energy',
+          value: (
+            <>
+              {(sustCSTR?.energy_kwh_per_m3 ?? 0.642).toFixed(3)} kWh/m<sup>3</sup>
+            </>
+          ),
+          color: 'text-linen'
+        },
+        {
+          label: 'Carbon Footprint',
+          value: (
+            <>
+              {((sustCSTR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(0)} kg CO<sub>2</sub>e/d
+            </>
+          ),
+          color: 'text-terracotta'
+        }
       ],
       bullets: [
-        `Thermodynamic Oxygen Demand Parity: Both reactors oxidize the exact same daily bCOD mass (${((Q * (S0 - targetSe)) / 1000).toFixed(1)} kg bCOD/d), requiring identical stoichiometric aeration energy (${(sustCSTR?.aeration_kwh_day ?? 488.3).toFixed(1)} kWh/d = 76% of plant electricity).`,
-        `Civil Engineering Surprise: Although PFR liquid volume is smaller (${pfrV.toFixed(1)} vs. ${cstrV.toFixed(1)} m³), its 3 internal reinforced-concrete serpentine baffle walls increase structural wall area and formwork, making PFR CAPEX slightly higher ($${(pfrResult?.geometry?.capexUSD ?? 141200).toLocaleString()} vs. $${(cstrResult?.geometry?.capexUSD ?? 129600).toLocaleString()}).`,
-        `Total Operating Cost & Carbon Footprint: Both configurations operate at $${(sustCSTR?.cost_usd_per_m3 ?? 0.061).toFixed(3)}/m³ ($${((sustCSTR?.cost_usd_per_m3 ?? 0.061) * Q).toFixed(2)}/day) and emit ${((sustCSTR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(1)} kg CO₂e/day.`
+        <>
+          Thermodynamic Oxygen Demand Parity: Both reactors oxidize the exact same daily bCOD mass ({((Q * (S0 - targetSe)) / 1000).toFixed(1)} kg bCOD/d), requiring identical stoichiometric aeration energy ({(sustCSTR?.aeration_kwh_day ?? 488.3).toFixed(1)} kWh/d = 76% of plant electricity).
+        </>,
+        <>
+          Civil Engineering Surprise: Although PFR liquid volume is smaller ({pfrV.toFixed(1)} vs. {cstrV.toFixed(1)} m<sup>3</sup>), its 3 internal reinforced-concrete serpentine baffle walls increase structural wall area and formwork, making PFR CAPEX slightly higher (${(pfrResult?.geometry?.capexUSD ?? 141200).toLocaleString()} vs. ${(cstrResult?.geometry?.capexUSD ?? 129600).toLocaleString()}).
+        </>,
+        <>
+          Total Operating Cost &amp; Carbon Footprint: Both configurations operate at ${(sustCSTR?.cost_usd_per_m3 ?? 0.061).toFixed(3)}/m<sup>3</sup> (${((sustCSTR?.cost_usd_per_m3 ?? 0.061) * Q).toFixed(2)}/day) and emit {((sustCSTR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(1)} kg CO<sub>2</sub>e/day.
+        </>
       ],
-      speakerNotes:
-        'This slide answers the classic examiner trap: "If PFR is 3.09× smaller in volume, does it use 3× less electricity?" Point to the energy bar chart on the right to explain why biological oxygen demand is governed by mass of COD removed, not tank volume.'
+      speakerNotes: (
+        <>
+          This slide answers the classic examiner trap: &ldquo;If PFR is 3.09× smaller in volume, does it use 3× less electricity?&rdquo; Point to the energy bar chart on the right to explain why biological oxygen demand is governed by mass of COD removed, not tank volume.
+        </>
+      )
     },
     {
       number: 'SLIDE 07 / 07',
       category: 'FINAL ENGINEERING RECOMMENDATION & LIVE Q&A DEFENSE',
       title: 'Definitive Engineering Verdict: Hybrid 4-Stage Compartmentalized Basin with Tapered Aeration',
       subtitle: 'Synthesizing Volumetric Efficiency, Shock-Load Resilience, and DO-Sag Prevention for Bangladesh ETPs',
-      equation: 'Optimal Design: V_total = 215 m³ (4-Stage Cascade) + Tapered k_La (240 ➔ 70 d⁻¹) + R = 0.40 RAS Recycle',
+      equation: (
+        <>
+          Optimal Design: V<sub>total</sub> = 215 m<sup>3</sup> (4-Stage Cascade) + Tapered k<sub>L</sub>a (240 ➔ 70 d<sup>−1</sup>) + R = 0.40 RAS Recycle
+        </>
+      ),
       preset: 'baseline',
       presetLabel: 'Reset All Parameters for Live Q&A',
       kpis: [
@@ -252,12 +495,21 @@ export default function PresentationGuide({
         { label: 'Recommended Design', value: '4-Stage Hybrid Cascade', color: 'text-linen' }
       ],
       bullets: [
-        `Pure PFR Verdict: Achieves a ${volumeRatio.toFixed(2)}× smaller active liquid footprint (${pfrV.toFixed(1)} m³ vs. ${cstrV.toFixed(1)} m³), ideal for land-constrained Dhaka/Gazipur factories, but requires tapered aeration to prevent Pass-1 DO sag (${pfrMinDO.toFixed(2)} mg/L) and upstream equalization to buffer dye dumps.`,
-        `Pure CSTR Verdict: Requires ${cstrV.toFixed(1)} m³ liquid volume, but provides automatic dilution against toxic azo-dye shock loads, uniform DO (${cstrDO.toFixed(2)} mg/L), superior sludge settling (SVI ${cstrResult?.recycle?.svi ?? 110} mL/g), and lower concrete wall cost.`,
-        `Final Recommendation: Construct a 4-Compartment Staged Basin (N = 4 CSTRs-in-series) with a larger first mixing cell (to buffer dye shocks) and tapered fine-bubble diffusers—capturing 82% of the PFR volume savings with zero filamentous bulking risk.`
+        <>
+          Pure PFR Verdict: Achieves a {volumeRatio.toFixed(2)}× smaller active liquid footprint ({pfrV.toFixed(1)} m<sup>3</sup> vs. {cstrV.toFixed(1)} m<sup>3</sup>), ideal for land-constrained Dhaka/Gazipur factories, but requires tapered aeration to prevent Pass-1 DO sag ({pfrMinDO.toFixed(2)} mg/L) and upstream equalization to buffer dye dumps.
+        </>,
+        <>
+          Pure CSTR Verdict: Requires {cstrV.toFixed(1)} m<sup>3</sup> liquid volume, but provides automatic dilution against toxic azo-dye shock loads, uniform DO ({cstrDO.toFixed(2)} mg/L), superior sludge settling (SVI {cstrResult?.recycle?.svi ?? 110} mL/g), and lower concrete wall cost.
+        </>,
+        <>
+          Final Recommendation: Construct a 4-Compartment Staged Basin (N = 4 CSTRs-in-series) with a larger first mixing cell (to buffer dye shocks) and tapered fine-bubble diffusers—capturing 82% of the PFR volume savings with zero filamentous bulking risk.
+        </>
       ],
-      speakerNotes:
-        'During Examiner Q&A, use the view switcher at the top right of this slide to jump instantaneously between the Decision Matrix, Live 3D Plant, Levenspiel Plot, or Axial Profiles without ever leaving Slide 7!'
+      speakerNotes: (
+        <>
+          During Examiner Q&amp;A, use the view switcher at the top right of this slide to jump instantaneously between the Decision Matrix, Live 3D Plant, Levenspiel Plot, or Axial Profiles without ever leaving Slide 7!
+        </>
+      )
     }
   ];
 
@@ -271,10 +523,10 @@ export default function PresentationGuide({
           <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-3.5 py-2">
             <span className="text-xs font-bold text-ochre flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              LIVE 3D INDUSTRIAL ETP DIGITAL TWIN (INTERACTIVE ORBIT & CLICK)
+              LIVE 3D INDUSTRIAL ETP DIGITAL TWIN (INTERACTIVE ORBIT &amp; CLICK)
             </span>
             <span className="text-[11px] font-mono text-celadon">
-              INF-001 (Indigo {S0} mg/L) ➔ OUTFALL-001 (Emerald {targetSe} mg/L)
+              INF-001 (Indigo S<sub>0</sub> = {S0} mg/L) ➔ OUTFALL-001 (Emerald S<sub>e</sub> = {targetSe} mg/L)
             </span>
           </div>
           <div className="flex-1 min-h-[380px] rounded-2xl overflow-hidden border border-putty/25 shadow-2xl">
@@ -340,7 +592,7 @@ export default function PresentationGuide({
                 Live Monod vs. Haldane Substrate-Inhibited Growth Rate μ(S, DO, T)
               </h4>
               <p className="text-[11px] text-putty/70">
-                 Evaluated at T = {temperature}°C (μ_max = {muMaxT.toFixed(2)} d⁻¹) and Bulk DO = {cstrDO.toFixed(2)} mg/L
+                Evaluated at T = {temperature}°C (μ<sub>max</sub> = {muMaxT.toFixed(2)} d<sup>−1</sup>) and Bulk DO = {cstrDO.toFixed(2)} mg/L
               </p>
             </div>
             <span className="px-2.5 py-1 rounded-md bg-ochre/20 border border-ochre/40 text-ochre font-mono text-xs font-bold">
@@ -379,7 +631,7 @@ export default function PresentationGuide({
                   strokeWidth="1.5"
                 />
                 <text x={pad.left + pw - 6} y={scaleY(washoutMu) - 5} fill="#A84A32" fontSize="9.5" textAnchor="end" fontWeight="bold">
-                  Required Growth (1/θc + kd = {washoutMu.toFixed(2)} d⁻¹)
+                  Required Growth (1/θ<tspan dy="2" fontSize="7.5">c</tspan><tspan dy="-2"> + k</tspan><tspan dy="2" fontSize="7.5">d</tspan><tspan dy="-2"> = {washoutMu.toFixed(2)} d</tspan><tspan dy="-3" fontSize="7.5">−1</tspan><tspan dy="3">)</tspan>
                 </text>
               </>
             )}
@@ -387,13 +639,13 @@ export default function PresentationGuide({
             {/* Current S0 vertical marker */}
             <line x1={scaleX(S0)} y1={pad.top} x2={scaleX(S0)} y2={pad.top + ph} stroke="#C68A3C" strokeDasharray="4 2" strokeWidth="1.5" />
             <text x={scaleX(S0) + 5} y={pad.top + 12} fill="#C68A3C" fontSize="9.5" fontWeight="bold">
-              Influent S₀ = {S0}
+              Influent S<tspan dy="2" fontSize="7.5">0</tspan><tspan dy="-2"> = {S0}</tspan>
             </text>
 
             {/* Current Se vertical marker */}
             <line x1={scaleX(targetSe)} y1={pad.top} x2={scaleX(targetSe)} y2={pad.top + ph} stroke="#9EAFA2" strokeDasharray="4 2" strokeWidth="1.5" />
             <text x={scaleX(targetSe) + 5} y={pad.top + 26} fill="#9EAFA2" fontSize="9.5" fontWeight="bold">
-              Exit Sₑ = {targetSe}
+              Exit S<tspan dy="2" fontSize="7.5">e</tspan><tspan dy="-2"> = {targetSe}</tspan>
             </text>
 
             <path d={monodPath} fill="none" stroke="#9EAFA2" strokeWidth="3" />
@@ -414,24 +666,36 @@ export default function PresentationGuide({
               textAnchor="middle"
               transform={`rotate(-90, 14, ${pad.top + ph / 2})`}
             >
-              Specific Growth Rate μ [d⁻¹]
+              Specific Growth Rate μ [d<tspan dy="-3" fontSize="8">−1</tspan><tspan dy="3">]</tspan>
             </text>
           </svg>
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs border-t border-putty/20 pt-2">
             <span className="text-celadon font-semibold">━━ Uninhibited Dual-Monod μ(S, DO)</span>
-            <span className="text-ochre font-semibold">┅┅ Haldane Dye-Inhibited (K_I = 1200 mg/L)</span>
-            <span className="text-terracotta font-semibold">--- Washout Threshold (1/θc + k_d)</span>
+            <span className="text-ochre font-semibold">
+              ┅┅ Haldane Dye-Inhibited (K<sub>I</sub> = 1200 mg/L)
+            </span>
+            <span className="text-terracotta font-semibold">
+              --- Washout Threshold (1/θ<sub>c</sub> + k<sub>d</sub>)
+            </span>
           </div>
 
           <div className="grid grid-cols-3 gap-2.5 pt-1 text-xs">
             <div className="bg-sumi border border-putty/15 rounded-xl p-2.5">
-              <div className="text-putty/70 text-[10px]">Arrhenius μ_max(T)</div>
-              <div className="font-mono font-bold text-ochre text-sm">3.20 × 1.072^(T-20) = {muMaxT.toFixed(2)} d⁻¹</div>
+              <div className="text-putty/70 text-[10px]">
+                Arrhenius μ<sub>max</sub>(T)
+              </div>
+              <div className="font-mono font-bold text-ochre text-sm">
+                3.20 × 1.072<sup>T−20</sup> = {muMaxT.toFixed(2)} d<sup>−1</sup>
+              </div>
             </div>
             <div className="bg-sumi border border-putty/15 rounded-xl p-2.5">
-              <div className="text-putty/70 text-[10px]">Endogenous Decay k_d(T)</div>
-              <div className="font-mono font-bold text-linen text-sm">0.06 × 1.040^(T-20) = {kdT.toFixed(3)} d⁻¹</div>
+              <div className="text-putty/70 text-[10px]">
+                Endogenous Decay k<sub>d</sub>(T)
+              </div>
+              <div className="font-mono font-bold text-linen text-sm">
+                0.06 × 1.040<sup>T−20</sup> = {kdT.toFixed(3)} d<sup>−1</sup>
+              </div>
             </div>
             <div className="bg-sumi border border-putty/15 rounded-xl p-2.5">
               <div className="text-putty/70 text-[10px]">True Yield Y (mg VSS/mg COD)</div>
@@ -471,7 +735,7 @@ export default function PresentationGuide({
                     : 'bg-sumi text-putty border border-putty/20'
                 }`}
               >
-                Uniform k_La (DO Sag!)
+                Uniform k<sub>L</sub>a (DO Sag!)
               </button>
               <button
                 onClick={() => setAerationMode && setAerationMode('tapered')}
@@ -481,7 +745,7 @@ export default function PresentationGuide({
                     : 'bg-sumi text-putty border border-putty/20'
                 }`}
               >
-                Tapered k_La (Engineered Fix)
+                Tapered k<sub>L</sub>a (Engineered Fix)
               </button>
             </div>
             <button
@@ -492,7 +756,13 @@ export default function PresentationGuide({
                   : 'bg-sumi text-putty border-putty/25 hover:border-terracotta'
               }`}
             >
-              {blowerTrip ? '⚠️ BLOWER TRIP ACTIVE (-70% k_La)' : 'Simulate Power Outage / Blower Trip'}
+              {blowerTrip ? (
+                <>
+                  ⚠️ BLOWER TRIP ACTIVE (−70% k<sub>L</sub>a)
+                </>
+              ) : (
+                'Simulate Power Outage / Blower Trip'
+              )}
             </button>
           </div>
           <AxialProfilesPlot
@@ -519,7 +789,7 @@ export default function PresentationGuide({
                     : 'bg-sumi text-putty border border-putty/20'
                 }`}
               >
-                Fogler RTD E(θ) & Dye Shock Cannon
+                Fogler RTD E(θ) &amp; Dye Shock Cannon
               </button>
               <button
                 onClick={() => setSlide5Tab('startup')}
@@ -529,7 +799,7 @@ export default function PresentationGuide({
                     : 'bg-sumi text-putty border border-putty/20'
                 }`}
               >
-                25-Day Startup & Washout ODEs
+                25-Day Startup &amp; Washout ODEs
               </button>
             </div>
           </div>
@@ -555,10 +825,10 @@ export default function PresentationGuide({
           <div>
             <h4 className="text-sm font-bold text-linen flex items-center gap-2">
               <Zap className="w-4 h-4 text-ochre" />
-              Live Plant Energy Breakdown & Civil CAPEX / Carbon LCA Matrix
+              Live Plant Energy Breakdown &amp; Civil CAPEX / Carbon LCA Matrix
             </h4>
             <p className="text-xs text-putty/70 mt-0.5">
-              Evaluated at Q₀ = {Q} m³/d, S₀ = {S0} mg/L ➔ Sₑ = {targetSe} mg/L ($0.095/kWh tariff, 0.615 kg CO₂e/kWh grid factor)
+              Evaluated at Q<sub>0</sub> = {Q} m<sup>3</sup>/d, S<sub>0</sub> = {S0} mg/L ➔ S<sub>e</sub> = {targetSe} mg/L ($0.095/kWh tariff, 0.615 kg CO<sub>2</sub>e/kWh grid factor)
             </p>
           </div>
 
@@ -612,33 +882,49 @@ export default function PresentationGuide({
               <tbody className="divide-y divide-putty/15 font-mono">
                 <tr>
                   <td className="py-2 px-2.5 font-sans text-putty">Active Liquid Volume</td>
-                  <td className="py-2 px-2.5 text-linen font-bold">{cstrV.toFixed(1)} m³</td>
-                  <td className="py-2 px-2.5 text-celadon font-bold">{pfrV.toFixed(1)} m³</td>
+                  <td className="py-2 px-2.5 text-linen font-bold">
+                    {cstrV.toFixed(1)} m<sup>3</sup>
+                  </td>
+                  <td className="py-2 px-2.5 text-celadon font-bold">
+                    {pfrV.toFixed(1)} m<sup>3</sup>
+                  </td>
                   <td className="py-2 px-2.5 font-sans text-celadon">PFR saves {((1 - 1 / volumeRatio) * 100).toFixed(0)}% space</td>
                 </tr>
                 <tr>
                   <td className="py-2 px-2.5 font-sans text-putty">Reinforced Concrete</td>
-                  <td className="py-2 px-2.5 text-linen">{(cstrResult?.geometry?.concreteM3 ?? 168).toFixed(1)} m³</td>
-                  <td className="py-2 px-2.5 text-linen">{(pfrResult?.geometry?.concreteM3 ?? 195).toFixed(1)} m³</td>
+                  <td className="py-2 px-2.5 text-linen">
+                    {(cstrResult?.geometry?.concreteM3 ?? 168).toFixed(1)} m<sup>3</sup>
+                  </td>
+                  <td className="py-2 px-2.5 text-linen">
+                    {(pfrResult?.geometry?.concreteM3 ?? 195).toFixed(1)} m<sup>3</sup>
+                  </td>
                   <td className="py-2 px-2.5 font-sans text-ochre">PFR needs 3 baffle walls</td>
                 </tr>
                 <tr>
-                  <td className="py-2 px-2.5 font-sans text-putty">Civil & Mech CAPEX</td>
+                  <td className="py-2 px-2.5 font-sans text-putty">Civil &amp; Mech CAPEX</td>
                   <td className="py-2 px-2.5 text-celadon font-bold">${cstrCapex.toLocaleString()}</td>
                   <td className="py-2 px-2.5 text-ochre font-bold">${pfrCapex.toLocaleString()}</td>
                   <td className="py-2 px-2.5 font-sans text-celadon">CSTR saves ${(pfrCapex - cstrCapex).toLocaleString()}</td>
                 </tr>
                 <tr>
                   <td className="py-2 px-2.5 font-sans text-putty">Specific Energy</td>
-                  <td className="py-2 px-2.5 text-ochre font-bold">{(sustCSTR?.energy_kwh_per_m3 ?? 0.642).toFixed(4)} kWh/m³</td>
-                  <td className="py-2 px-2.5 text-ochre font-bold">{(sustPFR?.energy_kwh_per_m3 ?? 0.642).toFixed(4)} kWh/m³</td>
-                  <td className="py-2 px-2.5 font-sans text-linen">Identical stoichiometric O₂</td>
+                  <td className="py-2 px-2.5 text-ochre font-bold">
+                    {(sustCSTR?.energy_kwh_per_m3 ?? 0.642).toFixed(4)} kWh/m<sup>3</sup>
+                  </td>
+                  <td className="py-2 px-2.5 text-ochre font-bold">
+                    {(sustPFR?.energy_kwh_per_m3 ?? 0.642).toFixed(4)} kWh/m<sup>3</sup>
+                  </td>
+                  <td className="py-2 px-2.5 font-sans text-linen">
+                    Identical stoichiometric O<sub>2</sub>
+                  </td>
                 </tr>
                 <tr>
                   <td className="py-2 px-2.5 font-sans text-putty">Carbon Emissions</td>
                   <td className="py-2 px-2.5 text-terracotta font-bold">{((sustCSTR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(1)} kg/d</td>
                   <td className="py-2 px-2.5 text-terracotta font-bold">{((sustPFR?.ghg_kg_co2e_per_m3 ?? 0.395) * Q).toFixed(1)} kg/d</td>
-                  <td className="py-2 px-2.5 font-sans text-putty/80">0.395 kg CO₂e / m³ treated</td>
+                  <td className="py-2 px-2.5 font-sans text-putty/80">
+                    0.395 kg CO<sub>2</sub>e / m<sup>3</sup> treated
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -651,7 +937,7 @@ export default function PresentationGuide({
     return (
       <div className="flex flex-col h-full space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-3.5 py-2">
-          <span className="text-xs font-bold text-ochre">Live Defense Q&A Visual Switcher:</span>
+          <span className="text-xs font-bold text-ochre">Live Defense Q&amp;A Visual Switcher:</span>
           <div className="flex flex-wrap gap-1.5">
             {[
               { id: 'matrix', label: 'Decision Matrix & Q&A' },
@@ -723,7 +1009,7 @@ export default function PresentationGuide({
             <div>
               <h4 className="text-sm font-bold text-linen flex items-center gap-2">
                 <Award className="w-4 h-4 text-ochre" />
-                Multi-Criteria CRE Engineering Scorecard & Examiner Q&A Flashcards
+                Multi-Criteria CRE Engineering Scorecard &amp; Examiner Q&amp;A Flashcards
               </h4>
               <p className="text-xs text-putty/70 mt-0.5">
                 Quantitative scoring across 5 industrial textile ETP design criteria
@@ -743,9 +1029,15 @@ export default function PresentationGuide({
                 <tbody className="divide-y divide-putty/15 font-mono">
                   <tr>
                     <td className="py-2 px-2.5 font-sans text-putty">1. Reactor Footprint (25%)</td>
-                    <td className="py-2 px-2.5 text-terracotta">6.0/10 ({cstrV.toFixed(0)} m³)</td>
-                    <td className="py-2 px-2.5 text-celadon font-bold">9.8/10 ({pfrV.toFixed(0)} m³)</td>
-                    <td className="py-2 px-2.5 text-ochre font-bold">9.2/10 (215 m³)</td>
+                    <td className="py-2 px-2.5 text-terracotta">
+                      6.0/10 ({cstrV.toFixed(0)} m<sup>3</sup>)
+                    </td>
+                    <td className="py-2 px-2.5 text-celadon font-bold">
+                      9.8/10 ({pfrV.toFixed(0)} m<sup>3</sup>)
+                    </td>
+                    <td className="py-2 px-2.5 text-ochre font-bold">
+                      9.2/10 (215 m<sup>3</sup>)
+                    </td>
                   </tr>
                   <tr>
                     <td className="py-2 px-2.5 font-sans text-putty">2. Dye Shock Buffering (25%)</td>
@@ -754,7 +1046,7 @@ export default function PresentationGuide({
                     <td className="py-2 px-2.5 text-ochre font-bold">8.8/10 (Lead-Cell Buffer)</td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-2.5 font-sans text-putty">3. DO Profile & SVI Settling (20%)</td>
+                    <td className="py-2 px-2.5 font-sans text-putty">3. DO Profile &amp; SVI Settling (20%)</td>
                     <td className="py-2 px-2.5 text-celadon font-bold">9.4/10 (DO={cstrDO.toFixed(2)}, SVI=110)</td>
                     <td className="py-2 px-2.5 text-terracotta">5.2/10 (DO Sag={pfrMinDO.toFixed(2)})</td>
                     <td className="py-2 px-2.5 text-ochre font-bold">9.5/10 (Tapered Diffusers)</td>
@@ -777,15 +1069,17 @@ export default function PresentationGuide({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
               <div className="bg-sumi border border-putty/20 rounded-xl p-3">
-                <div className="font-bold text-ochre mb-1">Q1: When does V_CSTR / V_PFR approach 1.0?</div>
+                <div className="font-bold text-ochre mb-1">
+                  Q1: When does V<sub>CSTR</sub> / V<sub>PFR</sub> approach 1.0?
+                </div>
                 <p className="text-putty/80 text-[11px]">
-                  When target effluent Sₑ ≫ K_S (60 mg/L), Monod kinetics S/(K_S+S) ≈ 1.0 becomes apparent zero-order. Click Slide 3 & set Sₑ = 300 mg/L to show the ratio drop to 1.59×!
+                  When target effluent S<sub>e</sub> ≫ K<sub>S</sub> (60 mg/L), Monod kinetics S/(K<sub>S</sub> + S) ≈ 1.0 becomes apparent zero-order. Click Slide 3 &amp; set S<sub>e</sub> = 300 mg/L to show the ratio drop to 1.59×!
                 </p>
               </div>
               <div className="bg-sumi border border-putty/20 rounded-xl p-3">
                 <div className="font-bold text-celadon mb-1">Q2: How do we prevent PFR Pass-1 DO Sag?</div>
                 <p className="text-putty/80 text-[11px]">
-                  Redistribute the same total air supply using Tapered Aeration (1.65× k_La at inlet, 0.45× at exit) so oxygen transfer matches the exponential substrate uptake profile.
+                  Redistribute the same total air supply using Tapered Aeration (1.65× k<sub>L</sub>a at inlet, 0.45× at exit) so oxygen transfer matches the exponential substrate uptake profile.
                 </p>
               </div>
             </div>
@@ -928,7 +1222,7 @@ export default function PresentationGuide({
             </div>
 
             {/* Governing Equation Banner */}
-            <div className="bg-putty/5 border-l-4 border-ochre rounded-r-xl px-3.5 py-2.5 font-mono text-xs text-ochre overflow-x-auto">
+            <div className="bg-putty/5 border-l-4 border-ochre rounded-r-xl px-3.5 py-2.5 font-mono text-xs text-ochre overflow-x-auto leading-relaxed">
               {currentSlide.equation}
             </div>
 
@@ -970,7 +1264,7 @@ export default function PresentationGuide({
                   className="px-2.5 py-1 rounded-lg bg-terracotta hover:bg-terracotta/90 text-linen font-semibold text-[11px] flex items-center gap-1 shadow transition-all"
                 >
                   <Play className="w-3 h-3" />
-                  {currentSlide.presetLabel}
+                  <span>{currentSlide.presetLabel}</span>
                 </button>
               )}
             </div>
@@ -978,7 +1272,9 @@ export default function PresentationGuide({
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <div className="flex justify-between text-putty text-[11px]">
-                  <span>Influent bCOD (S₀):</span>
+                  <span>
+                    Influent bCOD (S<sub>0</sub>):
+                  </span>
                   <span className="font-mono font-bold text-terracotta">{S0} mg/L</span>
                 </div>
                 <input
@@ -994,7 +1290,9 @@ export default function PresentationGuide({
 
               <div>
                 <div className="flex justify-between text-putty text-[11px]">
-                  <span>Target Effluent (Sₑ):</span>
+                  <span>
+                    Target Effluent (S<sub>e</sub>):
+                  </span>
                   <span className="font-mono font-bold text-celadon">{targetSe} mg/L</span>
                 </div>
                 <input
@@ -1010,7 +1308,9 @@ export default function PresentationGuide({
 
               <div>
                 <div className="flex justify-between text-putty text-[11px]">
-                  <span>Sludge Age (θc):</span>
+                  <span>
+                    Sludge Age (θ<sub>c</sub>):
+                  </span>
                   <span className="font-mono font-bold text-ochre">{thetaC.toFixed(2)} d</span>
                 </div>
                 <input
@@ -1044,7 +1344,7 @@ export default function PresentationGuide({
 
           {/* Presenter Speaker Notes */}
           {showNotes && (
-            <div className="bg-pine/20 border border-celadon/30 rounded-xl p-3 text-xs text-celadon">
+            <div className="bg-pine/20 border border-celadon/30 rounded-xl p-3 text-xs text-celadon leading-relaxed">
               <span className="font-bold uppercase tracking-wider text-[10px] block mb-1 text-ochre">
                 🎙️ Presenter Defense Cue:
               </span>

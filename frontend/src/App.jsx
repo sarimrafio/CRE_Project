@@ -142,6 +142,22 @@ export default function App() {
   // Preset Scenario Handlers
   const applyPreset = (preset) => {
     setBlowerTrip(false);
+    if (typeof preset === 'string') {
+      const presetMap = {
+        baseline: { Q: 1000, S0: 750, Se: 75, theta_c: 5.0, T: 32, aerationMode: 'uniform' },
+        monsoon_cool: { Q: 1000, S0: 750, Se: 75, theta_c: 5.0, T: 22, aerationMode: 'uniform' },
+        high_target_se: { Q: 1000, S0: 750, Se: 300, theta_c: 5.0, T: 32, aerationMode: 'uniform' },
+        toxic_shock: { Q: 1000, S0: 1800, Se: 75, theta_c: 5.0, T: 32, aerationMode: 'uniform' }
+      };
+      const mapped = presetMap[preset] || presetMap.baseline;
+      setQ(mapped.Q);
+      setS0(mapped.S0);
+      setTargetSe(mapped.Se);
+      setThetaC(mapped.theta_c);
+      setTemperature(mapped.T);
+      setAerationMode(mapped.aerationMode);
+      return;
+    }
     if (preset.Q !== undefined) setQ(preset.Q);
     if (preset.S0 !== undefined) setS0(preset.S0);
     if (preset.Se !== undefined) setTargetSe(preset.Se);

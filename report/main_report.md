@@ -64,7 +64,7 @@ Our five project objectives are:
 2. Derive the coupled differential balances for soluble substrate ($S$), active biomass ($X_b$), and dissolved oxygen ($DO$) in ideal CSTR and PFR units using Fogler’s method.
 3. Formulate a PFR recycle boundary condition that accounts for return activated sludge (RAS) so the PFR comparison does not suffer from artificial washout.
 4. Build and test a Python simulation package (`SciPy Radau`) against exact analytical solutions in the first-order limit.
-5. Size both reactors for a baseline textile mill, test their sensitivity to parameter shifts, and compare their energy use, operating cost, and Scope 2 carbon emissions.
+5. Size both reactors for a baseline textile mill, test their sensitivity to parameter shifts, and compare their energy use, operating cost, and carbon emissions.
 
 ---
 
@@ -179,7 +179,7 @@ To check our numerical integrators against an exact closed-form solution, we als
 
 ## 4. Literature Data Extraction and Baseline Mill Profile
 
-We set the baseline plant design parameters using mill monitoring data reported by Orhon et al. (2003) and Rahman et al. (2020) for a medium-sized knit fabric dyeing and finishing plant.
+From our review of 50 peer-reviewed studies, we set the baseline plant design parameters using mill monitoring data reported by Orhon et al. (2003) and Rahman et al. (2020) for a medium-sized knit fabric dyeing and finishing plant.
 
 Table 2: Design Basis for Textile Wastewater Bioreactor Comparison
 | Design Parameter | Symbol | Design Value | Unit | Provenance & Evidence |
@@ -208,7 +208,7 @@ We verified the Python simulation code (`src/textile_twin/`) with 13 automated u
    biomass washed out completely ($X_b \to 0\,\mathrm{mg/L}$) and effluent substrate rose to the influent value ($S_e = S_0$).
 3. Time integration of the CSTR startup equations (`solve_ivp Radau`) converged to the same steady-state concentrations ($S, X_b, DO$) found by direct algebraic root-finding (`scipy.optimize.root`) within $0.1\%$.
 
-Figure 6 tracks the CSTR from initial seeding through 25 days of operation to steady state.
+Figure 6 tracks the CSTR from initial seeding to steady state.
 
 ![Figure 6: Transient Dynamic Startup Trajectory of CSTR](figures/fig6_cstr_transient.png)
 *Figure 6: Numerical startup simulation of the CSTR over 25 operational days: (a) Biodegradable substrate concentration dropping from the initial feed level to the target $S_e = 75.0\,\mathrm{mg/L}$; (b) Active biomass building up under secondary clarifier recycle to $X_b = 3876.9\,\mathrm{mg\,VSS/L}$; (c) Bulk dissolved oxygen settling at $DO = 2.42\,\mathrm{mg/L}$.*
@@ -256,7 +256,7 @@ As wastewater flows down the PFR channel, concentration gradients form along the
 
 ## 7. Operational Sustainability, Energy & Carbon Footprint
 
-To compare operating sustainability, we calculated electrical power demand, operating cost, and Scope 2 greenhouse gas (GHG) emissions per cubic meter of treated wastewater (Functional Unit = $1\,\mathrm{m^3}$ of treated effluent meeting discharge standards) (Corominas et al., 2013; Hao et al., 2015).
+To compare operating sustainability, we calculated electrical power demand, operating cost, and greenhouse gas (GHG) emissions per cubic meter of treated wastewater (Functional Unit = $1\,\mathrm{m^3}$ of treated effluent meeting discharge standards) (Corominas et al., 2013; Hao et al., 2015).
 
 Table 4: Operational Sustainability & Life-Cycle Inventory Comparison
 | Sustainability Indicator | Ideal CSTR | Ideal PFR | Unit | Assessment Basis |
@@ -275,7 +275,7 @@ Table 4: Operational Sustainability & Life-Cycle Inventory Comparison
 Figure 7 breaks down specific energy consumption by unit operation alongside operating cost and carbon intensity.
 
 ![Figure 7: Operational Sustainability Breakdown](figures/fig7_sustainability_breakdown.png)
-*Figure 7: Operational sustainability comparison: (a) Specific energy consumption ($\mathrm{kWh/m^3}$) split between aeration blowers ($76.6\%$), mechanical mixing ($12.2\%$), and sludge/feed pumping ($11.2\%$); (b) Scope 2 carbon footprint ($0.274\,\mathrm{kg\,CO_2e/m^3}$) and electricity cost ($\$0.0423/\mathrm{m^3}$) under baseline mill conditions.*
+*Figure 7: Operational sustainability comparison: (a) Specific energy consumption ($\mathrm{kWh/m^3}$) split between aeration blowers ($76.6\%$), mechanical mixing ($12.2\%$), and sludge/feed pumping ($11.2\%$); (b) Operational carbon footprint ($0.274\,\mathrm{kg\,CO_2e/m^3}$) and electricity cost ($\$0.0423/\mathrm{m^3}$) under baseline mill conditions.*
 
 ### 7.1 Multi-Variable Sensitivity Analysis
 We tested how parameter uncertainty affects required reactor volume by perturbing eight kinetic and operating inputs by $\pm 25\%$ one at a time. Figure 8 plots the resulting tornado ranking.
@@ -290,7 +290,7 @@ We tested how parameter uncertainty affects required reactor volume by perturbin
 ### 8.1 Hydrodynamic Shock Resistance vs. Kinetic Efficiency
 Even though both reactors need nearly the same volume at steady state, they behave very differently during real mill upsets:
 1. Textile dye houses dump spent dye baths, alkaline mercerizing rinses, and concentrated salts in intermittent batches. In a tubular PFR, a concentrated slug moves down the channel as a plug without axial dilution, exposing bacteria near the inlet to peak dye and salt levels that can lyse cells and stall treatment (Danckwerts, 1953; Alvarado et al., 2012). In a CSTR, incoming flow mixes across the entire $489.7\,\mathrm{m^3}$ tank right away, diluting concentration spikes before they can inhibit the biomass.
-2. Because substrate consumption peaks at the PFR inlet, oxygen uptake spikes in the first $20\%$ of the channel and creates the oxygen sag seen in Figure 5. Preventing low-oxygen zones in a PFR requires tapered aeration with denser diffuser grids at the head of the basin (Rosso & Stenstrom, 2006; Baquero-Rodriguez et al., 2018). The CSTR has a uniform oxygen uptake rate throughout the tank, which simplifies air piping, diffuser layout, and blower control.
+2. Because substrate consumption peaks at the PFR inlet, oxygen uptake spikes in the first $20\%$ of the channel and creates a sharp inlet oxygen sag. Preventing low-oxygen zones in a PFR requires tapered aeration with denser diffuser grids at the head of the basin (Rosso & Stenstrom, 2006; Baquero-Rodriguez et al., 2018). The CSTR has a uniform oxygen uptake rate throughout the tank, which simplifies air piping, diffuser layout, and blower control.
 
 ### 8.2 Practical Process Recommendation
 For industrial textile effluent plants, we recommend a CSTR (or 2–3 stirred tanks in series) over a single plug-flow channel. Because Monod kinetics is saturated across most of the conversion range, a PFR does not reduce tank volume, yet it leaves the biology exposed to toxic batch dumps and requires a more complex tapered aeration grid.
