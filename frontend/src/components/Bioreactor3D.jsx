@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { buildTextureKit, pbr, makeChainLinkTexture } from './proceduralTextures';
+import {
+  buildTextureKit,
+  pbr,
+  makeChainLinkTexture,
+  applyBioreactorWaterShader,
+  applyFoamShader,
+  applyGlassPipeFlowShader,
+  applyWeatheredConcreteShader
+} from './proceduralTextures';
 import { computeBioFlocMicroProfile } from '../kineticsEngine';
 
 /**
@@ -638,8 +646,13 @@ export default function Bioreactor3D({
     scene.environmentIntensity = 0.85;
     pmrem.dispose();
 
-    // HD procedural PBR texture kit (concrete, asphalt, grass, brushed steel, paint)
+    // Nano Banana HD PBR texture kit + real-time GLSL multi-physics shader uniforms
     const kit = buildTextureKit(renderer);
+    const shaderUniforms = {
+      uTime: { value: 0.0 },
+      uKLaFactor: { value: 1.0 },
+      uFlowFactor: { value: 1.0 }
+    };
 
     // 4. DAYLIGHT: warm sun key + sky hemisphere fill, high-res soft shadows
     const hemiLight = new THREE.HemisphereLight(0xcfe3ff, 0x6b6558, 0.55);
@@ -669,17 +682,22 @@ export default function Bioreactor3D({
     grass.receiveShadow = true;
     scene.add(grass);
 
-    const slabMat = pbr(kit.concrete, { color: 0xa9a9a4, roughness: 1, metalness: 0 }, 46 / 5, 28 / 5);
+    const slabMat = applyWeatheredConcreteShader(
+      pbr(kit.concrete, { color: 0xb5b5b0, roughness: 1, metalness: 0 }, 46 / 4, 28 / 4)
+    );
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(46, 28), slabMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -5.6;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Shared Engineering Materials
-    const steelMat = pbr(kit.steel, { color: 0xa5a9b0, metalness: 1.0, roughness: 1.0 }, 2, 2);
-    const darkSteelMat = pbr(kit.steel, { color: 0x5d636c, metalness: 1.0, roughness: 1.6 }, 2, 2);
-    const concreteMat = pbr(kit.concrete, { color: 0xbdbdb8, roughness: 1, metalness: 0 }, 2, 1);
+    // Shared Engineering Materials (Nano Banana HD Albedo + Normal + Roughness + GLSL Shaders)
+    const steelMat = pbr(kit.steel, { color: 0xc4c9d0, metalness: 0.92, roughness: 0.85 }, 2, 2);
+    const darkSteelMat = pbr(kit.steel, { color: 0x68707a, metalness: 0.88, roughness: 1.15 }, 2, 2);
+    const concreteMat = applyWeatheredConcreteShader(
+      pbr(kit.concrete, { color: 0xc8c8c2, roughness: 1, metalness: 0 }, 2, 1)
+    );
+    const claddingMat = pbr(kit.cladding, { color: 0xdbe2ea, roughness: 0.8, metalness: 0.45 }, 3, 2);
     const motorMat = pbr(kit.paint, { color: 0x0f6fb5, metalness: 0.35, roughness: 1.0 }, 2, 2);
     const airPipeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.85 });
     const rasPipeMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.5, roughness: 0.4, transparent: true, opacity: 0.85 });
@@ -748,28 +766,40 @@ export default function Bioreactor3D({
       cstrVessel.add(baffle);
     }
 
-    // CSTR Liquid Body
-    const liquidGeo = new THREE.CylinderGeometry(3.18, 3.18, 5.8, 36);
-    const liquidMat = new THREE.MeshPhysicalMaterial({
-      color: 0x0d9488,
-      transparent: true,
-      opacity: 0.72,
-      roughness: 0.2,
-      metalness: 0.05
-    });
+    // CSTR Liquid Body (Multi-Physics GLSL Water, Caustics & Gerstner Wave Shader)
+    const liquidGeo = new THREE.CylinderGeometry(3.18, 3.18, 5.8, 48, 12);
+    const liquidMat = applyBioreactorWaterShader(
+      new THREE.MeshPhysicalMaterial({
+        color: 0x0d9488,
+        transparent: true,
+        opacity: 0.78,
+        roughness: 0.14,
+        metalness: 0.05,
+        ior: 1.333,
+        clearcoat: 0.85,
+        clearcoatRoughness: 0.08
+      }),
+      kit.water,
+      shaderUniforms,
+      { waveAmp: 0.055, foamStrength: 0.42, uvScale: 2.2, topYThreshold: 2.2 }
+    );
     const cstrLiquid = new THREE.Mesh(liquidGeo, liquidMat);
     cstrLiquid.position.y = -0.35;
     cstrVessel.add(cstrLiquid);
     cstrLiquidRef.current = cstrLiquid;
 
-    // Surface Surfactant Foam Layer (Feature #16)
-    const foamGeo = new THREE.CylinderGeometry(3.16, 3.16, 0.28, 32);
-    const foamMat = new THREE.MeshStandardMaterial({
-      color: 0xf5d0fe,
-      transparent: true,
-      opacity: 0.55,
-      roughness: 0.9
-    });
+    // Surface Surfactant Foam Layer (GLSL Cellular Micro-Foam Shader, Feature #16)
+    const foamGeo = new THREE.CylinderGeometry(3.16, 3.16, 0.28, 48, 4);
+    const foamMat = applyFoamShader(
+      new THREE.MeshStandardMaterial({
+        color: 0xf5d0fe,
+        transparent: true,
+        opacity: 0.62,
+        roughness: 0.75
+      }),
+      kit.water,
+      shaderUniforms
+    );
     const cstrFoam = new THREE.Mesh(foamGeo, foamMat);
     cstrFoam.position.y = 2.62;
     cstrVessel.add(cstrFoam);
@@ -858,14 +888,26 @@ export default function Bioreactor3D({
     cstrGroup.add(cstrClarifier);
 
     const clarCyl = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.65, 1.65, 1.5, 28),
-      new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.30 })
+      new THREE.CylinderGeometry(1.65, 1.65, 1.5, 36, 6),
+      applyBioreactorWaterShader(
+        new THREE.MeshPhysicalMaterial({
+          color: 0x38bdf8,
+          transparent: true,
+          opacity: 0.42,
+          roughness: 0.1,
+          ior: 1.333,
+          clearcoat: 0.9
+        }),
+        kit.water,
+        shaderUniforms,
+        { waveAmp: 0.02, foamStrength: 0.15, uvScale: 1.5, topYThreshold: 0.4 }
+      )
     );
     cstrClarifier.add(clarCyl);
 
     const clarCone = new THREE.Mesh(
-      new THREE.ConeGeometry(1.65, 1.4, 28),
-      new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.4, transparent: true, opacity: 0.82 })
+      new THREE.ConeGeometry(1.65, 1.4, 32),
+      concreteMat
     );
     clarCone.rotation.x = Math.PI;
     clarCone.position.y = -1.45;
@@ -939,14 +981,22 @@ export default function Bioreactor3D({
         const dir = pass % 2 === 0 ? 1 : -1;
         const xOffset = dir * (-passLen / 2 + (zSub + 0.5) * zoneLen);
 
-        const zoneGeo = new THREE.BoxGeometry(zoneLen - 0.03, passHeight, passWidth);
-        const zoneMat = new THREE.MeshPhysicalMaterial({
-          color: 0x7e22ce,
-          transparent: true,
-          opacity: 0.78,
-          roughness: 0.2,
-          metalness: 0.05
-        });
+        const zoneGeo = new THREE.BoxGeometry(zoneLen - 0.03, passHeight, passWidth, 8, 4, 4);
+        const zoneMat = applyBioreactorWaterShader(
+          new THREE.MeshPhysicalMaterial({
+            color: 0x7e22ce,
+            transparent: true,
+            opacity: 0.82,
+            roughness: 0.15,
+            metalness: 0.05,
+            ior: 1.333,
+            clearcoat: 0.8,
+            clearcoatRoughness: 0.1
+          }),
+          kit.water,
+          shaderUniforms,
+          { waveAmp: 0.042, foamStrength: 0.36, uvScale: 1.8, topYThreshold: 0.8 }
+        );
         const zoneMesh = new THREE.Mesh(zoneGeo, zoneMat);
         zoneMesh.position.set(xOffset, -1.0, zCenter);
         pfrBasin.add(zoneMesh);
@@ -1073,63 +1123,83 @@ export default function Bioreactor3D({
     // C. CENTRAL ROOT BLOWER STATION & ANIMATED TRANSPARENT PIPING NETWORK
     // =========================================================================
     // All fluid flow is 100% mathematically constrained inside transparent glass/acrylic tubes
-    const glassPipeRawMat = new THREE.MeshPhysicalMaterial({
-      color: 0xf5eeff,
-      transparent: true,
-      opacity: 0.38,
-      roughness: 0.05,
-      transmission: 0.90,
-      ior: 1.49,
-      thickness: 0.20,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
-    const glassPipeCleanMat = new THREE.MeshPhysicalMaterial({
-      color: 0xecfeff,
-      transparent: true,
-      opacity: 0.34,
-      roughness: 0.04,
-      transmission: 0.94,
-      ior: 1.49,
-      thickness: 0.20,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
-    const glassPipeSludgeMat = new THREE.MeshPhysicalMaterial({
-      color: 0xfef3c7,
-      transparent: true,
-      opacity: 0.42,
-      roughness: 0.05,
-      transmission: 0.86,
-      ior: 1.49,
-      thickness: 0.20,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
-    const glassPipeAirMat = new THREE.MeshPhysicalMaterial({
-      color: 0xe0f2fe,
-      transparent: true,
-      opacity: 0.30,
-      roughness: 0.03,
-      transmission: 0.96,
-      ior: 1.47,
-      thickness: 0.15,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-      depthWrite: false,
-      side: THREE.DoubleSide
-    });
+    const glassPipeRawMat = applyGlassPipeFlowShader(
+      new THREE.MeshPhysicalMaterial({
+        color: 0xf5eeff,
+        transparent: true,
+        opacity: 0.42,
+        roughness: 0.05,
+        transmission: 0.88,
+        ior: 1.49,
+        thickness: 0.22,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.04,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      }),
+      shaderUniforms,
+      0xa855f7,
+      2.2
+    );
+    const glassPipeCleanMat = applyGlassPipeFlowShader(
+      new THREE.MeshPhysicalMaterial({
+        color: 0xecfeff,
+        transparent: true,
+        opacity: 0.38,
+        roughness: 0.04,
+        transmission: 0.92,
+        ior: 1.49,
+        thickness: 0.22,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.04,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      }),
+      shaderUniforms,
+      0x10b981,
+      2.4
+    );
+    const glassPipeSludgeMat = applyGlassPipeFlowShader(
+      new THREE.MeshPhysicalMaterial({
+        color: 0xfef3c7,
+        transparent: true,
+        opacity: 0.45,
+        roughness: 0.05,
+        transmission: 0.84,
+        ior: 1.49,
+        thickness: 0.22,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.05,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      }),
+      shaderUniforms,
+      0xd97706,
+      1.6
+    );
+    const glassPipeAirMat = applyGlassPipeFlowShader(
+      new THREE.MeshPhysicalMaterial({
+        color: 0xe0f2fe,
+        transparent: true,
+        opacity: 0.34,
+        roughness: 0.03,
+        transmission: 0.94,
+        ior: 1.47,
+        thickness: 0.16,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      }),
+      shaderUniforms,
+      0x38bdf8,
+      3.2
+    );
 
     const pipeGroup = new THREE.Group();
     scene.add(pipeGroup);
 
-    const pipeFlangeMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.25 });
+    const pipeFlangeMat = steelMat;
     const addTransparentPipe = (curve, radius, mat, sampleT = [0.03, 0.5, 0.97]) => {
       const tubeGeo = new THREE.TubeGeometry(curve, 64, radius, 14, false);
       const tube = new THREE.Mesh(tubeGeo, mat);
@@ -1435,23 +1505,27 @@ export default function Bioreactor3D({
     eqGroup.position.set(-19.0, -2.5, -4.5);
     industrialPlant.add(eqGroup);
 
-    // Concrete Basin Walls
+    // Concrete Basin Walls (Nano Banana HD Concrete PBR)
     const eqBasinGeo = new THREE.BoxGeometry(6.5, 4.5, 4.2);
-    const eqBasinMesh = new THREE.Mesh(
-      eqBasinGeo,
-      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8, metalness: 0.2 })
-    );
+    const eqBasinMesh = new THREE.Mesh(eqBasinGeo, concreteMat);
     eqGroup.add(eqBasinMesh);
 
-    // Agitated Raw Dye Wastewater Inside EQ Basin
+    // Agitated Raw Dye Wastewater Inside EQ Basin (GLSL Water & Caustics Shader)
     const eqLiquid = new THREE.Mesh(
-      new THREE.BoxGeometry(6.1, 3.8, 3.8),
-      new THREE.MeshPhysicalMaterial({
-        color: 0x581c87, // Deep dark raw textile azo dye
-        transparent: true,
-        opacity: 0.88,
-        roughness: 0.3
-      })
+      new THREE.BoxGeometry(6.1, 3.8, 3.8, 16, 4, 12),
+      applyBioreactorWaterShader(
+        new THREE.MeshPhysicalMaterial({
+          color: 0x581c87, // Deep dark raw textile azo dye
+          transparent: true,
+          opacity: 0.88,
+          roughness: 0.16,
+          ior: 1.333,
+          clearcoat: 0.85
+        }),
+        kit.water,
+        shaderUniforms,
+        { waveAmp: 0.048, foamStrength: 0.34, uvScale: 2.0, topYThreshold: 1.2 }
+      )
     );
     eqLiquid.position.y = 0.2;
     eqGroup.add(eqLiquid);
@@ -1594,10 +1668,10 @@ export default function Bioreactor3D({
     dewaterGroup.position.set(-1.0, -2.5, -9.5);
     industrialPlant.add(dewaterGroup);
 
-    // Open Steel Canopy Building
+    // Open Steel Canopy Building (Nano Banana HD Corrugated Cladding PBR)
     const shedRoof = new THREE.Mesh(
       new THREE.BoxGeometry(7.2, 0.18, 4.6),
-      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 })
+      claddingMat
     );
     shedRoof.position.y = 3.6;
     dewaterGroup.add(shedRoof);
@@ -1647,10 +1721,10 @@ export default function Bioreactor3D({
     scadaGroup.position.set(17.0, -3.2, -6.5);
     industrialPlant.add(scadaGroup);
 
-    // Modular Containerized Cabin Shell
+    // Modular Containerized Cabin Shell (Nano Banana HD Corrugated Cladding PBR)
     const cabinMesh = new THREE.Mesh(
       new THREE.BoxGeometry(5.2, 3.4, 3.4),
-      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.4, metalness: 0.3 })
+      claddingMat
     );
     scadaGroup.add(cabinMesh);
 
@@ -1741,16 +1815,22 @@ export default function Bioreactor3D({
     const intakeBasin = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.2, 3.0), concreteMat);
     intakeGroup.add(intakeBasin);
 
-    // Deep Dark Reactive Dye Wastewater
+    // Deep Dark Reactive Dye Wastewater (GLSL Water Shader)
     const rawWater = new THREE.Mesh(
-      new THREE.BoxGeometry(4.1, 2.0, 2.6),
-      new THREE.MeshPhysicalMaterial({
-        color: 0x4a044e,
-        roughness: 0.15,
-        transmission: 0.35,
-        transparent: true,
-        opacity: 0.92
-      })
+      new THREE.BoxGeometry(4.1, 2.0, 2.6, 12, 4, 8),
+      applyBioreactorWaterShader(
+        new THREE.MeshPhysicalMaterial({
+          color: 0x4a044e,
+          roughness: 0.12,
+          transmission: 0.35,
+          transparent: true,
+          opacity: 0.92,
+          clearcoat: 0.9
+        }),
+        kit.water,
+        shaderUniforms,
+        { waveAmp: 0.04, foamStrength: 0.3, uvScale: 1.8, topYThreshold: 0.6 }
+      )
     );
     rawWater.position.y = 0.5;
     intakeGroup.add(rawWater);
@@ -1826,17 +1906,23 @@ export default function Bioreactor3D({
       stepMesh.position.set(sg.x, sg.y, 0);
       outfallGroup.add(stepMesh);
 
-      // Sparkling Treated Water on Each Step
+      // Sparkling Treated Water on Each Step (GLSL Water & Caustics Shader)
       const waterSheet = new THREE.Mesh(
-        new THREE.BoxGeometry(sg.w - 0.04, 0.15, 2.7),
-        new THREE.MeshPhysicalMaterial({
-          color: 0x10b981,
-          roughness: 0.04,
-          transmission: 0.94,
-          ior: 1.33,
-          transparent: true,
-          opacity: 0.88
-        })
+        new THREE.BoxGeometry(sg.w - 0.04, 0.15, 2.7, 8, 2, 8),
+        applyBioreactorWaterShader(
+          new THREE.MeshPhysicalMaterial({
+            color: 0x10b981,
+            roughness: 0.04,
+            transmission: 0.90,
+            ior: 1.333,
+            transparent: true,
+            opacity: 0.90,
+            clearcoat: 1.0
+          }),
+          kit.water,
+          shaderUniforms,
+          { waveAmp: 0.025, foamStrength: 0.45, uvScale: 2.5, topYThreshold: 0.0 }
+        )
       );
       waterSheet.position.set(sg.x, sg.y + sg.h / 2 + 0.08, 0);
       outfallGroup.add(waterSheet);
@@ -2228,6 +2314,15 @@ export default function Bioreactor3D({
       const delta = Math.min(0.1, clock.getDelta());
       const elapsed = clock.getElapsedTime();
       const st = stateRef.current;
+
+      // Update Real-Time GLSL Multi-Physics Water, Foam & Pipe Flow Shader Uniforms
+      if (st.isPlaying) {
+        shaderUniforms.uTime.value = elapsed;
+      }
+      shaderUniforms.uKLaFactor.value = st.blowerTrip
+        ? 0.05
+        : Math.max(0.25, Math.min(2.5, (st.kLa || 120) / 120.0));
+      shaderUniforms.uFlowFactor.value = Math.max(0.25, Math.min(3.5, (st.Q || 1000) / 1000.0));
 
       // 1. Dynamically Scale 3D CSTR & PFR Vessel Geometries with Calculated Reactor Volume V!
       if (cstrVesselRef.current && st.cstrResult?.V) {

@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------------------
-// Procedural HD PBR texture kit (tileable). No external image assets required.
-// Each set provides albedo (map), tangent-space normalMap and roughnessMap.
+// Nano Banana High-Resolution HD PBR Texture & GLSL Shader Kit
+// Combines Nano Banana generated 1024x1024 seamless textures (/textures/*.jpg)
+// with procedural micro-roughness maps and custom GLSL multi-physics shaders.
 // ---------------------------------------------------------------------------
 
 function rng(seed) {
@@ -35,7 +36,6 @@ function makeNoise(period, rand) {
   };
 }
 
-// Tileable fractal noise in [0,1]
 function fbm(size, octaves, basePeriod, seed) {
   const rand = rng(seed);
   const out = new Float32Array(size * size);
@@ -100,158 +100,75 @@ function grayData(values, size, mapFn) {
   return d;
 }
 
-function makeConcrete(renderer, size = 1024) {
-  const rand = rng(11);
-  const big = fbm(size, 5, 3, 21);
-  const mid = fbm(size, 5, 16, 22);
-  const stain = fbm(size, 4, 2, 23);
-  const height = new Float32Array(size * size);
-  const color = new Uint8ClampedArray(size * size * 4);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const i = y * size + x;
-      let h = mid[i] * 0.6 + big[i] * 0.4;
-      const speck = rand();
-      if (speck > 0.985) h += 0.18;
-      else if (speck < 0.01) h -= 0.2;
-      // expansion/control joints on tile edge
-      const edge = Math.min(x, y, size - 1 - x, size - 1 - y);
-      let joint = 0;
-      if (edge < 3) joint = 1 - edge / 3;
-      h -= joint * 0.5;
-      height[i] = h;
-      let c = 146 + (mid[i] - 0.5) * 70 + (big[i] - 0.5) * 40 + (rand() - 0.5) * 16;
-      c *= 1 - Math.max(0, stain[i] - 0.55) * 0.9; // dirt/water stains
-      c *= 1 - joint * 0.55;
-      color[i * 4] = c * 1.0;
-      color[i * 4 + 1] = c * 0.99;
-      color[i * 4 + 2] = c * 0.95;
-      color[i * 4 + 3] = 255;
-    }
-  }
-  return {
-    map: toTexture(color, size, renderer, true),
-    normalMap: toTexture(heightToNormal(height, size, 3.0), size, renderer, false),
-    roughnessMap: toTexture(grayData(mid, size, (v) => 0.82 + v * 0.16), size, renderer, false)
-  };
+function loadHDTexture(loader, url, renderer, srgb = true) {
+  const tex = loader.load(url);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  tex.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  return tex;
 }
 
-function makeAsphalt(renderer, size = 1024) {
-  const rand = rng(31);
-  const low = fbm(size, 4, 4, 32);
-  const height = new Float32Array(size * size);
-  const color = new Uint8ClampedArray(size * size * 4);
-  for (let i = 0; i < size * size; i++) {
-    const r = rand();
-    let h = low[i] * 0.3 + rand() * 0.55;
-    let c = 42 + low[i] * 24 + rand() * 18;
-    if (r > 0.992) {
-      c += 70;
-      h += 0.3;
-    } else if (r > 0.97) {
-      c += 25;
-    }
-    height[i] = h;
-    color[i * 4] = c;
-    color[i * 4 + 1] = c;
-    color[i * 4 + 2] = c * 1.03;
-    color[i * 4 + 3] = 255;
-  }
-  return {
-    map: toTexture(color, size, renderer, true),
-    normalMap: toTexture(heightToNormal(height, size, 4.0), size, renderer, false),
-    roughnessMap: toTexture(grayData(low, size, (v) => 0.78 + v * 0.2), size, renderer, false)
-  };
-}
-
-function makeGrass(renderer, size = 1024) {
-  const rand = rng(41);
-  const low = fbm(size, 5, 3, 42);
-  const dry = fbm(size, 4, 2, 43);
-  const height = new Float32Array(size * size);
-  const color = new Uint8ClampedArray(size * size * 4);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const i = y * size + x;
-      const blade = rand();
-      height[i] = blade * 0.7 + low[i] * 0.3;
-      const dryness = Math.max(0, dry[i] - 0.5) * 1.6;
-      let r = 52 + low[i] * 30 + blade * 26;
-      let g = 84 + low[i] * 36 + blade * 34;
-      let b = 30 + low[i] * 14 + blade * 10;
-      r += dryness * 70;
-      g += dryness * 30;
-      b += dryness * 6;
-      color[i * 4] = r;
-      color[i * 4 + 1] = g;
-      color[i * 4 + 2] = b;
-      color[i * 4 + 3] = 255;
-    }
-  }
-  return {
-    map: toTexture(color, size, renderer, true),
-    normalMap: toTexture(heightToNormal(height, size, 2.2), size, renderer, false),
-    roughnessMap: toTexture(grayData(low, size, () => 0.95), size, renderer, false)
-  };
-}
-
-// Brushed stainless 316L: roughness 0.22 base up to 0.35, horizontal grain
-function makeSteel(renderer, size = 2048) {
-  const rough = new Uint8ClampedArray(size * size * 4);
-  const normal = new Uint8ClampedArray(size * size * 4);
-  const rand = rng(51);
-  const h = new Float32Array(size + 2);
-  let acc = 0;
-  for (let y = 0; y < size + 2; y++) {
-    acc = acc * 0.55 + (rand() - 0.5);
-    h[y] = acc;
-  }
-  for (let y = 0; y < size; y++) {
-    const dh = (h[y + 2] - h[y]) * 0.9;
-    const band = 0.22 + 0.13 * (0.5 + 0.5 * Math.sin((y / size) * Math.PI * 6)) * (0.6 + 0.4 * rand());
-    for (let x = 0; x < size; x++) {
-      const i = (y * size + x) * 4;
-      const r = Math.min(1, Math.max(0, band + (rand() - 0.5) * 0.05));
-      rough[i] = rough[i + 1] = rough[i + 2] = r * 255;
-      rough[i + 3] = 255;
-      const nx = (rand() - 0.5) * 0.04;
-      const ny = dh * 0.35 + (rand() - 0.5) * 0.04;
-      const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
-      normal[i] = (nx * 0.5 + 0.5) * 255;
-      normal[i + 1] = (ny * 0.5 + 0.5) * 255;
-      normal[i + 2] = (nz * 0.5 + 0.5) * 255;
-      normal[i + 3] = 255;
-    }
-  }
-  return {
-    normalMap: toTexture(normal, size, renderer, false),
-    roughnessMap: toTexture(rough, size, renderer, false)
-  };
-}
-
-// Industrial paint: orange-peel normal + uneven gloss
 function makePaint(renderer, size = 512) {
   const n = fbm(size, 5, 24, 61);
   const hi = fbm(size, 3, 64, 62);
   const height = new Float32Array(size * size);
   for (let i = 0; i < height.length; i++) height[i] = hi[i] * 0.7 + n[i] * 0.3;
   return {
-    normalMap: toTexture(heightToNormal(height, size, 1.2), size, renderer, false),
-    roughnessMap: toTexture(grayData(n, size, (v) => 0.3 + v * 0.22), size, renderer, false)
+    normalMap: toTexture(heightToNormal(height, size, 1.3), size, renderer, false),
+    roughnessMap: toTexture(grayData(n, size, (v) => 0.26 + v * 0.24), size, renderer, false)
   };
 }
 
 export function buildTextureKit(renderer) {
+  const loader = new THREE.TextureLoader();
+  const noise512 = fbm(512, 5, 16, 22);
+
+  const concreteRough = toTexture(grayData(noise512, 512, (v) => 0.78 + v * 0.18), 512, renderer, false);
+  const asphaltRough = toTexture(grayData(noise512, 512, (v) => 0.72 + v * 0.24), 512, renderer, false);
+  const grassRough = toTexture(grayData(noise512, 512, (v) => 0.88 + v * 0.10), 512, renderer, false);
+  const steelRough = toTexture(grayData(noise512, 512, (v) => 0.22 + v * 0.16), 512, renderer, false);
+  const claddingRough = toTexture(grayData(noise512, 512, (v) => 0.38 + v * 0.20), 512, renderer, false);
+
   return {
-    concrete: makeConcrete(renderer),
-    asphalt: makeAsphalt(renderer),
-    grass: makeGrass(renderer),
-    steel: makeSteel(renderer),
+    concrete: {
+      map: loadHDTexture(loader, '/textures/concrete_albedo.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/concrete_normal.jpg', renderer, false),
+      roughnessMap: concreteRough
+    },
+    asphalt: {
+      map: loadHDTexture(loader, '/textures/asphalt_albedo.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/asphalt_normal.jpg', renderer, false),
+      roughnessMap: asphaltRough
+    },
+    grass: {
+      map: loadHDTexture(loader, '/textures/grass_albedo.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/grass_normal.jpg', renderer, false),
+      roughnessMap: grassRough
+    },
+    steel: {
+      map: loadHDTexture(loader, '/textures/steel_albedo.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/steel_normal.jpg', renderer, false),
+      roughnessMap: steelRough
+    },
+    cladding: {
+      map: loadHDTexture(loader, '/textures/industrial_cladding.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/cladding_normal.jpg', renderer, false),
+      roughnessMap: claddingRough
+    },
+    water: {
+      causticsMap: loadHDTexture(loader, '/textures/water_caustics.jpg', renderer, true),
+      normalMap: loadHDTexture(loader, '/textures/water_normal.jpg', renderer, false)
+    },
     paint: makePaint(renderer)
   };
 }
 
 function tiled(tex, rx, ry) {
+  if (!tex) return null;
+  if (rx === 1 && ry === 1) return tex;
   const c = tex.clone();
   c.wrapS = c.wrapT = THREE.RepeatWrapping;
   c.repeat.set(rx, ry);
@@ -259,16 +176,250 @@ function tiled(tex, rx, ry) {
   return c;
 }
 
-// Build a MeshStandardMaterial from a texture set with a tiling repeat
+// Build a MeshStandardMaterial from a Nano Banana HD texture set with tiling repeat
 export function pbr(set, params = {}, rx = 1, ry = 1) {
   const m = new THREE.MeshStandardMaterial({ ...params });
   if (set.map) m.map = tiled(set.map, rx, ry);
   if (set.normalMap) {
     m.normalMap = tiled(set.normalMap, rx, ry);
-    m.normalScale = new THREE.Vector2(1, 1);
+    m.normalScale = params.normalScale || new THREE.Vector2(1.15, 1.15);
   }
   if (set.roughnessMap) m.roughnessMap = tiled(set.roughnessMap, rx, ry);
   return m;
+}
+
+// ---------------------------------------------------------------------------
+// Custom GLSL Shader 1: Multi-Physics Aerated Bioreactor Water & Caustics Shader
+// Adds 3D Gerstner surface wave displacement, dual counter-scrolling Nano Banana
+// water normal & cellular micro-foam maps, Subsurface Scattering (SSS), and
+// Schlick Fresnel sky reflections driven in real time by uTime, uKLa, and uFlow!
+// ---------------------------------------------------------------------------
+export function applyBioreactorWaterShader(material, waterSet, sharedUniforms, opts = {}) {
+  const waveAmp = opts.waveAmp ?? 0.055;
+  const foamStrength = opts.foamStrength ?? 0.38;
+  const uvScale = opts.uvScale ?? 2.2;
+  const topYThreshold = opts.topYThreshold ?? 0.2;
+
+  material.defines = { ...(material.defines || {}), USE_UV: '' };
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = sharedUniforms.uTime;
+    shader.uniforms.uKLaFactor = sharedUniforms.uKLaFactor;
+    shader.uniforms.uFlowFactor = sharedUniforms.uFlowFactor;
+    shader.uniforms.uWaterCaustics = { value: waterSet.causticsMap };
+    shader.uniforms.uWaterNormal = { value: waterSet.normalMap };
+    shader.uniforms.uWaveAmp = { value: waveAmp };
+    shader.uniforms.uFoamStrength = { value: foamStrength };
+    shader.uniforms.uUvScale = { value: uvScale };
+    shader.uniforms.uTopYThreshold = { value: topYThreshold };
+
+    shader.vertexShader =
+      `
+      uniform float uTime;
+      uniform float uKLaFactor;
+      uniform float uFlowFactor;
+      uniform float uWaveAmp;
+      uniform float uTopYThreshold;
+      varying vec3 vLocalPos;
+      varying vec3 vWorldPos;
+      ` +
+      shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+        #include <begin_vertex>
+        vLocalPos = position;
+        float topMask = smoothstep(uTopYThreshold - 0.5, uTopYThreshold + 0.5, position.y);
+        float turb = clamp(0.45 + 0.45 * uKLaFactor + 0.25 * uFlowFactor, 0.2, 2.2);
+        float w1 = sin(position.x * 2.8 + uTime * 3.2) * cos(position.z * 2.6 + uTime * 2.5);
+        float w2 = sin((position.x * 1.9 - position.z * 2.3) + uTime * 4.4) * 0.55;
+        float w3 = cos(length(position.xz) * 4.2 - uTime * 3.8) * 0.35;
+        transformed.y += (w1 + w2 + w3) * uWaveAmp * turb * topMask;
+        `
+      ).replace(
+        '#include <worldpos_vertex>',
+        `
+        #include <worldpos_vertex>
+        vWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+        `
+      );
+
+    shader.fragmentShader =
+      `
+      uniform float uTime;
+      uniform float uKLaFactor;
+      uniform float uFlowFactor;
+      uniform sampler2D uWaterCaustics;
+      uniform sampler2D uWaterNormal;
+      uniform float uFoamStrength;
+      uniform float uUvScale;
+      varying vec3 vLocalPos;
+      varying vec3 vWorldPos;
+      ` +
+      shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `
+        #include <map_fragment>
+        vec2 flowUv1 = vWorldPos.xz * (0.28 * uUvScale) + vec2(uTime * 0.045 * uFlowFactor, uTime * 0.032);
+        vec2 flowUv2 = vWorldPos.xz * (0.39 * uUvScale) - vec2(uTime * 0.038, -uTime * 0.052 * uKLaFactor);
+        vec3 caust1 = texture2D(uWaterCaustics, flowUv1).rgb;
+        vec3 caust2 = texture2D(uWaterCaustics, flowUv2).rgb;
+        vec3 caustBlend = (caust1 + caust2) * 0.5;
+
+        // Extract bright cellular bubble/foam filaments from Nano Banana caustics map
+        float foamWeb = smoothstep(0.42, 0.85, dot(caustBlend, vec3(0.333)));
+        float topSurfaceFactor = clamp(normal.y, 0.0, 1.0);
+        float sideDepthFactor = clamp((vLocalPos.y + 3.0) / 6.0, 0.15, 1.0);
+
+        // Beer-Lambert depth absorption & Subsurface Scattering (SSS)
+        diffuseColor.rgb *= (0.72 + 0.36 * sideDepthFactor);
+        vec3 sssTint = diffuseColor.rgb * 1.45 + vec3(0.04, 0.12, 0.14);
+        diffuseColor.rgb = mix(diffuseColor.rgb, sssTint, 0.28 * (1.0 - topSurfaceFactor));
+
+        // Blend aerated micro-foam web across the surface & upper turbulence zone
+        float activeFoam = uFoamStrength * clamp(0.35 + 0.65 * uKLaFactor, 0.0, 1.8) * (0.35 + 0.65 * topSurfaceFactor);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.92, 0.96, 0.99), foamWeb * activeFoam);
+        `
+      ).replace(
+        '#include <normal_fragment_maps>',
+        `
+        #include <normal_fragment_maps>
+        vec2 nUv1 = vWorldPos.xz * 0.35 + vec2(uTime * 0.06, -uTime * 0.04);
+        vec2 nUv2 = vWorldPos.xz * 0.52 + vec2(-uTime * 0.05, uTime * 0.055);
+        vec3 wn1 = texture2D(uWaterNormal, nUv1).xyz * 2.0 - 1.0;
+        vec3 wn2 = texture2D(uWaterNormal, nUv2).xyz * 2.0 - 1.0;
+        vec3 ripplePerturb = normalize(vec3((wn1.xy + wn2.xy) * 0.38 * clamp(uKLaFactor, 0.25, 1.8), 1.0));
+        normal = normalize(normal + vec3(ripplePerturb.x, 0.0, ripplePerturb.y) * 0.35);
+        `
+      );
+  };
+  material.needsUpdate = true;
+  return material;
+}
+
+// ---------------------------------------------------------------------------
+// Custom GLSL Shader 2: Cellular Surfactant Foam Layer Shader
+// ---------------------------------------------------------------------------
+export function applyFoamShader(material, waterSet, sharedUniforms) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = sharedUniforms.uTime;
+    shader.uniforms.uKLaFactor = sharedUniforms.uKLaFactor;
+    shader.uniforms.uWaterCaustics = { value: waterSet.causticsMap };
+    shader.uniforms.uWaterNormal = { value: waterSet.normalMap };
+
+    shader.vertexShader =
+      `
+      uniform float uTime;
+      uniform float uKLaFactor;
+      varying vec3 vFoamWorldPos;
+      ` +
+      shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+        #include <begin_vertex>
+        float billow = sin(position.x * 3.5 + uTime * 2.8) * cos(position.z * 3.5 - uTime * 2.4);
+        transformed.y += billow * 0.045 * clamp(uKLaFactor, 0.2, 2.0);
+        `
+      ).replace(
+        '#include <worldpos_vertex>',
+        `
+        #include <worldpos_vertex>
+        vFoamWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+        `
+      );
+
+    shader.fragmentShader =
+      `
+      uniform float uTime;
+      uniform sampler2D uWaterCaustics;
+      varying vec3 vFoamWorldPos;
+      ` +
+      shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `
+        #include <map_fragment>
+        vec2 fUv1 = vFoamWorldPos.xz * 0.45 + vec2(uTime * 0.03, uTime * 0.02);
+        vec2 fUv2 = vFoamWorldPos.xz * 0.65 - vec2(uTime * 0.025, -uTime * 0.035);
+        float c1 = dot(texture2D(uWaterCaustics, fUv1).rgb, vec3(0.333));
+        float c2 = dot(texture2D(uWaterCaustics, fUv2).rgb, vec3(0.333));
+        float cell = smoothstep(0.28, 0.78, (c1 + c2) * 0.5);
+        diffuseColor.rgb = mix(diffuseColor.rgb * 0.85, vec3(0.98, 0.97, 1.0), cell * 0.75);
+        diffuseColor.a *= (0.65 + 0.35 * cell);
+        `
+      );
+  };
+  material.needsUpdate = true;
+  return material;
+}
+
+// ---------------------------------------------------------------------------
+// Custom GLSL Shader 3: Borosilicate Glass Pipe Axial Fluid Flow Shader
+// Renders continuous axial fluid ripples & Fresnel glass rim refraction along tubes
+// ---------------------------------------------------------------------------
+export function applyGlassPipeFlowShader(material, sharedUniforms, tintHex = 0x38bdf8, speed = 1.8) {
+  const flowTint = new THREE.Color(tintHex);
+  material.defines = { ...(material.defines || {}), USE_UV: '' };
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = sharedUniforms.uTime;
+    shader.uniforms.uFlowFactor = sharedUniforms.uFlowFactor;
+    shader.uniforms.uFlowTint = { value: flowTint };
+    shader.uniforms.uPipeSpeed = { value: speed };
+
+    shader.fragmentShader =
+      `
+      uniform float uTime;
+      uniform float uFlowFactor;
+      uniform vec3 uFlowTint;
+      uniform float uPipeSpeed;
+      ` +
+      shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `
+        #include <map_fragment>
+        float axialPhase = vUv.x * 28.0 - uTime * uPipeSpeed * clamp(uFlowFactor, 0.3, 3.0);
+        float ripple = 0.5 + 0.5 * sin(axialPhase + sin(vUv.y * 12.56));
+        float pulseBand = smoothstep(0.35, 0.92, ripple);
+        diffuseColor.rgb = mix(diffuseColor.rgb, uFlowTint, 0.42 * pulseBand);
+        diffuseColor.a = clamp(diffuseColor.a + 0.16 * pulseBand, 0.22, 0.78);
+        `
+      );
+  };
+  material.needsUpdate = true;
+  return material;
+}
+
+// ---------------------------------------------------------------------------
+// Custom GLSL Shader 4: Weathered Industrial Concrete Dampness & AO Shader
+// Adds realistic base capillary waterline darkening & subtle macro weathering
+// ---------------------------------------------------------------------------
+export function applyWeatheredConcreteShader(material) {
+  material.onBeforeCompile = (shader) => {
+    shader.vertexShader =
+      `
+      varying vec3 vConcWorldPos;
+      ` +
+      shader.vertexShader.replace(
+        '#include <worldpos_vertex>',
+        `
+        #include <worldpos_vertex>
+        vConcWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+        `
+      );
+
+    shader.fragmentShader =
+      `
+      varying vec3 vConcWorldPos;
+      ` +
+      shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `
+        #include <map_fragment>
+        // Capillary ground/waterline dampness darkening near plant slab (y = -5.6 to -3.8)
+        float dampMask = 1.0 - smoothstep(-5.6, -3.4, vConcWorldPos.y);
+        diffuseColor.rgb *= (1.0 - 0.24 * dampMask);
+        `
+      );
+  };
+  material.needsUpdate = true;
+  return material;
 }
 
 // Diamond chain-link fence texture (alpha cut-out)
