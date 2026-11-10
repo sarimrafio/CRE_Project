@@ -24,11 +24,11 @@ import TransientPlot from './TransientPlot';
 import CREExperimentsPanel from './CREExperimentsPanel';
 
 export const GROUP_MEMBERS = [
-  { id: 1, name: 'Sarim Sadman Rafio', focus: 'Welcome, ETP Architecture & 3D Digital Twin (Slides 1–2)' },
-  { id: 2, name: 'Kazi Farhan Hasan', focus: 'Dual Monod-Haldane Kinetics & Arrhenius Coupling (Slide 3)' },
-  { id: 3, name: 'Md. Zinnuraine', focus: 'Levenspiel Sizing & 1D PFR Axial DO Profiles (Slides 4–5)' },
-  { id: 4, name: 'Azizia Binta Sayeed', focus: 'Fogler RTD E(θ), Dye Shock & 25-Day Startup ODEs (Slide 6)' },
-  { id: 5, name: 'Sabikun Nahar Anika', focus: 'TEA/LCA Carbon Parity, Final Verdict & Closing Q&A (Slides 7–9)' }
+  { id: 1, name: 'Sarim Sadman Rafio' },
+  { id: 2, name: 'Kazi Farhan Hasan' },
+  { id: 3, name: 'Md. Zinnuraine' },
+  { id: 4, name: 'Azizia Binta Sayeed' },
+  { id: 5, name: 'Sabikun Nahar Anika' }
 ];
 
 export default function PresentationGuide({
@@ -678,36 +678,30 @@ export default function PresentationGuide({
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-celadon flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-ochre" />
-                Presented By Our 5 Group Members
+                Presented By Group Members (5)
               </h4>
               <span className="text-[11px] font-mono text-putty/70">
-                Click any member to jump to their slides
+                Chemical Reaction Engineering Research Team
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {GROUP_MEMBERS.map((member, idx) => {
-                const targetSlideMap = [1, 2, 3, 5, 6];
-                return (
-                  <div
-                    key={member.id}
-                    onClick={() => setStep(targetSlideMap[idx] ?? 1)}
-                    className={`cursor-pointer group bg-sumi hover:bg-putty/10 border border-putty/20 hover:border-ochre/50 rounded-xl p-3 flex items-center gap-3 transition-all ${
-                      idx === 4 ? 'sm:col-span-2' : ''
-                    }`}
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-terracotta/20 border border-terracotta/40 text-ochre font-mono font-extrabold text-sm flex items-center justify-center shrink-0 group-hover:bg-terracotta group-hover:text-linen transition-all">
-                      {member.id}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-extrabold text-linen group-hover:text-ochre transition-colors truncate">
-                        {member.id}. {member.name}
-                      </div>
-                      <div className="text-[11px] text-putty/75 truncate">{member.focus}</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-putty/40 group-hover:text-ochre shrink-0" />
+              {GROUP_MEMBERS.map((member, idx) => (
+                <div
+                  key={member.id}
+                  className={`bg-sumi border border-putty/20 rounded-xl p-3 flex items-center gap-3 ${
+                    idx === 4 ? 'sm:col-span-2' : ''
+                  }`}
+                >
+                  <div className="w-9 h-9 rounded-xl bg-terracotta/20 border border-terracotta/40 text-ochre font-mono font-extrabold text-sm flex items-center justify-center shrink-0">
+                    {member.id}
                   </div>
-                );
-              })}
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-extrabold text-linen truncate">
+                      {member.id}. {member.name}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -1406,7 +1400,7 @@ export default function PresentationGuide({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-ochre flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-celadon" />
-                  Research &amp; Engineering Defense Team (5 Group Members)
+                  Presented By Group Members (5)
                 </span>
                 <span className="text-[11px] font-mono text-celadon">
                   Ready for Examiner Q&amp;A
@@ -1427,7 +1421,6 @@ export default function PresentationGuide({
                       <div className="text-sm font-extrabold text-linen">
                         {member.id}. {member.name}
                       </div>
-                      <div className="text-[11px] text-putty/75 truncate">{member.focus}</div>
                     </div>
                   </div>
                 ))}
@@ -1581,17 +1574,9 @@ export default function PresentationGuide({
           <div className="space-y-3.5">
             {/* Slide Badge & Category */}
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-md bg-terracotta/20 border border-terracotta/40 text-terracotta font-mono text-[11px] font-bold">
-                  {currentSlide.number}
-                </span>
-                {currentSlide.presenter && (
-                  <span className="px-2.5 py-1 rounded-md bg-pine/50 border border-celadon/30 text-celadon font-sans text-[11px] font-semibold flex items-center gap-1">
-                    <Users className="w-3 h-3 text-ochre" />
-                    {currentSlide.presenter}
-                  </span>
-                )}
-              </div>
+              <span className="px-2.5 py-1 rounded-md bg-terracotta/20 border border-terracotta/40 text-terracotta font-mono text-[11px] font-bold">
+                {currentSlide.number}
+              </span>
               <span className="text-[11px] font-mono uppercase tracking-wider text-ochre font-semibold">
                 {currentSlide.category}
               </span>
