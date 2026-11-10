@@ -13,13 +13,23 @@ import {
   Zap,
   Award,
   Printer,
-  Download
+  Download,
+  Users,
+  HeartHandshake
 } from 'lucide-react';
 import Bioreactor3D from './Bioreactor3D';
 import LevenspielPlot from './LevenspielPlot';
 import AxialProfilesPlot from './AxialProfilesPlot';
 import TransientPlot from './TransientPlot';
 import CREExperimentsPanel from './CREExperimentsPanel';
+
+export const GROUP_MEMBERS = [
+  { id: 1, name: 'Sarim Sadman Rafio', focus: 'Welcome, ETP Architecture & 3D Digital Twin (Slides 1–2)' },
+  { id: 2, name: 'Kazi Farhan Hasan', focus: 'Dual Monod-Haldane Kinetics & Arrhenius Coupling (Slide 3)' },
+  { id: 3, name: 'Md. Zinnuraine', focus: 'Levenspiel Sizing & 1D PFR Axial DO Profiles (Slides 4–5)' },
+  { id: 4, name: 'Azizia Binta Sayeed', focus: 'Fogler RTD E(θ), Dye Shock & 25-Day Startup ODEs (Slide 6)' },
+  { id: 5, name: 'Sabikun Nahar Anika', focus: 'TEA/LCA Carbon Parity, Final Verdict & Closing Q&A (Slides 7–9)' }
+];
 
 export default function PresentationGuide({
   isOpen = false,
@@ -63,8 +73,9 @@ export default function PresentationGuide({
   const [showNotes, setShowNotes] = useState(true);
   const [slide5Tab, setSlide5Tab] = useState('rtd'); // 'rtd' | 'startup'
   const [slide7View, setSlide7View] = useState('matrix'); // 'matrix' | '3d' | 'levenspiel' | 'profiles'
+  const [slide9View, setSlide9View] = useState('thankyou'); // 'thankyou' | '3d' | 'levenspiel' | 'profiles'
 
-  const totalSlides = 7;
+  const totalSlides = 9;
 
   // Keyboard navigation when open or embedded
   useEffect(() => {
@@ -99,8 +110,77 @@ export default function PresentationGuide({
 
   const slides = [
     {
-      number: 'SLIDE 01 / 07',
+      number: 'SLIDE 01 / 09',
+      category: 'WELCOME & RESEARCH GROUP INTRODUCTION',
+      presenter: '1. Sarim Sadman Rafio (Opening & Team Intro)',
+      title: 'Welcome Everyone: Comparative Design of CSTR & PFR Bioreactors for Textile Dyeing Effluent',
+      subtitle: 'Chemical Reaction Engineering (CRE) Digital Twin, Multi-Physics Simulation & Bangladesh DoE Compliance',
+      equation: (
+        <>
+          Group Members: 1. Sarim Sadman Rafio • 2. Kazi Farhan Hasan • 3. Md. Zinnuraine • 4. Azizia Binta Sayeed • 5. Sabikun Nahar Anika
+        </>
+      ),
+      preset: 'baseline',
+      presetLabel: 'Initialize Design Baseline (32°C)',
+      kpis: [
+        {
+          label: 'Research Team',
+          value: '5 Group Members',
+          color: 'text-ochre'
+        },
+        {
+          label: (
+            <>
+              Design Capacity (Q<sub>0</sub>)
+            </>
+          ),
+          value: (
+            <>
+              {Q} m<sup>3</sup>/d
+            </>
+          ),
+          color: 'text-linen'
+        },
+        {
+          label: (
+            <>
+              bCOD Reduction (S<sub>0</sub>➔S<sub>e</sub>)
+            </>
+          ),
+          value: `${S0} ➔ ${targetSe} mg/L`,
+          color: 'text-celadon'
+        },
+        {
+          label: (
+            <>
+              Volume Ratio (V<sub>C</sub>/V<sub>P</sub>)
+            </>
+          ),
+          value: `${volumeRatio.toFixed(2)}×`,
+          color: 'text-terracotta'
+        }
+      ],
+      bullets: [
+        <>
+          <strong>Warm Welcome to Honorable Faculty &amp; Audience:</strong> Welcome to our Chemical Reaction Engineering (CRE) design defense on biological treatment of high-strength industrial textile dyeing wastewater in Bangladesh.
+        </>,
+        <>
+          <strong>Presented by Our 5-Member Engineering Team:</strong> (1) <strong>Sarim Sadman Rafio</strong>, (2) <strong>Kazi Farhan Hasan</strong>, (3) <strong>Md. Zinnuraine</strong>, (4) <strong>Azizia Binta Sayeed</strong>, and (5) <strong>Sabikun Nahar Anika</strong>.
+        </>,
+        <>
+          <strong>Live Interactive Digital Twin Presentation:</strong> Every slide in this deck is directly wired to a real-time 60 FPS Runge-Kutta (RK4) multi-physics solver, interactive 3D ETP plant, Levenspiel sizing integrator, and TEA/LCA scorecard.
+        </>
+      ],
+      speakerNotes: (
+        <>
+          Greet the examination panel and audience warmly, introduce all 5 group members listed on the right-hand showcase card, and briefly state our core question: Why does a 4-Pass PFR require 3.09× less liquid volume than a CSTR at 90% bCOD removal, yet demand a hybrid staged architecture for industrial resilience?
+        </>
+      )
+    },
+    {
+      number: 'SLIDE 02 / 09',
       category: 'INDUSTRIAL PROBLEM & ETP ARCHITECTURE',
+      presenter: '1. Sarim Sadman Rafio',
       title: 'Biological Treatment of Textile Dyeing Effluent: CSTR vs. PFR Digital Twin',
       subtitle: 'Gazipur-Narayanganj Wet-Processing Corridor | Bangladesh DoE ECR Schedule-10 Compliance',
       equation: (
@@ -157,13 +237,14 @@ export default function PresentationGuide({
       ],
       speakerNotes: (
         <>
-          Open the presentation by rotating the live 3D Digital Twin on the right. Point out the dark indigo raw intake pipe (INF-001) on the left and follow the transparent glass process pipes with internal fluid flow all the way to the emerald-clear compliance outfall (OUTFALL-001) on the right.
+          Rotate the live 3D Digital Twin on the right. Point out the dark indigo raw intake pipe (INF-001) on the left and follow the transparent glass process pipes with internal fluid flow all the way to the emerald-clear compliance outfall (OUTFALL-001) on the right.
         </>
       )
     },
     {
-      number: 'SLIDE 02 / 07',
+      number: 'SLIDE 03 / 09',
       category: 'BIOCHEMICAL REACTION KINETICS',
+      presenter: '2. Kazi Farhan Hasan',
       title: 'Dual-Limitation Monod-Haldane Kinetics & Arrhenius Thermal Coupling',
       subtitle: 'Simultaneous Carbon Substrate (S), Dissolved Oxygen (DO), and Toxic Azo-Dye Inhibition Modeling',
       equation: (
@@ -233,8 +314,9 @@ export default function PresentationGuide({
       )
     },
     {
-      number: 'SLIDE 03 / 07',
+      number: 'SLIDE 04 / 09',
       category: 'STEADY-STATE REACTOR SIZING (FOGLER CH. 2)',
+      presenter: '3. Md. Zinnuraine',
       title: 'Levenspiel Reciprocal-Rate Sizing: Why PFR Saves 68% Volume at 90% Removal',
       subtitle: (
         <>
@@ -316,8 +398,9 @@ export default function PresentationGuide({
       )
     },
     {
-      number: 'SLIDE 04 / 07',
+      number: 'SLIDE 05 / 09',
       category: '1D SPATIAL PFR ODEs & OXYGEN MASS TRANSFER',
+      presenter: '3. Md. Zinnuraine',
       title: 'Coupled Axial PFR Profiles & The Entrance Dissolved Oxygen Sag Trap',
       subtitle: '4th-Order Runge-Kutta Integration Along Dimensionless Channel Length (z/L ∈ [0, 1])',
       equation: (
@@ -355,8 +438,9 @@ export default function PresentationGuide({
       )
     },
     {
-      number: 'SLIDE 05 / 07',
+      number: 'SLIDE 06 / 09',
       category: 'NON-IDEAL FLOW, RTD E(θ), SHOCK LOADS & DYNAMICS',
+      presenter: '4. Azizia Binta Sayeed',
       title: 'Residence Time Distribution, Toxic Vat Dump Buffering & 25-Day Startup',
       subtitle: 'Fogler E(θ) Dispersion Modeling, 2-Hour Azo-Dye Shock Wave, and Dynamic Biomass Washout',
       equation: (
@@ -418,8 +502,9 @@ export default function PresentationGuide({
       )
     },
     {
-      number: 'SLIDE 06 / 07',
+      number: 'SLIDE 07 / 09',
       category: 'TECHNO-ECONOMIC ANALYSIS (TEA) & LIFE CYCLE ASSESSMENT (LCA)',
+      presenter: '5. Sabikun Nahar Anika',
       title: 'Why Smaller Volume ≠ Lower Energy: Civil CAPEX, Blower Power & Carbon Parity',
       subtitle: (
         <>
@@ -477,8 +562,9 @@ export default function PresentationGuide({
       )
     },
     {
-      number: 'SLIDE 07 / 07',
-      category: 'FINAL ENGINEERING RECOMMENDATION & LIVE Q&A DEFENSE',
+      number: 'SLIDE 08 / 09',
+      category: 'FINAL ENGINEERING RECOMMENDATION & MULTI-CRITERIA VERDICT',
+      presenter: '5. Sabikun Nahar Anika',
       title: 'Definitive Engineering Verdict: Hybrid 4-Stage Compartmentalized Basin with Tapered Aeration',
       subtitle: 'Synthesizing Volumetric Efficiency, Shock-Load Resilience, and DO-Sag Prevention for Bangladesh ETPs',
       equation: (
@@ -487,7 +573,7 @@ export default function PresentationGuide({
         </>
       ),
       preset: 'baseline',
-      presetLabel: 'Reset All Parameters for Live Q&A',
+      presetLabel: 'Reset All Parameters for Verdict',
       kpis: [
         { label: 'Volumetric Winner', value: `PFR (${volumeRatio.toFixed(2)}× smaller)`, color: 'text-celadon' },
         { label: 'Shock Resilience Winner', value: 'CSTR (Dilution Buffer)', color: 'text-workwear' },
@@ -507,7 +593,51 @@ export default function PresentationGuide({
       ],
       speakerNotes: (
         <>
-          During Examiner Q&amp;A, use the view switcher at the top right of this slide to jump instantaneously between the Decision Matrix, Live 3D Plant, Levenspiel Plot, or Axial Profiles without ever leaving Slide 7!
+          Walk through the Multi-Criteria CRE Engineering Scorecard on the right (9.12/10 for the 4-Stage Hybrid Cascade vs. 8.25/10 for Single CSTR and 7.15/10 for Uniform PFR), then advance to Slide 9 to thank the panel and open the floor for Q&amp;A.
+        </>
+      )
+    },
+    {
+      number: 'SLIDE 09 / 09',
+      category: 'THANK YOU & LIVE EXAMINER Q&A DEFENSE',
+      presenter: 'All 5 Group Members (Closing & Q&A)',
+      title: 'Thank You Everyone for Your Time & Attention — Questions & Live Simulation Defense',
+      subtitle: 'Interactive CRE Digital Twin Ready for Live Parameter Stress-Testing by the Examination Panel',
+      equation: (
+        <>
+          Thank You from: 1. Sarim Sadman Rafio • 2. Kazi Farhan Hasan • 3. Md. Zinnuraine • 4. Azizia Binta Sayeed • 5. Sabikun Nahar Anika
+        </>
+      ),
+      preset: 'baseline',
+      presetLabel: 'Reset Baseline for Examiner Q&A',
+      kpis: [
+        { label: 'Presentation Status', value: 'Complete (9/9)', color: 'text-celadon' },
+        { label: 'CSTR vs PFR Ratio', value: `${volumeRatio.toFixed(2)}×`, color: 'text-ochre' },
+        {
+          label: 'DoE Compliance',
+          value: (
+            <>
+              S<sub>e</sub> ≤ {targetSe} mg/L
+            </>
+          ),
+          color: 'text-linen'
+        },
+        { label: 'Hybrid Score', value: '9.12 / 10', color: 'text-terracotta' }
+      ],
+      bullets: [
+        <>
+          <strong>Thank You for Listening:</strong> On behalf of all 5 group members—<strong>Sarim Sadman Rafio</strong>, <strong>Kazi Farhan Hasan</strong>, <strong>Md. Zinnuraine</strong>, <strong>Azizia Binta Sayeed</strong>, and <strong>Sabikun Nahar Anika</strong>—we sincerely thank our respected faculty examiners and classmates for your attention.
+        </>,
+        <>
+          <strong>Key Takeaway Summary:</strong> While Levenspiel kinetics gives PFR a {volumeRatio.toFixed(2)}× volumetric edge ({pfrV.toFixed(1)} m<sup>3</sup> vs. {cstrV.toFixed(1)} m<sup>3</sup>), coupling 1D DO mass transfer, RTD dispersion, and TEA/LCA proves that a <strong>4-Stage Hybrid Cascade with Tapered Aeration</strong> is the optimal real-world ETP architecture.
+        </>,
+        <>
+          <strong>Open Floor for Questions:</strong> Use the live Q&amp;A view switcher on the right or drag any parameter slider below to test any hypothetical scenario live in front of the examination board!
+        </>
+      ],
+      speakerNotes: (
+        <>
+          Conclude warmly, thank the professors and audience, and invite questions. Keep this slide on screen during Q&amp;A—you can switch between the Team Sign-Off &amp; Q&amp;A Flashcards, Live 3D Plant, Levenspiel Plot, or Axial DO Profiles with one click!
         </>
       )
     }
@@ -517,7 +647,98 @@ export default function PresentationGuide({
 
   // Helper to render the right-hand interactive visualization for each slide
   const renderSlideVisual = () => {
+    // SLIDE 1 (step === 0): WELCOME & 5 GROUP MEMBERS SHOWCASE + LIVE 3D DIGITAL TWIN PREVIEW
     if (step === 0) {
+      return (
+        <div className="flex flex-col h-full justify-between space-y-3 bg-sumi/90 border border-putty/20 rounded-2xl p-5 shadow-xl">
+          <div className="bg-gradient-to-r from-terracotta/25 via-ochre/15 to-pine/30 border border-ochre/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-ochre/20 border border-ochre/40 text-ochre text-[10px] font-mono font-bold uppercase tracking-wider">
+                <Sparkles className="w-3 h-3" />
+                Chemical Reaction Engineering • Course Design Project
+              </div>
+              <h3 className="text-base sm:text-lg font-extrabold text-linen">
+                Welcome to Our Interactive Digital Twin Presentation
+              </h3>
+              <p className="text-xs text-putty/80">
+                Comparative CSTR vs. PFR Bioreactor Sizing, Multi-Physics ODEs &amp; Techno-Economic Defense
+              </p>
+            </div>
+            <button
+              onClick={() => setStep(1)}
+              className="px-3.5 py-2 rounded-xl bg-terracotta hover:bg-terracotta/90 text-linen text-xs font-bold flex items-center gap-1.5 shadow-lg transition-all"
+            >
+              <span>Start Technical Deck</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* 5 Group Members Showcase Grid */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-celadon flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-ochre" />
+                Presented By Our 5 Group Members
+              </h4>
+              <span className="text-[11px] font-mono text-putty/70">
+                Click any member to jump to their slides
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {GROUP_MEMBERS.map((member, idx) => {
+                const targetSlideMap = [1, 2, 3, 5, 6];
+                return (
+                  <div
+                    key={member.id}
+                    onClick={() => setStep(targetSlideMap[idx] ?? 1)}
+                    className={`cursor-pointer group bg-sumi hover:bg-putty/10 border border-putty/20 hover:border-ochre/50 rounded-xl p-3 flex items-center gap-3 transition-all ${
+                      idx === 4 ? 'sm:col-span-2' : ''
+                    }`}
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-terracotta/20 border border-terracotta/40 text-ochre font-mono font-extrabold text-sm flex items-center justify-center shrink-0 group-hover:bg-terracotta group-hover:text-linen transition-all">
+                      {member.id}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-extrabold text-linen group-hover:text-ochre transition-colors truncate">
+                        {member.id}. {member.name}
+                      </div>
+                      <div className="text-[11px] text-putty/75 truncate">{member.focus}</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-putty/40 group-hover:text-ochre shrink-0" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Live 3D ETP Plant Mini-Preview */}
+          <div className="flex-1 min-h-[210px] rounded-xl overflow-hidden border border-putty/25 relative">
+            <Bioreactor3D
+              Q={Q}
+              S0={S0}
+              targetSe={targetSe}
+              thetaC={thetaC}
+              kLa={kLa}
+              recycleRatio={recycleRatio}
+              cstrResult={cstrResult}
+              pfrResult={pfrResult}
+              removalPct={removalPct}
+              activeMode="both"
+              aerationMode={aerationMode}
+              onToggleAerationMode={() => setAerationMode && setAerationMode(aerationMode === 'uniform' ? 'tapered' : 'uniform')}
+              blowerTrip={blowerTrip}
+              onToggleBlowerTrip={() => setBlowerTrip && setBlowerTrip(!blowerTrip)}
+              probeZ={probeZ}
+              onChangeProbeZ={setProbeZ}
+              temperature={temperature}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // SLIDE 2 (step === 1): INDUSTRIAL PROBLEM & 3D ETP ARCHITECTURE
+    if (step === 1) {
       return (
         <div className="flex flex-col h-full space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-3.5 py-2">
@@ -554,7 +775,8 @@ export default function PresentationGuide({
       );
     }
 
-    if (step === 1) {
+    // SLIDE 3 (step === 2): BIOCHEMICAL REACTION KINETICS
+    if (step === 2) {
       // Slide 2: Interactive Dual-Limitation Monod & Haldane Inhibition Curve SVG + Arrhenius Table
       const w = 580;
       const h = 270;
@@ -706,7 +928,8 @@ export default function PresentationGuide({
       );
     }
 
-    if (step === 2) {
+    // SLIDE 4 (step === 3): LEVENSPIEL RECIPROCAL-RATE SIZING
+    if (step === 3) {
       return (
         <div className="flex flex-col h-full justify-between space-y-3">
           <LevenspielPlot
@@ -721,7 +944,8 @@ export default function PresentationGuide({
       );
     }
 
-    if (step === 3) {
+    // SLIDE 5 (step === 4): 1D SPATIAL PFR ODEs & OXYGEN MASS TRANSFER
+    if (step === 4) {
       return (
         <div className="flex flex-col h-full justify-between space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-4 py-2.5">
@@ -775,11 +999,12 @@ export default function PresentationGuide({
       );
     }
 
-    if (step === 4) {
+    // SLIDE 6 (step === 5): NON-IDEAL FLOW, RTD E(θ), SHOCK LOADS & DYNAMICS
+    if (step === 5) {
       return (
         <div className="flex flex-col h-full space-y-3">
           <div className="flex items-center justify-between bg-sumi/90 border border-putty/20 rounded-xl px-4 py-2">
-            <span className="text-xs font-bold text-ochre">Slide 5 Interactive Graphic Mode:</span>
+            <span className="text-xs font-bold text-ochre">Slide 6 Interactive Graphic Mode:</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setSlide5Tab('rtd')}
@@ -812,7 +1037,8 @@ export default function PresentationGuide({
       );
     }
 
-    if (step === 5) {
+    // SLIDE 7 (step === 6): TECHNO-ECONOMIC ANALYSIS (TEA) & LIFE CYCLE ASSESSMENT (LCA)
+    if (step === 6) {
       const aerKwh = sustCSTR?.aeration_kwh_day ?? 488.3;
       const mixKwh = sustCSTR?.mixing_kwh_day ?? 90.0;
       const pumpKwh = sustCSTR?.pumping_kwh_day ?? 63.7;
@@ -933,23 +1159,180 @@ export default function PresentationGuide({
       );
     }
 
-    // Slide 7: Engineering Verdict Matrix + Live Q&A Switcher
+    // SLIDE 8 (step === 7): FINAL ENGINEERING RECOMMENDATION & MULTI-CRITERIA VERDICT
+    if (step === 7) {
+      return (
+        <div className="flex flex-col h-full space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-3.5 py-2">
+            <span className="text-xs font-bold text-ochre">Slide 8 Decision Matrix &amp; Visual Switcher:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'matrix', label: 'Decision Matrix & Q&A' },
+                { id: '3d', label: 'Live 3D Plant' },
+                { id: 'levenspiel', label: 'Levenspiel Plot' },
+                { id: 'profiles', label: 'Axial DO Profiles' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSlide7View(tab.id)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    slide7View === tab.id
+                      ? 'bg-terracotta text-linen shadow'
+                      : 'bg-sumi text-putty border border-putty/20 hover:text-linen'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {slide7View === '3d' && (
+            <div className="flex-1 min-h-[360px] rounded-2xl overflow-hidden border border-putty/25">
+              <Bioreactor3D
+                Q={Q}
+                S0={S0}
+                targetSe={targetSe}
+                thetaC={thetaC}
+                kLa={kLa}
+                recycleRatio={recycleRatio}
+                cstrResult={cstrResult}
+                pfrResult={pfrResult}
+                removalPct={removalPct}
+                activeMode="both"
+                aerationMode={aerationMode}
+                onToggleAerationMode={() => setAerationMode && setAerationMode(aerationMode === 'uniform' ? 'tapered' : 'uniform')}
+                blowerTrip={blowerTrip}
+                onToggleBlowerTrip={() => setBlowerTrip && setBlowerTrip(!blowerTrip)}
+                probeZ={probeZ}
+                onChangeProbeZ={setProbeZ}
+                temperature={temperature}
+              />
+            </div>
+          )}
+
+          {slide7View === 'levenspiel' && (
+            <LevenspielPlot
+              curveData={levenspiel?.curve || []}
+              targetConversion={levenspiel?.targetConversion || 0.9}
+              cstrInvRate={levenspiel?.cstrInvRate || 0.65}
+              cstrVolume={cstrV}
+              pfrVolume={pfrV}
+              volumeRatio={volumeRatio}
+            />
+          )}
+
+          {slide7View === 'profiles' && (
+            <AxialProfilesPlot
+              profiles={pfrResult?.profiles}
+              pfrTauHours={pfrTauHr}
+              probeZ={probeZ}
+              onChangeProbeZ={setProbeZ}
+            />
+          )}
+
+          {slide7View === 'matrix' && (
+            <div className="bg-sumi/90 border border-putty/20 rounded-2xl p-5 shadow-xl space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-linen flex items-center gap-2">
+                  <Award className="w-4 h-4 text-ochre" />
+                  Multi-Criteria CRE Engineering Scorecard &amp; Examiner Q&amp;A Flashcards
+                </h4>
+                <p className="text-xs text-putty/70 mt-0.5">
+                  Quantitative scoring across 5 industrial textile ETP design criteria
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-putty/20 text-putty/70">
+                      <th className="py-2 px-2.5">Design Criterion (Weight)</th>
+                      <th className="py-2 px-2.5 text-terracotta">Single CSTR</th>
+                      <th className="py-2 px-2.5 text-celadon">Uniform PFR</th>
+                      <th className="py-2 px-2.5 text-ochre font-bold">4-Stage Hybrid (Tapered)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-putty/15 font-mono">
+                    <tr>
+                      <td className="py-2 px-2.5 font-sans text-putty">1. Reactor Footprint (25%)</td>
+                      <td className="py-2 px-2.5 text-terracotta">
+                        6.0/10 ({cstrV.toFixed(0)} m<sup>3</sup>)
+                      </td>
+                      <td className="py-2 px-2.5 text-celadon font-bold">
+                        9.8/10 ({pfrV.toFixed(0)} m<sup>3</sup>)
+                      </td>
+                      <td className="py-2 px-2.5 text-ochre font-bold">
+                        9.2/10 (215 m<sup>3</sup>)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2.5 font-sans text-putty">2. Dye Shock Buffering (25%)</td>
+                      <td className="py-2 px-2.5 text-celadon font-bold">9.6/10 (Instant Dilution)</td>
+                      <td className="py-2 px-2.5 text-terracotta">4.5/10 (Plug Breakthrough)</td>
+                      <td className="py-2 px-2.5 text-ochre font-bold">8.8/10 (Lead-Cell Buffer)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2.5 font-sans text-putty">3. DO Profile &amp; SVI Settling (20%)</td>
+                      <td className="py-2 px-2.5 text-celadon font-bold">9.4/10 (DO={cstrDO.toFixed(2)}, SVI=110)</td>
+                      <td className="py-2 px-2.5 text-terracotta">5.2/10 (DO Sag={pfrMinDO.toFixed(2)})</td>
+                      <td className="py-2 px-2.5 text-ochre font-bold">9.5/10 (Tapered Diffusers)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-2.5 font-sans text-putty">4. Civil Concrete CAPEX (15%)</td>
+                      <td className="py-2 px-2.5 text-celadon font-bold">9.0/10 ($129.6k)</td>
+                      <td className="py-2 px-2.5 text-putty">7.8/10 ($141.2k Baffles)</td>
+                      <td className="py-2 px-2.5 text-ochre font-bold">8.7/10 ($132.4k)</td>
+                    </tr>
+                    <tr className="bg-putty/5 font-bold">
+                      <td className="py-2.5 px-2.5 font-sans text-linen">Weighted Overall Score</td>
+                      <td className="py-2.5 px-2.5 text-linen">8.25 / 10</td>
+                      <td className="py-2.5 px-2.5 text-linen">7.15 / 10</td>
+                      <td className="py-2.5 px-2.5 text-ochre text-sm">9.12 / 10 (WINNER)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+                <div className="bg-sumi border border-putty/20 rounded-xl p-3">
+                  <div className="font-bold text-ochre mb-1">
+                    Q1: When does V<sub>CSTR</sub> / V<sub>PFR</sub> approach 1.0?
+                  </div>
+                  <p className="text-putty/80 text-[11px]">
+                    When target effluent S<sub>e</sub> ≫ K<sub>S</sub> (60 mg/L), Monod kinetics S/(K<sub>S</sub> + S) ≈ 1.0 becomes apparent zero-order. Click Slide 4 &amp; set S<sub>e</sub> = 300 mg/L to show the ratio drop to 1.59×!
+                  </p>
+                </div>
+                <div className="bg-sumi border border-putty/20 rounded-xl p-3">
+                  <div className="font-bold text-celadon mb-1">Q2: How do we prevent PFR Pass-1 DO Sag?</div>
+                  <p className="text-putty/80 text-[11px]">
+                    Redistribute the same total air supply using Tapered Aeration (1.65× k<sub>L</sub>a at inlet, 0.45× at exit) so oxygen transfer matches the exponential substrate uptake profile.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // SLIDE 9 (step === 8): THANK YOU EVERYONE & 5 GROUP MEMBERS CLOSING + EXAMINER Q&A SWITCHER
     return (
       <div className="flex flex-col h-full space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 bg-sumi/90 border border-putty/20 rounded-xl px-3.5 py-2">
-          <span className="text-xs font-bold text-ochre">Live Defense Q&amp;A Visual Switcher:</span>
+          <span className="text-xs font-bold text-ochre">Closing &amp; Examiner Q&amp;A Live Switcher:</span>
           <div className="flex flex-wrap gap-1.5">
             {[
-              { id: 'matrix', label: 'Decision Matrix & Q&A' },
+              { id: 'thankyou', label: 'Thank You & Team Roster' },
               { id: '3d', label: 'Live 3D Plant' },
               { id: 'levenspiel', label: 'Levenspiel Plot' },
               { id: 'profiles', label: 'Axial DO Profiles' }
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setSlide7View(tab.id)}
+                onClick={() => setSlide9View(tab.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  slide7View === tab.id
+                  slide9View === tab.id
                     ? 'bg-terracotta text-linen shadow'
                     : 'bg-sumi text-putty border border-putty/20 hover:text-linen'
                 }`}
@@ -960,7 +1343,7 @@ export default function PresentationGuide({
           </div>
         </div>
 
-        {slide7View === '3d' && (
+        {slide9View === '3d' && (
           <div className="flex-1 min-h-[360px] rounded-2xl overflow-hidden border border-putty/25">
             <Bioreactor3D
               Q={Q}
@@ -984,7 +1367,7 @@ export default function PresentationGuide({
           </div>
         )}
 
-        {slide7View === 'levenspiel' && (
+        {slide9View === 'levenspiel' && (
           <LevenspielPlot
             curveData={levenspiel?.curve || []}
             targetConversion={levenspiel?.targetConversion || 0.9}
@@ -995,7 +1378,7 @@ export default function PresentationGuide({
           />
         )}
 
-        {slide7View === 'profiles' && (
+        {slide9View === 'profiles' && (
           <AxialProfilesPlot
             profiles={pfrResult?.profiles}
             pfrTauHours={pfrTauHr}
@@ -1004,83 +1387,76 @@ export default function PresentationGuide({
           />
         )}
 
-        {slide7View === 'matrix' && (
+        {slide9View === 'thankyou' && (
           <div className="bg-sumi/90 border border-putty/20 rounded-2xl p-5 shadow-xl space-y-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h4 className="text-sm font-bold text-linen flex items-center gap-2">
-                <Award className="w-4 h-4 text-ochre" />
-                Multi-Criteria CRE Engineering Scorecard &amp; Examiner Q&amp;A Flashcards
-              </h4>
-              <p className="text-xs text-putty/70 mt-0.5">
-                Quantitative scoring across 5 industrial textile ETP design criteria
+            <div className="bg-gradient-to-br from-pine/40 via-sumi to-terracotta/25 border border-celadon/40 rounded-2xl p-5 text-center space-y-2 shadow-inner">
+              <div className="w-12 h-12 rounded-2xl bg-terracotta/20 border border-terracotta/40 text-ochre flex items-center justify-center mx-auto shadow">
+                <HeartHandshake className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-linen tracking-tight">
+                Thank You Everyone for Your Time &amp; Attention!
+              </h3>
+              <p className="text-xs sm:text-sm text-putty/85 max-w-xl mx-auto">
+                We welcome your questions, critiques, and live parameter stress-testing on our CSTR vs. PFR Textile Effluent Bioreactor Digital Twin.
               </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-putty/20 text-putty/70">
-                    <th className="py-2 px-2.5">Design Criterion (Weight)</th>
-                    <th className="py-2 px-2.5 text-terracotta">Single CSTR</th>
-                    <th className="py-2 px-2.5 text-celadon">Uniform PFR</th>
-                    <th className="py-2 px-2.5 text-ochre font-bold">4-Stage Hybrid (Tapered)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-putty/15 font-mono">
-                  <tr>
-                    <td className="py-2 px-2.5 font-sans text-putty">1. Reactor Footprint (25%)</td>
-                    <td className="py-2 px-2.5 text-terracotta">
-                      6.0/10 ({cstrV.toFixed(0)} m<sup>3</sup>)
-                    </td>
-                    <td className="py-2 px-2.5 text-celadon font-bold">
-                      9.8/10 ({pfrV.toFixed(0)} m<sup>3</sup>)
-                    </td>
-                    <td className="py-2 px-2.5 text-ochre font-bold">
-                      9.2/10 (215 m<sup>3</sup>)
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 px-2.5 font-sans text-putty">2. Dye Shock Buffering (25%)</td>
-                    <td className="py-2 px-2.5 text-celadon font-bold">9.6/10 (Instant Dilution)</td>
-                    <td className="py-2 px-2.5 text-terracotta">4.5/10 (Plug Breakthrough)</td>
-                    <td className="py-2 px-2.5 text-ochre font-bold">8.8/10 (Lead-Cell Buffer)</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 px-2.5 font-sans text-putty">3. DO Profile &amp; SVI Settling (20%)</td>
-                    <td className="py-2 px-2.5 text-celadon font-bold">9.4/10 (DO={cstrDO.toFixed(2)}, SVI=110)</td>
-                    <td className="py-2 px-2.5 text-terracotta">5.2/10 (DO Sag={pfrMinDO.toFixed(2)})</td>
-                    <td className="py-2 px-2.5 text-ochre font-bold">9.5/10 (Tapered Diffusers)</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 px-2.5 font-sans text-putty">4. Civil Concrete CAPEX (15%)</td>
-                    <td className="py-2 px-2.5 text-celadon font-bold">9.0/10 ($129.6k)</td>
-                    <td className="py-2 px-2.5 text-putty">7.8/10 ($141.2k Baffles)</td>
-                    <td className="py-2 px-2.5 text-ochre font-bold">8.7/10 ($132.4k)</td>
-                  </tr>
-                  <tr className="bg-putty/5 font-bold">
-                    <td className="py-2.5 px-2.5 font-sans text-linen">Weighted Overall Score</td>
-                    <td className="py-2.5 px-2.5 text-linen">8.25 / 10</td>
-                    <td className="py-2.5 px-2.5 text-linen">7.15 / 10</td>
-                    <td className="py-2.5 px-2.5 text-ochre text-sm">9.12 / 10 (WINNER)</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* 5 Group Members Sign-Off Roster */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-ochre flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-celadon" />
+                  Research &amp; Engineering Defense Team (5 Group Members)
+                </span>
+                <span className="text-[11px] font-mono text-celadon">
+                  Ready for Examiner Q&amp;A
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {GROUP_MEMBERS.map((member, idx) => (
+                  <div
+                    key={member.id}
+                    className={`bg-sumi border border-putty/20 rounded-xl p-3 flex items-center gap-3 ${
+                      idx === 4 ? 'sm:col-span-2' : ''
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-pine/70 border border-celadon/40 text-celadon font-mono font-extrabold text-xs flex items-center justify-center shrink-0">
+                      0{member.id}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-extrabold text-linen">
+                        {member.id}. {member.name}
+                      </div>
+                      <div className="text-[11px] text-putty/75 truncate">{member.focus}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
-              <div className="bg-sumi border border-putty/20 rounded-xl p-3">
-                <div className="font-bold text-ochre mb-1">
-                  Q1: When does V<sub>CSTR</sub> / V<sub>PFR</sub> approach 1.0?
-                </div>
-                <p className="text-putty/80 text-[11px]">
-                  When target effluent S<sub>e</sub> ≫ K<sub>S</sub> (60 mg/L), Monod kinetics S/(K<sub>S</sub> + S) ≈ 1.0 becomes apparent zero-order. Click Slide 3 &amp; set S<sub>e</sub> = 300 mg/L to show the ratio drop to 1.59×!
-                </p>
-              </div>
-              <div className="bg-sumi border border-putty/20 rounded-xl p-3">
-                <div className="font-bold text-celadon mb-1">Q2: How do we prevent PFR Pass-1 DO Sag?</div>
-                <p className="text-putty/80 text-[11px]">
-                  Redistribute the same total air supply using Tapered Aeration (1.65× k<sub>L</sub>a at inlet, 0.45× at exit) so oxygen transfer matches the exponential substrate uptake profile.
-                </p>
+            {/* Quick Jump Buttons for Live Examiner Questions */}
+            <div className="bg-putty/5 border border-putty/20 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-linen">
+                Jump Directly to Any Technical Slide for Defense:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { slideIdx: 1, label: 'S2: 3D ETP' },
+                  { slideIdx: 2, label: 'S3: Kinetics' },
+                  { slideIdx: 3, label: 'S4: Levenspiel' },
+                  { slideIdx: 4, label: 'S5: DO Sag' },
+                  { slideIdx: 5, label: 'S6: RTD & Shock' },
+                  { slideIdx: 6, label: 'S7: TEA/LCA' },
+                  { slideIdx: 7, label: 'S8: Verdict' }
+                ].map((btn) => (
+                  <button
+                    key={btn.slideIdx}
+                    onClick={() => setStep(btn.slideIdx)}
+                    className="px-2.5 py-1 rounded-lg bg-sumi hover:bg-terracotta text-putty hover:text-linen border border-putty/25 text-[11px] font-mono font-bold transition-all"
+                  >
+                    {btn.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -1107,7 +1483,7 @@ export default function PresentationGuide({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-extrabold uppercase tracking-wider text-ochre">
-                7-SLIDE POWERPOINT DEFENSE DECK
+                9-SLIDE POWERPOINT DEFENSE DECK
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-pine/60 text-celadon border border-celadon/30">
                 Live Simulation Synced
@@ -1120,7 +1496,7 @@ export default function PresentationGuide({
           </div>
         </div>
 
-        {/* Slide Number Pills (1..7) */}
+        {/* Slide Number Pills (1..9) */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {slides.map((s, idx) => (
             <button
@@ -1154,9 +1530,9 @@ export default function PresentationGuide({
 
           <a
             href="/presenter_7_slide_script_and_qa_guide.pdf"
-            download="Textile_Bioreactor_7_Slide_Defense_Guide.pdf"
+            download="Textile_Bioreactor_9_Slide_Defense_Guide.pdf"
             className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-terracotta hover:bg-terracotta/90 text-linen border border-terracotta/40 transition-all flex items-center gap-1.5 shadow"
-            title="Download Complete 14-Page Presenter Script, Theory & Q&A PDF"
+            title="Download Complete Presenter Script, Theory & Q&A PDF"
           >
             <Download className="w-3.5 h-3.5" />
             Download PDF Guide
@@ -1204,10 +1580,18 @@ export default function PresentationGuide({
         <div className="lg:col-span-5 bg-sumi border border-putty/25 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xl">
           <div className="space-y-3.5">
             {/* Slide Badge & Category */}
-            <div className="flex items-center justify-between gap-2">
-              <span className="px-2.5 py-1 rounded-md bg-terracotta/20 border border-terracotta/40 text-terracotta font-mono text-[11px] font-bold">
-                {currentSlide.number}
-              </span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-md bg-terracotta/20 border border-terracotta/40 text-terracotta font-mono text-[11px] font-bold">
+                  {currentSlide.number}
+                </span>
+                {currentSlide.presenter && (
+                  <span className="px-2.5 py-1 rounded-md bg-pine/50 border border-celadon/30 text-celadon font-sans text-[11px] font-semibold flex items-center gap-1">
+                    <Users className="w-3 h-3 text-ochre" />
+                    {currentSlide.presenter}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] font-mono uppercase tracking-wider text-ochre font-semibold">
                 {currentSlide.category}
               </span>

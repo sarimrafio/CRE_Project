@@ -294,7 +294,7 @@ export default function App() {
             }`}
           >
             <PlayCircle className="w-4 h-4 text-ochre" />
-            <span>📊 7-Slide PowerPoint Deck</span>
+            <span>📊 9-Slide PowerPoint Deck</span>
           </button>
 
           {/* Fullscreen Presenter Button */}
@@ -649,7 +649,7 @@ export default function App() {
                 }`}
               >
                 <PlayCircle className="w-3.5 h-3.5 text-linen" />
-                <span>📊 7-Slide PowerPoint Deck</span>
+                <span>📊 9-Slide PowerPoint Deck</span>
               </button>
               <button
                 onClick={() => setActiveTab('cre_lab')}
