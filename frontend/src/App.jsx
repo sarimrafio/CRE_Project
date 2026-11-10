@@ -270,11 +270,24 @@ export default function App() {
 
           {/* Presentation Mode Button */}
           <button
-            onClick={() => setIsPresentationOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-workwear hover:bg-workwear/80 text-linen border border-workwear/60 text-xs font-semibold shadow-lg shadow-workwear/25 flex items-center gap-2 transition"
+            onClick={() => setActiveTab('presentation')}
+            className={`px-3.5 py-1.5 rounded-xl border text-xs font-semibold shadow-lg flex items-center gap-2 transition ${
+              activeTab === 'presentation'
+                ? 'bg-terracotta border-terracotta text-linen shadow-terracotta/25'
+                : 'bg-workwear hover:bg-workwear/80 text-linen border-workwear/60 shadow-workwear/25'
+            }`}
           >
             <PlayCircle className="w-4 h-4 text-ochre" />
-            <span>Examiner Presentation Mode</span>
+            <span>📊 7-Slide PowerPoint Deck</span>
+          </button>
+
+          {/* Fullscreen Presenter Button */}
+          <button
+            onClick={() => setIsPresentationOpen(true)}
+            className="px-3 py-1.5 rounded-xl bg-pine/80 hover:bg-pine text-linen border border-celadon/40 text-xs font-semibold flex items-center gap-1.5 transition"
+            title="Launch Fullscreen 16:9 Widescreen Slide Deck"
+          >
+            <span>Fullscreen Slides</span>
           </button>
 
           {/* Export CSV Button */}
@@ -612,6 +625,17 @@ export default function App() {
                 🏭 3D Process Twin (25 Features)
               </button>
               <button
+                onClick={() => setActiveTab('presentation')}
+                className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
+                  activeTab === 'presentation'
+                    ? 'bg-terracotta text-linen font-bold shadow-md shadow-terracotta/25'
+                    : 'text-ochre hover:text-linen'
+                }`}
+              >
+                <PlayCircle className="w-3.5 h-3.5 text-linen" />
+                <span>📊 7-Slide PowerPoint Deck</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('cre_lab')}
                 className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
                   activeTab === 'cre_lab' ? 'bg-fig text-linen font-bold shadow-md shadow-fig/25' : 'text-putty/70 hover:text-linen'
@@ -692,6 +716,44 @@ export default function App() {
               </div>
             )}
           </div>
+
+          {activeTab === 'presentation' && (
+            <PresentationGuide
+              isOpen={true}
+              mode="embedded"
+              onClose={() => setActiveTab('3d')}
+              onApplyPreset={applyPreset}
+              Q={Q}
+              setQ={setQ}
+              S0={S0}
+              setS0={setS0}
+              targetSe={targetSe}
+              setTargetSe={setTargetSe}
+              thetaC={thetaC}
+              setThetaC={setThetaC}
+              kLa={kLa}
+              setKLa={setKLa}
+              temperature={temperature}
+              setTemperature={setTemperature}
+              recycleRatio={recycleRatio}
+              setRecycleRatio={setRecycleRatio}
+              aerationMode={aerationMode}
+              setAerationMode={setAerationMode}
+              blowerTrip={blowerTrip}
+              setBlowerTrip={setBlowerTrip}
+              probeZ={probeZ}
+              setProbeZ={setProbeZ}
+              cstrResult={cstrResult}
+              pfrResult={pfrResult}
+              sustCSTR={sustCSTR}
+              sustPFR={sustPFR}
+              levenspiel={levenspiel}
+              transient={transient}
+              currentKinetics={currentKinetics}
+              volumeRatio={volumeRatio}
+              removalPct={removalPct}
+            />
+          )}
 
           {activeTab === '3d' && (
             <Bioreactor3D
@@ -832,8 +894,38 @@ export default function App() {
 
       <PresentationGuide
         isOpen={isPresentationOpen}
+        mode="modal"
         onClose={() => setIsPresentationOpen(false)}
         onApplyPreset={applyPreset}
+        Q={Q}
+        setQ={setQ}
+        S0={S0}
+        setS0={setS0}
+        targetSe={targetSe}
+        setTargetSe={setTargetSe}
+        thetaC={thetaC}
+        setThetaC={setThetaC}
+        kLa={kLa}
+        setKLa={setKLa}
+        temperature={temperature}
+        setTemperature={setTemperature}
+        recycleRatio={recycleRatio}
+        setRecycleRatio={setRecycleRatio}
+        aerationMode={aerationMode}
+        setAerationMode={setAerationMode}
+        blowerTrip={blowerTrip}
+        setBlowerTrip={setBlowerTrip}
+        probeZ={probeZ}
+        setProbeZ={setProbeZ}
+        cstrResult={cstrResult}
+        pfrResult={pfrResult}
+        sustCSTR={sustCSTR}
+        sustPFR={sustPFR}
+        levenspiel={levenspiel}
+        transient={transient}
+        currentKinetics={currentKinetics}
+        volumeRatio={volumeRatio}
+        removalPct={removalPct}
       />
     </div>
   );
