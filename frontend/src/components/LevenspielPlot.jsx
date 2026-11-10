@@ -45,34 +45,34 @@ export default function LevenspielPlot({
   const cstrRectH = scaleY(0) - scaleY(cstrInvRate);
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md">
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-800/80 gap-3">
+    <div className="bg-sumi/90 border border-putty/20 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+      <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-putty/20 gap-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-cyan-400"></span>
+          <h3 className="text-lg font-bold text-linen flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-ochre"></span>
             Levenspiel Reactor Sizing Analysis
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-putty/80 mt-0.5">
             Fogler CRE Method: Reciprocal Substrate Consumption Rate{' '}
-            <span className="font-mono text-cyan-300">
+            <span className="font-mono text-ochre font-semibold">
               1 / (−r<sub>S</sub>)
             </span>{' '}
             vs. Conversion{' '}
-            <span className="font-mono text-cyan-300">
+            <span className="font-mono text-ochre font-semibold">
               X<sub>S</sub>
             </span>
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded bg-blue-500/30 border border-blue-400" />
-            <span className="text-blue-300">
+            <span className="w-3.5 h-3.5 rounded bg-terracotta/30 border border-terracotta" />
+            <span className="text-terracotta font-semibold">
               CSTR Area (Rectangle): {cstrVolume.toFixed(1)} m<sup>3</sup>
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded bg-emerald-500/30 border border-emerald-400" />
-            <span className="text-emerald-300">
+            <span className="w-3.5 h-3.5 rounded bg-pine/40 border border-pine" />
+            <span className="text-celadon font-semibold">
               PFR Area (Integral): {pfrVolume.toFixed(1)} m<sup>3</sup>
             </span>
           </div>
@@ -100,13 +100,13 @@ export default function LevenspielPlot({
                 y1={margin.top}
                 x2={scaleX(tick)}
                 y2={margin.top + plotHeight}
-                stroke="#1e293b"
+                stroke="#2B2D26"
                 strokeDasharray="4 4"
               />
               <text
                 x={scaleX(tick)}
                 y={margin.top + plotHeight + 20}
-                fill="#64748b"
+                fill="#9EAFA2"
                 fontSize="11"
                 textAnchor="middle"
               >
@@ -115,46 +115,50 @@ export default function LevenspielPlot({
             </g>
           ))}
 
+          {/* CSTR Sizing Rectangle: Terracotta (#C2593F) */}
           <rect
             x={cstrRectX}
             y={cstrRectY}
             width={cstrRectW}
             height={cstrRectH}
-            fill="#3b82f6"
-            fillOpacity="0.18"
-            stroke="#3b82f6"
-            strokeWidth="1.5"
+            fill="#C2593F"
+            fillOpacity="0.22"
+            stroke="#C2593F"
+            strokeWidth="1.8"
             strokeDasharray="4 2"
           />
 
+          {/* PFR Sizing Area Under Curve: Pine Needle (#2B4436) */}
           <path
             d={pfrAreaD}
-            fill="#10b981"
-            fillOpacity="0.25"
-            stroke="#10b981"
+            fill="#2B4436"
+            fillOpacity="0.38"
+            stroke="#2B4436"
             strokeWidth="2"
           />
 
+          {/* Full Levenspiel Curve 1/(-r_S): French Workwear Blue (#2C526A) */}
           <path
             d={fullCurveD}
             fill="none"
-            stroke="#38bdf8"
-            strokeWidth="2.5"
+            stroke="#2C526A"
+            strokeWidth="2.8"
           />
 
+          {/* Target Conversion Indicator: Raw Ochre (#C68A3C) */}
           <line
             x1={scaleX(targetConversion)}
             y1={margin.top}
             x2={scaleX(targetConversion)}
             y2={margin.top + plotHeight}
-            stroke="#f59e0b"
+            stroke="#C68A3C"
             strokeWidth="2"
             strokeDasharray="6 4"
           />
           <text
             x={scaleX(targetConversion)}
             y={margin.top - 8}
-            fill="#f59e0b"
+            fill="#C68A3C"
             fontSize="11"
             fontWeight="bold"
             textAnchor="middle"
@@ -162,19 +166,21 @@ export default function LevenspielPlot({
             Target Exit X<tspan dy="2" fontSize="8">S</tspan><tspan dy="-2"> = {(targetConversion * 100).toFixed(1)}%</tspan>
           </text>
 
+          {/* Plateau Callout Box: Sumi Ink & Warm Putty border */}
           <rect
             x={scaleX(0.12)}
             y={scaleY(cstrInvRate * 0.9)}
-            width="230"
+            width="235"
             height="44"
             rx="6"
-            fill="#0f172a"
-            stroke="#334155"
+            fill="#1C1D1A"
+            stroke="#DDD5C7"
+            strokeOpacity="0.35"
           />
           <text
             x={scaleX(0.13) + 5}
             y={scaleY(cstrInvRate * 0.9) + 16}
-            fill="#94a3b8"
+            fill="#DDD5C7"
             fontSize="10"
             fontWeight="bold"
           >
@@ -183,33 +189,36 @@ export default function LevenspielPlot({
           <text
             x={scaleX(0.13) + 5}
             y={scaleY(cstrInvRate * 0.9) + 32}
-            fill="#38bdf8"
+            fill="#9EAFA2"
             fontSize="10"
           >
             Rate is constant → CSTR area ≈ PFR area
           </text>
 
+          {/* Axes */}
           <line
             x1={margin.left}
             y1={margin.top + plotHeight}
             x2={margin.left + plotWidth}
             y2={margin.top + plotHeight}
-            stroke="#475569"
+            stroke="#DDD5C7"
             strokeWidth="2"
+            strokeOpacity="0.6"
           />
           <line
             x1={margin.left}
             y1={margin.top}
             x2={margin.left}
             y2={margin.top + plotHeight}
-            stroke="#475569"
+            stroke="#DDD5C7"
             strokeWidth="2"
+            strokeOpacity="0.6"
           />
 
           <text
             x={margin.left + plotWidth / 2}
             y={margin.top + plotHeight + 42}
-            fill="#94a3b8"
+            fill="#DDD5C7"
             fontSize="12"
             fontWeight="bold"
             textAnchor="middle"
@@ -221,7 +230,7 @@ export default function LevenspielPlot({
             transform={`rotate(-90 ${margin.left - 48} ${margin.top + plotHeight / 2})`}
             x={margin.left - 48}
             y={margin.top + plotHeight / 2}
-            fill="#94a3b8"
+            fill="#DDD5C7"
             fontSize="12"
             fontWeight="bold"
             textAnchor="middle"
@@ -231,22 +240,22 @@ export default function LevenspielPlot({
         </svg>
       </div>
 
-      <div className="mt-4 p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 leading-relaxed flex items-start gap-3">
-        <div className="p-1.5 rounded-lg bg-cyan-950 border border-cyan-800/60 text-cyan-400 font-bold shrink-0">
+      <div className="mt-4 p-3.5 rounded-xl bg-sumi border border-putty/20 text-xs text-putty leading-relaxed flex items-start gap-3">
+        <div className="p-1.5 rounded-lg bg-terracotta/20 border border-terracotta/50 text-terracotta font-bold shrink-0">
           CRE Insight
         </div>
         <div>
           In classic chemical engineering with 1<sup>st</sup>-order reactions, PFR requires{' '}
-          <span className="text-amber-300 font-semibold">3.91× less volume</span> than CSTR at 90% conversion. However, for industrial textile effluent (
-          <span className="text-cyan-300 font-mono font-semibold">
+          <span className="text-ochre font-semibold">3.91× less volume</span> than CSTR at 90% conversion. However, for industrial textile effluent (
+          <span className="text-linen font-mono font-semibold">
             S<sub>0</sub> = 750 mg/L &gt;&gt; K<sub>S</sub> = 65 mg/L
           </span>
           ), the Monod reaction operates near its asymptotic maximum rate{' '}
-          <span className="font-mono text-cyan-300">
+          <span className="font-mono text-celadon">
             (−r<sub>S</sub> ≈ −r<sub>S,max</sub>)
           </span>{' '}
           across 85% of the conversion range. Therefore, the Levenspiel curve remains flat, collapsing the volume ratio to{' '}
-          <span className="text-emerald-400 font-bold font-mono">{volumeRatio.toFixed(2)}×</span> (near parity)!
+          <span className="text-celadon font-bold font-mono">{volumeRatio.toFixed(2)}×</span> (near parity)!
         </div>
       </div>
     </div>

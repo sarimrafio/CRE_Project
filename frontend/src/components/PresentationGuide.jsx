@@ -24,11 +24,11 @@ const SLIDES = [
     description: (
       <>
         Unlike simple single-reactant kinetics, aerobic biodegradation is limited simultaneously by carbon substrate and dissolved oxygen:{' '}
-        <span className="font-mono text-cyan-300 font-semibold">
+        <span className="font-mono text-ochre font-semibold">
           −r<sub>S</sub> = (μ<sub>max</sub> / Y) · [S / (K<sub>S</sub> + S)] · [DO / (K<sub>O</sub> + DO)] · X<sub>b</sub>
         </span>
         . Calibrated kinetic values:{' '}
-        <span className="font-mono text-slate-200">
+        <span className="font-mono text-linen">
           μ<sub>max</sub> = 3.2 d<sup>−1</sup>, K<sub>S</sub> = 65 mg/L, K<sub>O</sub> = 0.20 mg/L, Y = 0.45 g/g, b = 0.06 d<sup>−1</sup>, k<sub>L</sub>a = 120 d<sup>−1</sup>
         </span>
         .
@@ -149,20 +149,20 @@ export default function PresentationGuide({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-5 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sumi/90 backdrop-blur-md">
+      <div className="relative w-full max-w-3xl bg-sumi border border-putty/25 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-5 border-b border-putty/20 bg-sumi/95 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-md bg-blue-500/20 border border-blue-400/40 text-blue-300 font-bold text-xs uppercase tracking-wider">
+            <span className="px-2.5 py-1 rounded-md bg-terracotta/20 border border-terracotta/40 text-terracotta font-bold text-xs uppercase tracking-wider">
               Examiner Presentation Mode
             </span>
-            <span className="text-slate-400 text-xs font-semibold">
+            <span className="text-putty/70 text-xs font-semibold">
               Slide {slide.step} of {SLIDES.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm font-bold transition"
+            className="w-8 h-8 rounded-full bg-sumi border border-putty/30 text-putty hover:text-linen flex items-center justify-center text-sm font-bold transition"
           >
             ✕
           </button>
@@ -170,26 +170,26 @@ export default function PresentationGuide({
 
         <div className="p-6 overflow-y-auto space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-white leading-tight">
+            <h2 className="text-xl font-bold text-linen leading-tight">
               {slide.title}
             </h2>
-            <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wide mt-1">
+            <p className="text-xs font-semibold text-ochre uppercase tracking-wide mt-1">
               {slide.tagline}
             </p>
           </div>
 
-          <p className="text-sm text-slate-300 leading-relaxed">
+          <p className="text-sm text-putty leading-relaxed">
             {slide.description}
           </p>
 
-          <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <div className="p-4 rounded-xl bg-sumi/95 border border-putty/20 space-y-2">
+            <h4 className="text-xs font-bold text-putty/70 uppercase tracking-wider">
               Key Academic Takeaways for Examiners:
             </h4>
             <ul className="space-y-1.5">
               {slide.keyPoints.map((point, idx) => (
-                <li key={idx} className="text-xs text-slate-300 flex items-start gap-2">
-                  <span className="text-emerald-400 font-bold">✓</span>
+                <li key={idx} className="text-xs text-putty flex items-start gap-2">
+                  <span className="text-celadon font-bold">✓</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -197,10 +197,10 @@ export default function PresentationGuide({
           </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+        <div className="p-4 border-t border-putty/20 bg-sumi/95 flex items-center justify-between">
           <button
             onClick={() => onApplyPreset(slide.preset)}
-            className="px-4 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-semibold transition flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-workwear/50 hover:bg-workwear border border-workwear text-linen text-xs font-semibold transition flex items-center gap-2"
           >
             <span>⚡ Apply This Slide&apos;s Scenario to Twin</span>
           </button>
@@ -209,14 +209,14 @@ export default function PresentationGuide({
             <button
               onClick={handlePrev}
               disabled={currentSlideIdx === 0}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-200 transition"
+              className="px-4 py-2 rounded-xl bg-sumi hover:bg-sumi/80 border border-putty/30 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-putty hover:text-linen transition"
             >
               Previous Slide
             </button>
             <button
               onClick={handleNext}
               disabled={currentSlideIdx === SLIDES.length - 1}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-white transition shadow-lg shadow-blue-500/20"
+              className="px-4 py-2 rounded-xl bg-terracotta hover:bg-terracotta/90 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-linen transition shadow-lg shadow-terracotta/25"
             >
               Next Slide →
             </button>

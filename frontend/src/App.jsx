@@ -183,27 +183,52 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-sumi text-linen flex flex-col selection:bg-terracotta selection:text-linen">
       {/* =========================================================================
-          TOP NAVIGATION BAR
+          TOP NAVIGATION BAR (10 NON-AI NATURAL PIGMENTS PALETTE)
       ========================================================================= */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 border-b border-slate-800 backdrop-blur-md px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-sumi/95 border-b border-putty/20 backdrop-blur-md px-6 py-3 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Activity className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-terracotta via-ochre to-workwear flex items-center justify-center shadow-lg shadow-terracotta/25 border border-putty/20">
+            <Activity className="w-6 h-6 text-linen" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold text-white tracking-tight">
+              <h1 className="text-base font-bold text-linen tracking-tight">
                 Industrial Textile Bioreactor Digital Twin
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-[10px] font-bold text-cyan-300">
+              <span className="px-2 py-0.5 rounded-full bg-celadon/15 border border-celadon/30 text-[10px] font-bold text-celadon">
                 25-Feature 3D Multi-Physics & SCADA
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Comparative CSTR vs. PFR Design • Fogler CRE Methodology • Bangladesh Textile Sector
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-xs text-putty/80">
+                Comparative CSTR vs. PFR Design • Fogler CRE Methodology • Bangladesh Textile Sector
+              </p>
+              {/* 10 Non-AI Natural Mineral Pigments Swatch Strip */}
+              <div className="hidden xl:flex items-center gap-1 pl-2 border-l border-putty/20" title="10 Natural Mineral Pigments Theme (No Neon AI Tropes)">
+                <span className="text-[10px] text-putty/60 font-semibold mr-0.5">Palette:</span>
+                {[
+                  { name: 'Raw Linen', hex: '#F6F3ED' },
+                  { name: 'Sumi Ink', hex: '#1C1D1A' },
+                  { name: 'Terracotta', hex: '#C2593F' },
+                  { name: 'Pine Needle', hex: '#2B4436' },
+                  { name: 'Raw Ochre', hex: '#C68A3C' },
+                  { name: 'Washed Celadon', hex: '#9EAFA2' },
+                  { name: 'French Workwear Blue', hex: '#2C526A' },
+                  { name: 'Dried Fig', hex: '#422933' },
+                  { name: 'Warm Putty', hex: '#DDD5C7' },
+                  { name: 'Tuscan Oxblood', hex: '#6E2B27' }
+                ].map((sw) => (
+                  <span
+                    key={sw.name}
+                    className="w-2.5 h-2.5 rounded-full border border-putty/40 inline-block shadow-sm transition hover:scale-125 cursor-help"
+                    style={{ backgroundColor: sw.hex }}
+                    title={`${sw.name} (${sw.hex})`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -213,18 +238,18 @@ export default function App() {
             onClick={() => setShowApiConfig(!showApiConfig)}
             className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${
               backendStatus === 'connected'
-                ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300'
-                : 'bg-slate-800/90 border-slate-700 text-cyan-300'
+                ? 'bg-pine/80 border-pine text-linen hover:bg-pine'
+                : 'bg-workwear/60 hover:bg-workwear border-workwear text-putty'
             }`}
           >
             {backendStatus === 'connected' ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-celadon" />
                 <span>Render API Connected</span>
               </>
             ) : (
               <>
-                <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+                <Cpu className="w-3.5 h-3.5 text-ochre" />
                 <span>60 FPS Multi-Physics Engine</span>
               </>
             )}
@@ -235,29 +260,29 @@ export default function App() {
             onClick={() => setActiveTab('paper')}
             className={`px-3.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-2 transition ${
               activeTab === 'paper'
-                ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-500/20'
-                : 'bg-emerald-950/70 hover:bg-emerald-900/80 border-emerald-500/40 text-emerald-300'
+                ? 'bg-terracotta border-terracotta text-linen shadow-lg shadow-terracotta/25'
+                : 'bg-fig/70 hover:bg-fig border-fig/80 text-linen'
             }`}
           >
-            <BookOpen className="w-4 h-4" />
+            <BookOpen className="w-4 h-4 text-linen" />
             <span>📄 Research Paper (Edit: 4554)</span>
           </button>
 
           {/* Presentation Mode Button */}
           <button
             onClick={() => setIsPresentationOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition"
+            className="px-3.5 py-1.5 rounded-xl bg-workwear hover:bg-workwear/80 text-linen border border-workwear/60 text-xs font-semibold shadow-lg shadow-workwear/25 flex items-center gap-2 transition"
           >
-            <PlayCircle className="w-4 h-4" />
+            <PlayCircle className="w-4 h-4 text-ochre" />
             <span>Examiner Presentation Mode</span>
           </button>
 
           {/* Export CSV Button */}
           <button
             onClick={handleExportCSV}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-xl bg-sumi hover:bg-sumi/80 border border-putty/30 text-putty text-xs font-semibold flex items-center gap-1.5 transition hover:text-linen hover:border-terracotta"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-celadon" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -265,25 +290,25 @@ export default function App() {
 
       {/* Collapsible Render Backend API Configuration Bar */}
       {showApiConfig && (
-        <div className="bg-slate-900/95 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-300">
-            <Server className="w-4 h-4 text-cyan-400" />
+        <div className="bg-sumi/95 border-b border-putty/20 px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-putty">
+            <Server className="w-4 h-4 text-ochre" />
             <span className="font-semibold">Render FastAPI Endpoint:</span>
             <input
               type="text"
               value={renderApiUrl}
               onChange={(e) => setRenderApiUrl(e.target.value)}
               placeholder="https://textile-bioreactor-digital-twin-api.onrender.com"
-              className="w-80 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 text-cyan-300 font-mono text-xs"
+              className="w-80 px-2.5 py-1 rounded-lg bg-sumi border border-putty/30 text-linen font-mono text-xs focus:border-terracotta focus:outline-none"
             />
             <button
               onClick={syncWithRenderBackend}
-              className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition"
+              className="px-3 py-1 rounded-lg bg-terracotta hover:bg-terracotta/90 text-linen font-semibold transition shadow-sm"
             >
               Test & Sync
             </button>
           </div>
-          <div className="text-slate-400">
+          <div className="text-putty/70">
             {backendStatus === 'connected'
               ? 'Live SciPy Radau ODE responses active from Render FastAPI backend.'
               : 'Using built-in 60 FPS RK4 multi-physics client solver with automatic failover.'}
@@ -294,109 +319,115 @@ export default function App() {
       {/* =========================================================================
           INDUSTRIAL USE-CASE & FAILURE SCENARIO PRESETS BAR
       ========================================================================= */}
-      <div className="bg-slate-900/40 border-b border-slate-800/80 px-6 py-2 flex items-center gap-2 overflow-x-auto text-xs">
-        <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+      <div className="bg-sumi/80 border-b border-putty/15 px-6 py-2 flex items-center gap-2 overflow-x-auto text-xs">
+        <span className="text-putty/80 font-semibold shrink-0 flex items-center gap-1">
+          <Sparkles className="w-3.5 h-3.5 text-ochre" />
           Use Cases:
         </span>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 25, aerationMode: 'uniform', tab: '3d' })}
-          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-sumi hover:bg-workwear/40 border border-putty/30 text-putty hover:text-linen font-medium shrink-0 transition"
         >
           1. Course Baseline (S<sub>0</sub>=750, 90% Removal)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 25, aerationMode: 'tapered', tab: '3d' })}
-          className="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-600/40 text-emerald-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-pine/70 hover:bg-pine border border-pine text-linen font-medium shrink-0 transition"
         >
           2. PFR Tapered Aeration (Eliminate DO Sag)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 0.35, T: 25, tab: '3d' })}
-          className="px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/60 border border-rose-600/40 text-rose-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-oxblood/80 hover:bg-oxblood border border-oxblood text-linen font-medium shrink-0 transition"
         >
           3. Critical Biomass Washout (θ<sub>c</sub> = 0.35d)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 180, Se: 20, theta_c: 10, T: 25, tab: 'levenspiel' })}
-          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-workwear/70 hover:bg-workwear border border-workwear text-linen font-medium shrink-0 transition"
         >
           4. Dilute Municipal Blend (1<sup>st</sup>-Order Shift)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 36, tab: '3d' })}
-          className="px-2.5 py-1 rounded-lg bg-amber-950/60 hover:bg-amber-900/60 border border-amber-600/40 text-amber-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-ochre/75 hover:bg-ochre border border-ochre text-sumi font-semibold shrink-0 transition"
         >
           5. Summer Monsoon Heatwave (36°C DO Drop)
         </button>
         <button
           onClick={() => applyPreset({ Q: 1000, S0: 750, Se: 75, theta_c: 10, T: 25, tab: 'cre_lab' })}
-          className="px-2.5 py-1 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-500/40 text-indigo-200 font-medium shrink-0 transition"
+          className="px-2.5 py-1 rounded-lg bg-fig/75 hover:bg-fig border border-fig text-linen font-medium shrink-0 transition"
         >
           6. RTD & N-CSTR Cascade Lab
         </button>
       </div>
 
       {/* =========================================================================
-          KEY COMPARISON KPI CARDS
+          KEY COMPARISON KPI CARDS (THEMED WITH THE 10 NON-AI COLORS)
       ========================================================================= */}
       <section className="px-6 py-3.5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-blue-500/30">
-          <div className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">CSTR Volume & Basin</div>
-          <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {cstrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m<sup>3</sup></span>
+        {/* CSTR Volume: Terracotta (#C2593F) */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-terracotta/40 shadow-sm">
+          <div className="text-[10px] text-terracotta font-bold uppercase tracking-wider">CSTR Volume & Basin</div>
+          <div className="mt-0.5 text-lg font-extrabold text-linen font-mono">
+            {cstrResult.V.toFixed(1)} <span className="text-xs font-normal text-putty/70">m<sup>3</sup></span>
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             Ø{cstrResult.geometry.diameter.toFixed(1)}m × {cstrResult.geometry.height.toFixed(1)}m ({cstrResult.tau_hours.toFixed(1)}h)
           </div>
         </div>
 
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/30">
-          <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">PFR Volume & Basin</div>
-          <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {pfrResult.V.toFixed(1)} <span className="text-xs font-normal text-slate-400">m<sup>3</sup></span>
+        {/* PFR Volume: Pine Needle (#2B4436) */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-pine/50 shadow-sm">
+          <div className="text-[10px] text-celadon font-bold uppercase tracking-wider">PFR Volume & Basin</div>
+          <div className="mt-0.5 text-lg font-extrabold text-linen font-mono">
+            {pfrResult.V.toFixed(1)} <span className="text-xs font-normal text-putty/70">m<sup>3</sup></span>
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             L={pfrResult.geometry.totalChannelLength.toFixed(0)}m 4-Pass ({pfrResult.tau_hours.toFixed(1)}h)
           </div>
         </div>
 
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-purple-500/30">
-          <div className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Levenspiel Ratio</div>
-          <div className="mt-0.5 text-lg font-extrabold text-purple-300 font-mono">
+        {/* Levenspiel Ratio: Raw Ochre (#C68A3C) */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-ochre/40 shadow-sm">
+          <div className="text-[10px] text-ochre font-bold uppercase tracking-wider">Levenspiel Ratio</div>
+          <div className="mt-0.5 text-lg font-extrabold text-ochre font-mono">
             {volumeRatio.toFixed(2)}×
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             V<sub>CSTR</sub> / V<sub>PFR</sub> (Monod Zero-Order)
           </div>
         </div>
 
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-amber-500/30">
-          <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">PFR Inlet Min DO</div>
-          <div className={`mt-0.5 text-lg font-extrabold font-mono ${pfrResult.min_DO < 0.7 ? 'text-rose-400' : 'text-emerald-300'}`}>
-            {pfrResult.min_DO.toFixed(2)} <span className="text-xs font-normal text-slate-400">mg/L</span>
+        {/* PFR Inlet Min DO: French Workwear Blue (#2C526A) & Tuscan Oxblood Alert */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-workwear/40 shadow-sm">
+          <div className="text-[10px] text-celadon font-bold uppercase tracking-wider">PFR Inlet Min DO</div>
+          <div className={`mt-0.5 text-lg font-extrabold font-mono ${pfrResult.min_DO < 0.7 ? 'text-oxblood font-bold' : 'text-celadon'}`}>
+            {pfrResult.min_DO.toFixed(2)} <span className="text-xs font-normal text-putty/70">mg/L</span>
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             {pfrResult.min_DO < 0.7 ? '⚠️ Hypoxic DO-Sag Bulking' : '✓ Safe Aerobic Floor'}
           </div>
         </div>
 
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-cyan-500/30">
-          <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Specific Energy & Cost</div>
-          <div className="mt-0.5 text-lg font-extrabold text-white font-mono">
-            {sustCSTR.energy_kwh_per_m3.toFixed(3)} <span className="text-xs font-normal text-slate-400">kWh/m<sup>3</sup></span>
+        {/* Specific Energy & Cost: Washed Celadon (#9EAFA2) */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-workwear/40 shadow-sm">
+          <div className="text-[10px] text-celadon font-bold uppercase tracking-wider">Specific Energy & Cost</div>
+          <div className="mt-0.5 text-lg font-extrabold text-linen font-mono">
+            {sustCSTR.energy_kwh_per_m3.toFixed(3)} <span className="text-xs font-normal text-putty/70">kWh/m<sup>3</sup></span>
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             OPEX: ${sustCSTR.cost_usd_per_m3.toFixed(4)}/m<sup>3</sup>
           </div>
         </div>
 
-        <div className="p-3 rounded-2xl bg-slate-900/80 border border-rose-500/30">
-          <div className="text-[10px] text-rose-400 font-bold uppercase tracking-wider">DoE Schedule-10 Status</div>
-          <div className={`mt-0.5 text-sm font-extrabold font-mono ${cstrResult.Se <= 75.5 && !cstrResult.isWashout ? 'text-emerald-400' : 'text-red-400'}`}>
+        {/* DoE Schedule-10 Status: Pine Needle Compliant vs Tuscan Oxblood Violation */}
+        <div className="p-3 rounded-2xl bg-sumi/90 border border-putty/20 shadow-sm">
+          <div className="text-[10px] text-putty font-bold uppercase tracking-wider">DoE Schedule-10 Status</div>
+          <div className={`mt-0.5 text-sm font-extrabold font-mono ${cstrResult.Se <= 75.5 && !cstrResult.isWashout ? 'text-celadon' : 'text-oxblood animate-pulse'}`}>
             {cstrResult.Se <= 75.5 && !cstrResult.isWashout ? '🟢 COMPLIANT' : '🔴 VIOLATION'}
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-putty/70">
             Exit S<sub>e</sub> = {cstrResult.Se.toFixed(1)} mg/L ({removalPct.toFixed(1)}%)
           </div>
         </div>
@@ -407,10 +438,10 @@ export default function App() {
       ========================================================================= */}
       <main className="flex-1 px-6 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* LEFT COLUMN: REACTOR CONTROL STATION */}
-        <div className="lg:col-span-3 bg-slate-900/85 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-2.5 border-b border-slate-800">
-            <h2 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="lg:col-span-3 bg-sumi/90 border border-putty/20 rounded-2xl p-4 shadow-xl space-y-4">
+          <div className="flex items-center justify-between pb-2.5 border-b border-putty/20">
+            <h2 className="text-xs font-bold text-linen uppercase tracking-wider flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-terracotta" />
               Process & SCADA Controls
             </h2>
             <button
@@ -427,58 +458,58 @@ export default function App() {
                 setMuMax(3.2);
                 setKs(65.0);
               }}
-              className="text-slate-400 hover:text-white text-[11px] flex items-center gap-1 transition"
+              className="text-putty/70 hover:text-linen text-[11px] flex items-center gap-1 transition"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3 h-3 text-ochre" />
               Reset
             </button>
           </div>
 
-          {/* Slider 1: Flow Rate Q */}
+          {/* Slider 1: Flow Rate Q (French Workwear Blue) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">
+              <span className="text-putty">
                 Flow Rate (Q<sub>0</sub>):
               </span>
-              <span className="font-mono font-bold text-cyan-300">{Q} m<sup>3</sup>/d</span>
+              <span className="font-mono font-bold text-workwear">{Q} m<sup>3</sup>/d</span>
             </div>
-            <input type="range" min="200" max="4000" step="50" value={Q} onChange={(e) => setQ(Number(e.target.value))} className="w-full accent-cyan-400 cursor-pointer" />
+            <input type="range" min="200" max="4000" step="50" value={Q} onChange={(e) => setQ(Number(e.target.value))} className="w-full accent-workwear cursor-pointer" />
           </div>
 
-          {/* Slider 2: Influent bCOD S0 */}
+          {/* Slider 2: Influent bCOD S0 (Terracotta) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">
+              <span className="text-putty">
                 Influent bCOD (S<sub>0</sub>):
               </span>
-              <span className="font-mono font-bold text-purple-300">{S0} mg/L</span>
+              <span className="font-mono font-bold text-terracotta">{S0} mg/L</span>
             </div>
-            <input type="range" min="150" max="2000" step="25" value={S0} onChange={(e) => setS0(Number(e.target.value))} className="w-full accent-purple-400 cursor-pointer" />
+            <input type="range" min="150" max="2000" step="25" value={S0} onChange={(e) => setS0(Number(e.target.value))} className="w-full accent-terracotta cursor-pointer" />
           </div>
 
-          {/* Slider 3: Target Effluent Se */}
+          {/* Slider 3: Target Effluent Se (Pine Needle / Washed Celadon) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">
+              <span className="text-putty">
                 Target Effluent (S<sub>e</sub>):
               </span>
-              <span className="font-mono font-bold text-emerald-300">{targetSe} mg/L</span>
+              <span className="font-mono font-bold text-celadon">{targetSe} mg/L</span>
             </div>
-            <input type="range" min="20" max="200" step="5" value={targetSe} onChange={(e) => setTargetSe(Number(e.target.value))} className="w-full accent-emerald-400 cursor-pointer" />
+            <input type="range" min="20" max="200" step="5" value={targetSe} onChange={(e) => setTargetSe(Number(e.target.value))} className="w-full accent-pine cursor-pointer" />
           </div>
 
-          {/* Slider 4: Sludge Retention Time theta_c (down to 0.3d for Washout!) */}
+          {/* Slider 4: Sludge Retention Time theta_c (Raw Ochre / Tuscan Oxblood for Washout) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">
+              <span className="text-putty">
                 Sludge Age (θ<sub>c</sub>):
               </span>
-              <span className={`font-mono font-bold ${cstrResult.isWashout ? 'text-red-400 animate-pulse' : 'text-amber-300'}`}>
+              <span className={`font-mono font-bold ${cstrResult.isWashout ? 'text-oxblood animate-pulse' : 'text-ochre'}`}>
                 {thetaC} d {cstrResult.isWashout ? '(WASHOUT!)' : ''}
               </span>
             </div>
-            <input type="range" min="0.3" max="25" step="0.1" value={thetaC} onChange={(e) => setThetaC(Number(e.target.value))} className="w-full accent-amber-400 cursor-pointer" />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <input type="range" min="0.3" max="25" step="0.1" value={thetaC} onChange={(e) => setThetaC(Number(e.target.value))} className="w-full accent-ochre cursor-pointer" />
+            <div className="flex justify-between text-[10px] text-putty/60">
               <span>
                 θ<sub>c,min</sub> = {cstrResult.theta_c_min.toFixed(2)}d
               </span>
@@ -486,32 +517,32 @@ export default function App() {
             </div>
           </div>
 
-          {/* Slider 5: Mass Transfer kLa */}
+          {/* Slider 5: Mass Transfer kLa (French Workwear Blue) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">
+              <span className="text-putty">
                 Blower Aeration (k<sub>L</sub>a):
               </span>
-              <span className="font-mono font-bold text-blue-300">
+              <span className="font-mono font-bold text-workwear">
                 {kLa} d<sup>−1</sup>
               </span>
             </div>
-            <input type="range" min="40" max="240" step="10" value={kLa} onChange={(e) => setKLa(Number(e.target.value))} className="w-full accent-blue-400 cursor-pointer" />
+            <input type="range" min="40" max="240" step="10" value={kLa} onChange={(e) => setKLa(Number(e.target.value))} className="w-full accent-workwear cursor-pointer" />
           </div>
 
-          {/* Slider 6: Arrhenius Temperature T (#17) */}
-          <div className="space-y-1 pt-2 border-t border-slate-800/80">
+          {/* Slider 6: Arrhenius Temperature T (Terracotta / Raw Ochre) */}
+          <div className="space-y-1 pt-2 border-t border-putty/20">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300 flex items-center gap-1">
-                <Thermometer className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-putty flex items-center gap-1">
+                <Thermometer className="w-3.5 h-3.5 text-terracotta" />
                 Temperature (T):
               </span>
-              <span className="font-mono font-bold text-orange-300">
+              <span className="font-mono font-bold text-terracotta">
                 {temperature}°C (DO<sub>sat</sub>={currentKinetics.DO_sat.toFixed(1)})
               </span>
             </div>
-            <input type="range" min="15" max="38" step="1" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="w-full accent-orange-400 cursor-pointer" />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <input type="range" min="15" max="38" step="1" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="w-full accent-terracotta cursor-pointer" />
+            <div className="flex justify-between text-[10px] text-putty/60">
               <span>15°C (Winter)</span>
               <span>
                 μ<sub>max</sub>(T)={currentKinetics.mu_max.toFixed(2)} d<sup>−1</sup>
@@ -520,48 +551,48 @@ export default function App() {
             </div>
           </div>
 
-          {/* Slider 7: Clarifier RAS Recycle Ratio R (#1, #6) */}
+          {/* Slider 7: Clarifier RAS Recycle Ratio R (Raw Ochre) */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-300">RAS Recycle Ratio (R):</span>
-              <span className="font-mono font-bold text-amber-300">
+              <span className="text-putty">RAS Recycle Ratio (R):</span>
+              <span className="font-mono font-bold text-ochre">
                 {(recycleRatio * 100).toFixed(0)}% ({(Q * recycleRatio).toFixed(0)} m<sup>3</sup>/d)
               </span>
             </div>
-            <input type="range" min="0.2" max="1.5" step="0.05" value={recycleRatio} onChange={(e) => setRecycleRatio(Number(e.target.value))} className="w-full accent-amber-500 cursor-pointer" />
+            <input type="range" min="0.2" max="1.5" step="0.05" value={recycleRatio} onChange={(e) => setRecycleRatio(Number(e.target.value))} className="w-full accent-ochre cursor-pointer" />
           </div>
 
           {/* Advanced Monod Kinetics Accordion */}
-          <div className="pt-2 border-t border-slate-800">
+          <div className="pt-2 border-t border-putty/20">
             <button
               onClick={() => setShowAdvancedKinetics(!showAdvancedKinetics)}
-              className="w-full flex items-center justify-between text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+              className="w-full flex items-center justify-between text-xs font-semibold text-putty/70 hover:text-linen transition"
             >
               <span>Base Monod Constants (20°C)</span>
-              <span>{showAdvancedKinetics ? '▲' : '▼'}</span>
+              <span className="text-ochre">{showAdvancedKinetics ? '▲' : '▼'}</span>
             </button>
 
             {showAdvancedKinetics && (
-              <div className="mt-2.5 space-y-2.5 p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs">
+              <div className="mt-2.5 space-y-2.5 p-2.5 rounded-xl bg-sumi border border-putty/20 text-xs">
                 <div>
-                  <div className="flex justify-between text-slate-400">
+                  <div className="flex justify-between text-putty/80">
                     <span>
                       Base μ<sub>max</sub>(20°C):
                     </span>
-                    <span className="font-mono text-slate-200">
+                    <span className="font-mono text-linen font-bold">
                       {muMax} d<sup>−1</sup>
                     </span>
                   </div>
-                  <input type="range" min="1.2" max="5.5" step="0.1" value={muMax} onChange={(e) => setMuMax(Number(e.target.value))} className="w-full accent-cyan-400 mt-1" />
+                  <input type="range" min="1.2" max="5.5" step="0.1" value={muMax} onChange={(e) => setMuMax(Number(e.target.value))} className="w-full accent-workwear mt-1" />
                 </div>
                 <div>
-                  <div className="flex justify-between text-slate-400">
+                  <div className="flex justify-between text-putty/80">
                     <span>
                       Half-Velocity K<sub>S</sub>:
                     </span>
-                    <span className="font-mono text-slate-200">{Ks} mg/L</span>
+                    <span className="font-mono text-linen font-bold">{Ks} mg/L</span>
                   </div>
-                  <input type="range" min="20" max="200" step="5" value={Ks} onChange={(e) => setKs(Number(e.target.value))} className="w-full accent-purple-400 mt-1" />
+                  <input type="range" min="20" max="200" step="5" value={Ks} onChange={(e) => setKs(Number(e.target.value))} className="w-full accent-terracotta mt-1" />
                 </div>
               </div>
             )}
@@ -570,12 +601,12 @@ export default function App() {
 
         {/* RIGHT COLUMN: MULTI-TAB 3D & SCIENTIFIC WORKSPACE (9 COLS) */}
         <div className="lg:col-span-9 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
-            <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-putty/20 pb-2">
+            <div className="flex flex-wrap items-center gap-1 p-1 rounded-xl bg-sumi/90 border border-putty/20 text-xs font-medium">
               <button
                 onClick={() => setActiveTab('3d')}
                 className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === '3d' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === '3d' ? 'bg-terracotta text-linen font-bold shadow-md shadow-terracotta/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
                 🏭 3D Process Twin (25 Features)
@@ -583,16 +614,16 @@ export default function App() {
               <button
                 onClick={() => setActiveTab('cre_lab')}
                 className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                  activeTab === 'cre_lab' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === 'cre_lab' ? 'bg-fig text-linen font-bold shadow-md shadow-fig/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
-                <FlaskConical className="w-3.5 h-3.5" />
+                <FlaskConical className="w-3.5 h-3.5 text-ochre" />
                 <span>RTD, N-CSTR & Shock Lab</span>
               </button>
               <button
                 onClick={() => setActiveTab('levenspiel')}
                 className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === 'levenspiel' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === 'levenspiel' ? 'bg-ochre text-sumi font-bold shadow-md shadow-ochre/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
                 📐 Levenspiel Sizing
@@ -600,7 +631,7 @@ export default function App() {
               <button
                 onClick={() => setActiveTab('profiles')}
                 className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === 'profiles' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === 'profiles' ? 'bg-workwear text-linen font-bold shadow-md shadow-workwear/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
                 📈 1D PFR Spatial Profiles
@@ -608,7 +639,7 @@ export default function App() {
               <button
                 onClick={() => setActiveTab('transient')}
                 className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === 'transient' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === 'transient' ? 'bg-pine text-linen font-bold shadow-md shadow-pine/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
                 ⏱️ 25-Day Startup
@@ -616,7 +647,7 @@ export default function App() {
               <button
                 onClick={() => setActiveTab('sustainability')}
                 className={`px-3 py-1.5 rounded-lg transition ${
-                  activeTab === 'sustainability' ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'
+                  activeTab === 'sustainability' ? 'bg-celadon text-sumi font-bold shadow-md shadow-celadon/25' : 'text-putty/70 hover:text-linen'
                 }`}
               >
                 ⚡ Sustainability & LCA
@@ -624,10 +655,10 @@ export default function App() {
               <button
                 onClick={() => setActiveTab('paper')}
                 className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                  activeTab === 'paper' ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/20' : 'text-emerald-300 hover:text-white'
+                  activeTab === 'paper' ? 'bg-oxblood text-linen font-bold shadow-md shadow-oxblood/25' : 'text-celadon hover:text-linen'
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5" />
+                <BookOpen className="w-3.5 h-3.5 text-linen" />
                 <span>📄 Full Research Paper</span>
               </button>
             </div>
@@ -637,7 +668,7 @@ export default function App() {
                 <button
                   onClick={() => setViewMode3D('both')}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
-                    viewMode3D === 'both' ? 'bg-cyan-500/20 border border-cyan-400 text-cyan-300' : 'bg-slate-800 text-slate-400'
+                    viewMode3D === 'both' ? 'bg-workwear/40 border border-workwear text-linen' : 'bg-sumi text-putty/70 hover:text-linen'
                   }`}
                 >
                   Both Trains
@@ -645,7 +676,7 @@ export default function App() {
                 <button
                   onClick={() => setViewMode3D('cstr')}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
-                    viewMode3D === 'cstr' ? 'bg-blue-500/20 border border-blue-400 text-blue-300' : 'bg-slate-800 text-slate-400'
+                    viewMode3D === 'cstr' ? 'bg-terracotta/40 border border-terracotta text-linen' : 'bg-sumi text-putty/70 hover:text-linen'
                   }`}
                 >
                   Zoom CSTR
@@ -653,7 +684,7 @@ export default function App() {
                 <button
                   onClick={() => setViewMode3D('pfr')}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
-                    viewMode3D === 'pfr' ? 'bg-emerald-500/20 border border-emerald-400 text-emerald-300' : 'bg-slate-800 text-slate-400'
+                    viewMode3D === 'pfr' ? 'bg-pine/50 border border-pine text-linen' : 'bg-sumi text-putty/70 hover:text-linen'
                   }`}
                 >
                   Zoom PFR
@@ -721,13 +752,13 @@ export default function App() {
           )}
 
           {activeTab === 'sustainability' && (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md space-y-5">
+            <div className="bg-sumi/90 border border-putty/20 rounded-2xl p-6 shadow-xl backdrop-blur-md space-y-5">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-400" />
+                <h3 className="text-base font-bold text-linen flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-ochre" />
                   Techno-Economic, Civil Engineering & Life Cycle Assessment (LCA)
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-putty/70 mt-0.5">
                   Comparison based on Bangladesh industrial tariff ($0.095/kWh), national grid emissions (0.615 kg CO<sub>2</sub>e/kWh), and reinforced concrete basin sizing
                 </p>
               </div>
@@ -735,61 +766,61 @@ export default function App() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-400">
+                    <tr className="border-b border-putty/20 text-putty/70">
                       <th className="py-2.5 px-3">Engineering Metric</th>
-                      <th className="py-2.5 px-3 text-blue-400">CSTR Process Train</th>
-                      <th className="py-2.5 px-3 text-emerald-400">PFR 4-Pass Train</th>
+                      <th className="py-2.5 px-3 text-terracotta font-bold">CSTR Process Train</th>
+                      <th className="py-2.5 px-3 text-pine font-bold">PFR 4-Pass Train</th>
                       <th className="py-2.5 px-3">Engineering Verdict</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-putty/15 font-mono">
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans">Active Reactor Volume (V)</td>
-                      <td className="py-2.5 px-3 text-white font-bold">{cstrResult.V.toFixed(1)} m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-white font-bold">{pfrResult.V.toFixed(1)} m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-slate-400">Ratio: {volumeRatio.toFixed(2)}×</td>
+                      <td className="py-2.5 px-3 text-putty font-sans">Active Reactor Volume (V)</td>
+                      <td className="py-2.5 px-3 text-linen font-bold">{cstrResult.V.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-linen font-bold">{pfrResult.V.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-putty/70">Ratio: {volumeRatio.toFixed(2)}×</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans">Reinforced Concrete Volume</td>
-                      <td className="py-2.5 px-3">{cstrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
-                      <td className="py-2.5 px-3">{pfrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-sans">CSTR saves baffle concrete</td>
+                      <td className="py-2.5 px-3 text-putty font-sans">Reinforced Concrete Volume</td>
+                      <td className="py-2.5 px-3 text-linen">{cstrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-linen">{pfrResult.geometry.concreteM3.toFixed(1)} m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-celadon font-sans">CSTR saves baffle concrete</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans">Civil & Mechanical CAPEX</td>
-                      <td className="py-2.5 px-3 text-emerald-300 font-bold">${cstrResult.geometry.capexUSD.toFixed(0)}</td>
-                      <td className="py-2.5 px-3 text-amber-300 font-bold">${pfrResult.geometry.capexUSD.toFixed(0)}</td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-sans">CSTR lower capital cost</td>
+                      <td className="py-2.5 px-3 text-putty font-sans">Civil & Mechanical CAPEX</td>
+                      <td className="py-2.5 px-3 text-celadon font-bold">${cstrResult.geometry.capexUSD.toFixed(0)}</td>
+                      <td className="py-2.5 px-3 text-ochre font-bold">${pfrResult.geometry.capexUSD.toFixed(0)}</td>
+                      <td className="py-2.5 px-3 text-celadon font-sans">CSTR lower capital cost</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans">Sludge Volume Index (SVI)</td>
-                      <td className="py-2.5 px-3">{cstrResult.recycle.svi} mL/g</td>
-                      <td className="py-2.5 px-3 text-rose-300">{pfrResult.svi} mL/g</td>
-                      <td className="py-2.5 px-3 text-slate-400 font-sans">{pfrResult.svi > 150 ? 'PFR DO-sag bulking risk' : 'Good settling'}</td>
+                      <td className="py-2.5 px-3 text-putty font-sans">Sludge Volume Index (SVI)</td>
+                      <td className="py-2.5 px-3 text-linen">{cstrResult.recycle.svi} mL/g</td>
+                      <td className="py-2.5 px-3 text-oxblood">{pfrResult.svi} mL/g</td>
+                      <td className="py-2.5 px-3 text-putty/70 font-sans">{pfrResult.svi > 150 ? 'PFR DO-sag bulking risk' : 'Good settling'}</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans">Daily Aeration Energy</td>
-                      <td className="py-2.5 px-3">{sustCSTR.aeration_kwh_day.toFixed(1)} kWh/d</td>
-                      <td className="py-2.5 px-3">{sustPFR.aeration_kwh_day.toFixed(1)} kWh/d</td>
-                      <td className="py-2.5 px-3 text-slate-400">SAE = 1.8 kg O<sub>2</sub>/kWh</td>
+                      <td className="py-2.5 px-3 text-putty font-sans">Daily Aeration Energy</td>
+                      <td className="py-2.5 px-3 text-linen">{sustCSTR.aeration_kwh_day.toFixed(1)} kWh/d</td>
+                      <td className="py-2.5 px-3 text-linen">{sustPFR.aeration_kwh_day.toFixed(1)} kWh/d</td>
+                      <td className="py-2.5 px-3 text-putty/70">SAE = 1.8 kg O<sub>2</sub>/kWh</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Total Specific Energy</td>
-                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustCSTR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-amber-300 font-bold">{sustPFR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-semibold">Parity (1.00×)</td>
+                      <td className="py-2.5 px-3 text-putty font-sans font-bold">Total Specific Energy</td>
+                      <td className="py-2.5 px-3 text-ochre font-bold">{sustCSTR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-ochre font-bold">{sustPFR.energy_kwh_per_m3.toFixed(4)} kWh/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-celadon font-semibold">Parity (1.00×)</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Operating Cost (OPEX)</td>
-                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustCSTR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-cyan-300 font-bold">${sustPFR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-slate-400">${(sustCSTR.cost_usd_per_m3 * Q).toFixed(2)}/day</td>
+                      <td className="py-2.5 px-3 text-putty font-sans font-bold">Operating Cost (OPEX)</td>
+                      <td className="py-2.5 px-3 text-workwear font-bold">${sustCSTR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-workwear font-bold">${sustPFR.cost_usd_per_m3.toFixed(4)} /m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-putty/70">${(sustCSTR.cost_usd_per_m3 * Q).toFixed(2)}/day</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3 text-slate-300 font-sans font-bold">Operational Carbon Footprint</td>
-                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustCSTR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-rose-300 font-bold">{sustPFR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
-                      <td className="py-2.5 px-3 text-slate-400">{(sustCSTR.ghg_kg_co2e_per_m3 * Q).toFixed(1)} kg CO<sub>2</sub>e/d</td>
+                      <td className="py-2.5 px-3 text-putty font-sans font-bold">Operational Carbon Footprint</td>
+                      <td className="py-2.5 px-3 text-oxblood font-bold">{sustCSTR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-oxblood font-bold">{sustPFR.ghg_kg_co2e_per_m3.toFixed(4)} kg CO<sub>2</sub>e/m<sup>3</sup></td>
+                      <td className="py-2.5 px-3 text-putty/70">{(sustCSTR.ghg_kg_co2e_per_m3 * Q).toFixed(1)} kg CO<sub>2</sub>e/d</td>
                     </tr>
                   </tbody>
                 </table>

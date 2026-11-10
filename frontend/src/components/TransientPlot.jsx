@@ -34,25 +34,25 @@ export default function TransientPlot({
     : n - 1;
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md">
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-800/80 gap-3">
+    <div className="bg-sumi/90 border border-putty/20 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+      <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-putty/20 gap-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+          <h3 className="text-lg font-bold text-linen flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-pine"></span>
             Dynamic CSTR Startup Trajectories (Inoculation to Steady State)
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-putty/80 mt-0.5">
             Operational timeline: 0 to 25 Days (Initial seed biomass <i>X</i><sub>b,0</sub> = 200 mg VSS/L)
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-purple-400" />
-            <span className="text-purple-300">Substrate bCOD (Left Axis)</span>
+            <span className="w-3 h-0.5 bg-terracotta" />
+            <span className="text-terracotta">Substrate bCOD (Left Axis)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-emerald-400" />
-            <span className="text-emerald-300">
+            <span className="w-3 h-0.5 bg-pine" />
+            <span className="text-celadon">
               Biomass X<sub>b</sub> (Right Axis)
             </span>
           </div>
@@ -80,13 +80,13 @@ export default function TransientPlot({
                 y1={margin.top}
                 x2={scaleX(tick)}
                 y2={margin.top + plotHeight}
-                stroke="#1e293b"
+                stroke="#2B2D26"
                 strokeDasharray="4 4"
               />
               <text
                 x={scaleX(tick)}
                 y={margin.top + plotHeight + 20}
-                fill="#64748b"
+                fill="#9EAFA2"
                 fontSize="11"
                 textAnchor="middle"
               >
@@ -95,17 +95,19 @@ export default function TransientPlot({
             </g>
           ))}
 
+          {/* Substrate Trajectory: Terracotta (#C2593F) */}
           <path
             d={pathS}
             fill="none"
-            stroke="#a855f7"
+            stroke="#C2593F"
             strokeWidth="3"
           />
 
+          {/* Biomass Growth: Pine Needle (#2B4436) */}
           <path
             d={pathXb}
             fill="none"
-            stroke="#10b981"
+            stroke="#2B4436"
             strokeWidth="3"
           />
 
@@ -116,7 +118,7 @@ export default function TransientPlot({
                 y1={margin.top}
                 x2={scaleX(time[activeIdx])}
                 y2={margin.top + plotHeight}
-                stroke="#94a3b8"
+                stroke="#DDD5C7"
                 strokeWidth="1.5"
                 strokeDasharray="3 3"
               />
@@ -124,13 +126,13 @@ export default function TransientPlot({
                 cx={scaleX(time[activeIdx])}
                 cy={scaleYS(S[activeIdx])}
                 r="4.5"
-                fill="#a855f7"
+                fill="#C2593F"
               />
               <circle
                 cx={scaleX(time[activeIdx])}
                 cy={scaleYXb(Xb[activeIdx])}
                 r="4.5"
-                fill="#10b981"
+                fill="#2B4436"
               />
             </g>
           )}
@@ -140,14 +142,14 @@ export default function TransientPlot({
             y1={margin.top}
             x2={margin.left}
             y2={margin.top + plotHeight}
-            stroke="#a855f7"
+            stroke="#C2593F"
             strokeWidth="2"
           />
           <text
             transform={`rotate(-90 ${margin.left - 45} ${margin.top + plotHeight / 2})`}
             x={margin.left - 45}
             y={margin.top + plotHeight / 2}
-            fill="#c084fc"
+            fill="#DDD5C7"
             fontSize="12"
             fontWeight="bold"
             textAnchor="middle"
@@ -160,14 +162,14 @@ export default function TransientPlot({
             y1={margin.top}
             x2={margin.left + plotWidth}
             y2={margin.top + plotHeight}
-            stroke="#10b981"
+            stroke="#2B4436"
             strokeWidth="2"
           />
           <text
             transform={`rotate(90 ${margin.left + plotWidth + 48} ${margin.top + plotHeight / 2})`}
             x={margin.left + plotWidth + 48}
             y={margin.top + plotHeight / 2}
-            fill="#34d399"
+            fill="#9EAFA2"
             fontSize="12"
             fontWeight="bold"
             textAnchor="middle"
@@ -178,19 +180,19 @@ export default function TransientPlot({
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-        <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col">
-          <span className="text-slate-500">Timeline:</span>
-          <span className="font-mono font-bold text-slate-200">Day {time[activeIdx].toFixed(1)}</span>
+        <div className="p-2.5 rounded-xl bg-sumi border border-putty/20 flex flex-col">
+          <span className="text-putty/70 font-semibold">Timeline:</span>
+          <span className="font-mono font-bold text-linen">Day {time[activeIdx].toFixed(1)}</span>
         </div>
-        <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-800/40 flex flex-col">
-          <span className="text-purple-400">Substrate S(t):</span>
-          <span className="font-mono font-bold text-purple-200">{S[activeIdx].toFixed(1)} mg bCOD/L</span>
+        <div className="p-2.5 rounded-xl bg-sumi border border-terracotta/40 flex flex-col">
+          <span className="text-terracotta font-semibold">Substrate S(t):</span>
+          <span className="font-mono font-bold text-linen">{S[activeIdx].toFixed(1)} mg bCOD/L</span>
         </div>
-        <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 flex flex-col">
-          <span className="text-emerald-400">
+        <div className="p-2.5 rounded-xl bg-sumi border border-pine/50 flex flex-col">
+          <span className="text-celadon font-semibold">
             Biomass Inventory X<sub>b</sub>(t):
           </span>
-          <span className="font-mono font-bold text-emerald-200">{Xb[activeIdx].toFixed(0)} mg VSS/L</span>
+          <span className="font-mono font-bold text-linen">{Xb[activeIdx].toFixed(0)} mg VSS/L</span>
         </div>
       </div>
     </div>

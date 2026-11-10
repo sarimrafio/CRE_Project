@@ -2676,8 +2676,8 @@ export default function Bioreactor3D({
               onClick={() => setHeatmapMode(m.id)}
               className={`px-2.5 py-1 rounded-lg font-semibold transition ${
                 heatmapMode === m.id
-                  ? 'bg-cyan-600 text-white shadow-md shadow-cyan-500/20'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-terracotta text-linen font-bold shadow-md shadow-terracotta/25'
+                  : 'bg-sumi text-putty border border-putty/20 hover:text-linen'
               }`}
             >
               {m.label}
@@ -2689,13 +2689,13 @@ export default function Bioreactor3D({
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setTracerState({ active: true, elapsed: 0 })}
-            className="px-2.5 py-1 rounded-lg bg-teal-600/30 hover:bg-teal-600/50 border border-teal-400/50 text-teal-200 font-semibold transition"
+            className="px-2.5 py-1 rounded-lg bg-workwear/50 hover:bg-workwear border border-workwear text-linen font-semibold transition"
           >
             🧪 Inject RTD Pulse Tracer
           </button>
           <button
             onClick={() => setShockState({ active: true, elapsed: 0 })}
-            className="px-2.5 py-1 rounded-lg bg-fuchsia-600/30 hover:bg-fuchsia-600/50 border border-fuchsia-400/50 text-fuchsia-200 font-semibold transition"
+            className="px-2.5 py-1 rounded-lg bg-oxblood/70 hover:bg-oxblood border border-oxblood text-linen font-semibold transition"
           >
             💥 Fire 2200 mg/L Dye Shock
           </button>
@@ -2703,7 +2703,7 @@ export default function Bioreactor3D({
             onClick={onToggleAerationMode}
             className={`px-2.5 py-1 rounded-lg border font-semibold transition ${
               aerationMode === 'tapered'
-                ? 'bg-emerald-600/40 border-emerald-400 text-emerald-200'
+                ? 'bg-pine/80 border border-pine text-linen'
                 : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
             }`}
           >
@@ -2714,7 +2714,7 @@ export default function Bioreactor3D({
             className={`px-2.5 py-1 rounded-lg border font-semibold transition ${
               blowerTrip
                 ? 'bg-red-600 text-white border-red-400 animate-pulse'
-                : 'bg-slate-800 border-slate-700 text-rose-300 hover:bg-slate-700'
+                : 'bg-sumi border border-oxblood/50 text-oxblood hover:bg-oxblood hover:text-linen'
             }`}
           >
             {blowerTrip ? '⚡ Restart Air Blowers' : '⚠️ Simulate Blower Trip'}
@@ -2725,81 +2725,81 @@ export default function Bioreactor3D({
       {/* =====================================================================
           WATER JOURNEY FLOW TRAIN ROADMAP (INLET ➔ BIOREACTORS ➔ OUTLET)
       ===================================================================== */}
-      <div className="p-2.5 rounded-2xl bg-slate-900/95 border border-slate-800 flex items-center justify-between gap-2 overflow-x-auto text-xs shadow-inner">
+      <div className="p-2.5 rounded-2xl bg-sumi/95 border border-putty/20 flex items-center justify-between gap-2 overflow-x-auto text-xs shadow-inner">
         <div className="flex items-center gap-2 shrink-0 font-bold text-slate-300">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-          <span className="tracking-wider uppercase text-[11px] text-cyan-300 font-extrabold">Water Journey:</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-ochre animate-ping" />
+          <span className="tracking-wider uppercase text-[11px] text-ochre font-extrabold">Water Journey:</span>
         </div>
         <div className="flex items-center gap-1.5 min-w-max text-[11px]">
           {/* Step 1: Raw Intake & EQ */}
           <button
             onClick={() => applyCameraPreset('intake')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/80 hover:bg-purple-900/90 border border-purple-500/50 text-purple-200 font-semibold transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-fig/85 hover:bg-fig border border-fig text-linen font-semibold transition"
             title="Click to view Raw Dyehouse Influent Intake & EQ Basin"
           >
-            <span className="w-2 h-2 rounded-full bg-purple-400" />
+            <span className="w-2 h-2 rounded-full bg-terracotta" />
             <span>1. Raw Intake & EQ</span>
-            <span className="font-mono text-[9.5px] text-purple-300">({S0} mg/L bCOD)</span>
+            <span className="font-mono text-[9.5px] text-putty">({S0} mg/L bCOD)</span>
           </button>
           <span className="text-slate-500 font-bold">➔</span>
 
           {/* Step 2: Fine Bar Screen */}
           <button
             onClick={() => applyCameraPreset('screen')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-950/80 hover:bg-indigo-900/90 border border-indigo-500/50 text-indigo-200 font-semibold transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-workwear/80 hover:bg-workwear border border-workwear text-linen font-semibold transition"
             title="Click to view Fine Drum Bar Screen"
           >
-            <span className="w-2 h-2 rounded-full bg-indigo-400" />
+            <span className="w-2 h-2 rounded-full bg-celadon" />
             <span>2. Bar Screen</span>
-            <span className="font-mono text-[9.5px] text-indigo-300">(Lint Removal)</span>
+            <span className="font-mono text-[9.5px] text-celadon">(Lint Removal)</span>
           </button>
           <span className="text-slate-500 font-bold">➔</span>
 
           {/* Step 3: Bioreactors */}
           <button
             onClick={() => applyCameraPreset('bioreactors')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900/90 border border-cyan-500/50 text-cyan-200 font-semibold transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-terracotta/80 hover:bg-terracotta border border-terracotta text-linen font-semibold transition"
             title="Click to view CSTR & PFR Biological Reaction Basins"
           >
-            <span className="w-2 h-2 rounded-full bg-cyan-400" />
+            <span className="w-2 h-2 rounded-full bg-linen" />
             <span>3. Bioreactors</span>
-            <span className="font-mono text-[9.5px] text-cyan-300">(CSTR vs PFR)</span>
+            <span className="font-mono text-[9.5px] text-putty">(CSTR vs PFR)</span>
           </button>
           <span className="text-slate-500 font-bold">➔</span>
 
           {/* Step 4: Clarifiers & RAS */}
           <button
             onClick={() => applyCameraPreset('clarifiers')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/80 hover:bg-amber-900/90 border border-amber-500/50 text-amber-200 font-semibold transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-ochre/80 hover:bg-ochre border border-ochre text-sumi font-semibold font-semibold transition"
             title="Click to view Secondary Clarifiers & Biomass Recycle Loop"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="w-2 h-2 rounded-full bg-sumi" />
             <span>4. Clarifiers & RAS</span>
-            <span className="font-mono text-[9.5px] text-amber-300">(R = {recycleRatio})</span>
+            <span className="font-mono text-[9.5px] text-sumi">(R = {recycleRatio})</span>
           </button>
           <span className="text-slate-500 font-bold">➔</span>
 
           {/* Step 5: Tertiary Filters */}
           <button
             onClick={() => applyCameraPreset('filters')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-950/80 hover:bg-teal-900/90 border border-teal-500/50 text-teal-200 font-semibold transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-celadon/40 hover:bg-celadon/60 border border-celadon text-linen font-semibold transition"
             title="Click to view Tertiary Multi-Media Sand & Carbon Pressure Vessels"
           >
-            <span className="w-2 h-2 rounded-full bg-teal-400" />
+            <span className="w-2 h-2 rounded-full bg-workwear" />
             <span>5. Sand & Carbon</span>
-            <span className="font-mono text-[9.5px] text-teal-300">(Trace Polish)</span>
+            <span className="font-mono text-[9.5px] text-putty">(Trace Polish)</span>
           </button>
           <span className="text-slate-500 font-bold">➔</span>
 
           {/* Step 6: Final Compliant Outfall */}
           <button
             onClick={() => applyCameraPreset('outfall')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-400 text-emerald-200 font-bold shadow-lg shadow-emerald-500/20 transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pine/90 hover:bg-pine border border-pine text-linen font-bold shadow-lg shadow-pine/25 transition"
             title="Click to view Final Treated Discharge Outfall Canal"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-celadon animate-pulse" />
             <span>6. Compliant River Outfall</span>
-            <span className="font-mono text-[9.5px] text-emerald-300">(Sₑ ≤ {targetSe} mg/L)</span>
+            <span className="font-mono text-[9.5px] text-celadon">(Sₑ ≤ {targetSe} mg/L)</span>
           </button>
         </div>
       </div>
@@ -2844,10 +2844,10 @@ export default function Bioreactor3D({
         {showComponentLabels && (() => {
           const catStyle = (c) =>
             c === 'cstr'
-              ? { box: 'border-amber-400/70 text-amber-100', badge: 'bg-amber-500/25 text-amber-200' }
+              ? { box: 'border-terracotta text-linen bg-sumi/90', badge: 'bg-terracotta/30 text-terracotta' }
               : c === 'pfr'
-              ? { box: 'border-purple-400/70 text-purple-100', badge: 'bg-purple-500/25 text-purple-200' }
-              : { box: 'border-cyan-400/70 text-cyan-100', badge: 'bg-cyan-500/25 text-cyan-200' };
+              ? { box: 'border-pine text-linen bg-sumi/90', badge: 'bg-pine/40 text-celadon' }
+              : { box: 'border-workwear text-linen bg-sumi/90', badge: 'bg-workwear/30 text-putty' };
           const width = (mountRef.current && mountRef.current.clientWidth) || 900;
           const cards = [];
           if (hoverInfo && !(pinned && pinned.id === hoverInfo.id)) {
@@ -2925,7 +2925,7 @@ export default function Bioreactor3D({
         {/* Top-Left Heatmap Colorbar & Legend (#13) */}
         <div className="absolute top-3 left-3 p-2.5 rounded-xl bg-slate-950/85 border border-slate-800 backdrop-blur-md text-[11px] space-y-1.5 pointer-events-none">
           <div className="font-bold text-slate-200 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-ochre animate-ping" />
             <span>
               {heatmapMode === 'visual' && 'True Process Color (Dye → Clarified)'}
               {heatmapMode === 'substrate' && `Substrate S(x,y,z) [0 – ${S0} mg/L]`}
@@ -2954,7 +2954,7 @@ export default function Bioreactor3D({
           </div>
           <div className="pt-1 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500" /> Raw Dye Feed</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-400" /> Treated Effluent</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-workwear" /> Treated Effluent</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> RAS Sludge</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-900" /> WAS Purge</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-400" /> Air Line</span>
@@ -2965,7 +2965,7 @@ export default function Bioreactor3D({
         {showFlocMicroscope && (
           <div className="absolute top-3 right-3 w-64 p-3 rounded-xl bg-slate-950/90 border border-cyan-500/40 backdrop-blur-md text-[11px] shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-              <span className="font-bold text-cyan-300">🔬 Micro-Scale Floc (120 µm)</span>
+              <span className="font-bold text-putty">🔬 Micro-Scale Floc (120 µm)</span>
               <span className="font-mono text-[10px] text-slate-400">z/L = {sondeReading.zPct}%</span>
             </div>
             <div className="mt-2 flex items-center gap-3">
@@ -2983,12 +2983,12 @@ export default function Bioreactor3D({
               </div>
               <div className="space-y-0.5 text-[10px]">
                 <div className="text-slate-300">
-                  Thiele Modulus <span className="font-mono font-bold text-cyan-300">Φ = {bioFlocData.thieleO2}</span>
+                  Thiele Modulus <span className="font-mono font-bold text-putty">Φ = {bioFlocData.thieleO2}</span>
                 </div>
                 <div className="text-slate-300">
-                  Effectiveness <span className="font-mono font-bold text-emerald-300">η = {bioFlocData.effectivenessFactor}</span>
+                  Effectiveness <span className="font-mono font-bold text-celadon">η = {bioFlocData.effectivenessFactor}</span>
                 </div>
-                <div className="text-purple-300">
+                <div className="text-putty">
                   Anoxic Core: <span className="font-mono font-bold">{bioFlocData.anoxicCoreFraction}% vol</span>
                 </div>
                 <div className="text-[9px] text-slate-400 leading-tight">
@@ -3094,7 +3094,7 @@ export default function Bioreactor3D({
         {/* Draggable 3D Sonde Probe Bar (7 cols) */}
         <div className="lg:col-span-7 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-amber-300 flex items-center gap-1.5">
+            <span className="font-bold text-sumi flex items-center gap-1.5">
               <span>🛰️ Interactive 3D Multiparameter Sonde Probe (Slide along PFR Channel)</span>
             </span>
             <span className="font-mono font-bold text-white bg-amber-500/20 border border-amber-400/40 px-2 py-0.5 rounded">
@@ -3113,11 +3113,11 @@ export default function Bioreactor3D({
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-1 text-[11px]">
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
               <div className="text-slate-500">Local S(z)</div>
-              <div className="font-mono font-bold text-purple-300">{sondeReading.S} mg/L</div>
+              <div className="font-mono font-bold text-putty">{sondeReading.S} mg/L</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
               <div className="text-slate-500">Local DO(z)</div>
-              <div className={`font-mono font-bold ${Number(sondeReading.DO) < 0.7 ? 'text-red-400' : 'text-cyan-300'}`}>
+              <div className={`font-mono font-bold ${Number(sondeReading.DO) < 0.7 ? 'text-red-400' : 'text-putty'}`}>
                 {sondeReading.DO} mg/L
               </div>
             </div>
@@ -3125,7 +3125,7 @@ export default function Bioreactor3D({
               <div className="text-slate-500">
                 Rate −r<sub>S</sub>(z)
               </div>
-              <div className="font-mono font-bold text-amber-300">{sondeReading.rate} mg/L·d</div>
+              <div className="font-mono font-bold text-sumi">{sondeReading.rate} mg/L·d</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
               <div className="text-slate-500">Local OUR(z)</div>
@@ -3135,7 +3135,7 @@ export default function Bioreactor3D({
               <div className="text-slate-500">
                 S / (K<sub>S</sub> + S)
               </div>
-              <div className="font-mono font-bold text-emerald-300">{sondeReading.monodSat}%</div>
+              <div className="font-mono font-bold text-celadon">{sondeReading.monodSat}%</div>
             </div>
             <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
               <div className="text-slate-500">
@@ -3158,14 +3158,14 @@ export default function Bioreactor3D({
               <div>Dim: Ø{cstrResult?.geometry?.diameter?.toFixed(1)}m × {cstrResult?.geometry?.height?.toFixed(1)}m</div>
               <div>Concrete: {cstrResult?.geometry?.concreteM3?.toFixed(0)} m<sup>3</sup></div>
               <div>Footprint: {cstrResult?.geometry?.footprintM2?.toFixed(0)} m<sup>2</sup></div>
-              <div className="text-emerald-300 font-bold">CAPEX: ${(cstrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
+              <div className="text-celadon font-bold">CAPEX: ${(cstrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
             </div>
             <div className="p-2 rounded-lg bg-emerald-950/30 border border-emerald-800/40">
               <div className="text-emerald-400 font-sans font-bold">PFR 4-Pass Baffled</div>
               <div>Dim: {pfrResult?.geometry?.totalChannelLength?.toFixed(0)}m × 2.2m × 3.5m</div>
               <div>Concrete: {pfrResult?.geometry?.concreteM3?.toFixed(0)} m<sup>3</sup></div>
               <div>Footprint: {pfrResult?.geometry?.footprintM2?.toFixed(0)} m<sup>2</sup></div>
-              <div className="text-amber-300 font-bold">CAPEX: ${(pfrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
+              <div className="text-sumi font-bold">CAPEX: ${(pfrResult?.geometry?.capexUSD / 1000).toFixed(1)}k</div>
             </div>
           </div>
         </div>
